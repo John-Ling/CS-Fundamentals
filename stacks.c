@@ -4,28 +4,28 @@
 // implementation of the stack data type for learning purposes
 #define MAX_SIZE 10
 
-struct stack
+struct stack_t
 {
     int values[MAX_SIZE]; // values within stack -1 represents a null value its represented by a / for some reason
-    int stackPtr; // pointer to top value on stack
+    int stackPointer; // pointer to top value on stack
 };
-typedef struct stack Stack;
+typedef struct stack_t stack;
 
-void intialise_stack(Stack *stack);
-void push(Stack *stack, int val);
-void pop(Stack *stack);
-void peek(Stack *stack);
-void is_empty(Stack *stack);
-void is_full(Stack *stack);
-void display_stack(Stack *stack);
+void initialise_stack(stack *stack);
+void push(stack *stack, int val);
+void pop(stack *stack);
+void peek(stack *stack);
+void is_empty(stack *stack);
+void is_full(stack *stack);
+void display_stack(stack *stack);
 
 int main(void)
 {   
-    Stack stack;
-    stack.stackPtr = -1;
-    intialise_stack(&stack); // for learning purposes run this
+    stack myStack;
+    myStack.stackPointer = -1;
     // example use of a stack
-    Stack* pointer = &stack;
+    stack* pointer = &myStack;
+    initialise_stack(&myStack); // for learning purposes run this
     display_stack(pointer);
     push(pointer, 1);
     push(pointer, 2);
@@ -43,7 +43,7 @@ int main(void)
     return 0;
 }
 
-void intialise_stack(Stack *stack)
+void initialise_stack(stack *stack)
 {
     // this is not really necessary (you can use the stack as is)
     // but for learning purposes I want to visualise the null sections within the array
@@ -52,63 +52,63 @@ void intialise_stack(Stack *stack)
         stack->values[i] = -1;
 }
 
-void push(Stack *stack, int val)
+void push(stack *stack, int val)
 {
     // adds element to the top of stack
-    if (stack->stackPtr == MAX_SIZE - 1)
-        printf("Stack full!\n");
+    if (stack->stackPointer == MAX_SIZE - 1)
+        printf("stack full!\n");
     else
     {
         printf("Pushing value: %i\n", val);
-        stack->stackPtr++;
-        stack->values[stack->stackPtr] = val;
+        stack->stackPointer++;
+        stack->values[stack->stackPointer] = val;
     } 
 }
 
-void pop(Stack *stack)
+void pop(stack *stack)
 {
     // removes element from top of stack
-    if (stack->stackPtr == -1)
-        printf("Stack empty!\n");
+    if (stack->stackPointer == -1)
+        printf("stack empty!\n");
     else
     { 
-        int ptr = stack->stackPtr;
+        int ptr = stack->stackPointer;
         printf("Popping value: %i\n", stack->values[ptr]);
-        stack->stackPtr--; 
+        stack->stackPointer--; 
     }
 }
-void peek(Stack *stack)
+void peek(stack *stack)
 {
     // returns a copy of the element on the top of the stack without removing it
     // returns -1 if stack is empty
-    int ptr = stack->stackPtr;
+    int ptr = stack->stackPointer;
     if (ptr == -1)
-        printf("Stack empty!\n");
+        printf("stack empty!\n");
     else 
         printf("%i is at the top of the stack\n", stack->values[ptr]);
 }
 
-void is_empty(Stack *stack)
+void is_empty(stack *stack)
 {
     // check if stack is empty
-    if (stack->stackPtr == -1)
-        printf("Stack empty!\n");
+    if (stack->stackPointer == -1)
+        printf("stack empty!\n");
     else 
         printf("Not empty!\n"); 
 }
 
-void is_full(Stack *stack)
+void is_full(stack *stack)
 {
-    if (stack->stackPtr == (MAX_SIZE - 1))
-        printf("Stack full!\n");
+    if (stack->stackPointer == (MAX_SIZE - 1))
+        printf("stack full!\n");
     else 
         printf("Not full!\n"); 
 }
 
-void display_stack(Stack *stack)
+void display_stack(stack *stack)
 {
     // display all values in stack including the stack pointer
-    char pointerString[26] = " <-- Stack pointer is here";
+    char pointerString[26] = " <-- stack pointer is here";
     char baseString[9];
     char outputString[30];
     char charInteger;
@@ -119,7 +119,7 @@ void display_stack(Stack *stack)
         charInteger = stack->values[i] + '0';
         strncat(baseString, &charInteger, 1);
         strncat(outputString, baseString, strlen(baseString));
-        if (stack->stackPtr == i) // add stack pointer label
+        if (stack->stackPointer == i) // add stack pointer label
             strncat(outputString, pointerString, strlen(pointerString));
         printf("%s\n", outputString);
         strcpy(outputString, "");

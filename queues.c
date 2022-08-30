@@ -4,127 +4,115 @@
 // implementation of the (circular) queue data type for educational purposes
 #define MAX_SIZE 10
 
-struct queue
+struct queue_t
 {
     unsigned int values[MAX_SIZE];
-    int frontPtr;
-    int backPtr;
+    int frontPointer;
+    int backPointer;
 };
-typedef struct queue Queue;
+typedef struct queue_t queue;
 
-void enqueue(Queue *queue, int val);
-void dequeue(Queue *queue);
-void is_empty(Queue *queue);
-void is_full(Queue *queue);
-int _calculate_pointer(int ptr);
-void intialise_queue(Queue *queue);
-void display_queue(Queue *queue);
+void enqueue(queue *queue, int val);
+void dequeue(queue *queue);
+void is_empty(queue *queue);
+void is_full(queue *queue);
+int _calculate_pointer(int pointer);
+void intialise_queue(queue *queue);
+void display_queue(queue *queue);
 
 int main(void)
 {
-    Queue queue;
-    queue.frontPtr = -1;
-    queue.backPtr = -1;
-    Queue* ptr = &queue;
-    intialise_queue(ptr);
+    queue myQueue;
+    myQueue.frontPointer = -1;
+    myQueue.backPointer = -1;
+    queue* pointer = &myQueue;
+    intialise_queue(pointer);
     
     //example use of a queue
-    enqueue(ptr, 3);
-    enqueue(ptr, 6);
-    enqueue(ptr, 2);
-    enqueue(ptr, 9);
-    dequeue(ptr);
-    dequeue(ptr);
-    enqueue(ptr, 2);
-    enqueue(ptr, 4);
-    enqueue(ptr, 1);
-    display_queue(ptr);
-    enqueue(ptr, 6);
-    enqueue(ptr, 6);
-    enqueue(ptr, 6);
-    enqueue(ptr, 8);
-    display_queue(ptr);
+    enqueue(pointer, 3);
+    enqueue(pointer, 6);
+    enqueue(pointer, 2);
+    enqueue(pointer, 9);
+    dequeue(pointer);
+    dequeue(pointer);
+    enqueue(pointer, 2);
+    enqueue(pointer, 4);
+    enqueue(pointer, 1);
+    display_queue(pointer);
+    enqueue(pointer, 6);
+    enqueue(pointer, 6);
+    enqueue(pointer, 6);
+    enqueue(pointer, 8);
+    display_queue(pointer);
     return 0;
 }
 
-int _calculate_pointer(int ptr)
+int _calculate_pointer(int pointer)
 {
-    return (ptr + 1) % MAX_SIZE; // formula to move pointer foward and account for circular queue wrap around
+    return (pointer + 1) % MAX_SIZE; // formula to move pointer foward and account for circular queue wrap around
 }
 
-void intialise_queue(Queue *queue)
+void intialise_queue(queue *queue)
 {
     // this is not really necessary but I want to be able to visualise the null spaces within the queue
     // rather than  just seeing random garbage values
     // although the number is -1 since it's converted to a char using its ascii value 
     // it will be shown as a / because there are no ascii values for negative numbers
     for (int i = 0; i < MAX_SIZE; i++)
-    {
         queue->values[i] = -1;
-    }
 }
 
-void enqueue(Queue *queue, int val)
+void enqueue(queue *queue, int val)
 {
     // add an element to the queue
-    int ptr = _calculate_pointer(queue->backPtr); 
-    if (ptr == queue->frontPtr)
-    {
-        printf("Queue is full!\n");
-    }
+    int pointer = _calculate_pointer(queue->backPointer); 
+    if (pointer == queue->frontPointer)
+        printf("queue is full!\n");
     else
     {
         printf("Enqueuing value: %i\n", val);
-        queue->values[ptr] = val;
-        queue->backPtr = ptr;
-        if (queue->frontPtr == -1) // account for enqueing item when array is not completely filled
-        {
-            queue->frontPtr = 0; 
-        }
+        queue->values[pointer] = val;
+        queue->backPointer = pointer;
+        if (queue->frontPointer == -1) // account for enqueing item when array is not completely filled
+            queue->frontPointer = 0; 
     }
 }
 
-void dequeue(Queue *queue)
+void dequeue(queue *queue)
 {
     // return an element from the front of the queue
-    if (queue->frontPtr > queue->backPtr) 
-    {
-        printf("Queue is empty!\n");
-    }
+    if (queue->frontPointer > queue->backPointer) 
+        printf("queue is empty!\n");
     else
     {
-        int ptr = queue->frontPtr;
-        int val = queue->values[ptr];
-        queue->frontPtr = _calculate_pointer(queue->frontPtr);
+        int pointer = queue->frontPointer;
+        int val = queue->values[pointer];
+        queue->frontPointer = _calculate_pointer(queue->frontPointer);
         printf("Dequeuing value: %i\n", val);
     }
 }
 
-void is_empty(Queue *queue)
+void is_empty(queue *queue)
 {
-    if (_calculate_pointer(queue->frontPtr) > queue->backPtr)
+    if (_calculate_pointer(queue->frontPointer) > queue->backPointer)
     {
-        printf("Queue is empty!\n");
+        printf("queue is empty!\n");
     }
     else
     {
-        printf("Queue is not empty\n");
+        printf("queue is not empty\n");
     }
 }
 
-void is_full(Queue *queue)
+void is_full(queue *queue)
 {
-    if (_calculate_pointer(queue->backPtr) == queue->frontPtr)
-    {
-        printf("Queue is full!\n");
-    }
+    if (_calculate_pointer(queue->backPointer) == queue->frontPointer)
+        printf("queue is full!\n");
     else
-    {
-        printf("Queue is not full\n");
-    }
+        printf("queue is not full\n");
 }
 
-void display_queue(Queue *queue)
+void display_queue(queue *queue)
 {
     // show contents of queue including queue pointers and null values
     char frontPointerString[30] = " <-- Front pointer is here";
@@ -138,14 +126,10 @@ void display_queue(Queue *queue)
         strcpy(baseString, "Value: ");
         charInteger = queue->values[i] + '0'; // convert integer to char using its ascii value
         strncat(baseString, &charInteger, 1);
-        if (queue-> frontPtr == i)
-        {
+        if (queue-> frontPointer == i)
             strncat(baseString, frontPointerString, strlen(frontPointerString));
-        }
-        else if (queue->backPtr == i)
-        {
+        else if (queue->backPointer == i)
             strncat(baseString, backPointerString, strlen(backPointerString));
-        }
         printf("%s\n", baseString);
     }
 }

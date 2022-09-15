@@ -1,4 +1,4 @@
-# CS-Fundamentals
+# Learn to walk before you run
 
 While programming desktop apps, designing websites and tinkering with electronics are fun pasttimes of mine,
 I'm aware that in order to progress as a CS student, especially a self-taught one, fundamentals are required to truly understand 

@@ -29,7 +29,6 @@ def recursive(start, end):
         return 
     else:
         recursive(start + 1, end)
-
-        
+ 
 if __name__ == "__main__":
     main()

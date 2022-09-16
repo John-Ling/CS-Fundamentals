@@ -95,13 +95,9 @@ void dequeue(queue *queue)
 void is_empty(queue *queue)
 {
     if (_calculate_pointer(queue->frontPointer) > queue->backPointer)
-    {
         printf("queue is empty!\n");
-    }
     else
-    {
         printf("queue is not empty\n");
-    }
 }
 
 void is_full(queue *queue)

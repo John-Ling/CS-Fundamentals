@@ -13,7 +13,7 @@ typedef struct linked_list_t linked_list;
 linked_list* generate(int values[]);
 void display_linked_list(linked_list** head);
 void insert_node(linked_list** head, int value, int position);
-void add_to_front(linked_list** head, int value);
+void free_linked_list(linked_list** head);
 
 int main(void)
 {
@@ -22,22 +22,32 @@ int main(void)
     int values[] = {56, 84, 23, 46, 91, 76, 21, 38, 11, 83};
 
     const int POSITION = 4;
-    linked_list* linkedList = generate(values); // pointer to the first node (the head node) in a linked list
 
+    // create linked list
+    linked_list* linkedList = generate(values); // pointer to the first node (the head node) in a linked list
     linked_list** head = &linkedList; // pointer to the first pointer 
-    insert_node(head, 256, 5);
+    // struct** is a "double pointer" it stores the address of a another pointer that in itself stores address (pointer-ception?)
+    // because all the nodes in a linked list are pointers themselves to access nodes in a linked lists without permanently changing them
+    // you use a double pointer much like how you would use a regular pointer when dealing with non-pointer values
+
+    //example use of a linked list
+    insert_node(head, 256, LINKED_LIST_END);
 
     display_linked_list(head);
+    free_linked_list(head);
     return 0;
 }
 
 void display_linked_list(linked_list** head)
 {
-    while (*head != NULL)
+    linked_list* temp = malloc(sizeof(linked_list));
+    temp = *head;
+    while (temp->pointer != NULL)
     {
-        printf("%i\n", (*head)->value);
-        *head = (*head)->pointer;
+        printf("%i\n", temp->value);
+        temp = temp->pointer;
     }
+    free(temp);
 }
 
 void insert_node(linked_list** head, int value, int position)
@@ -78,14 +88,20 @@ void insert_node(linked_list** head, int value, int position)
     }
 }
 
-void free_linked_list(linked_list** linkedList)
+void free_linked_list(linked_list** head)
 {
-    ;
+    linked_list* previousNode = malloc(sizeof(linked_list));
+    previousNode = *head;
+    while ((*head)->pointer != NULL)
+    {
+        *head = (*head)->pointer;
+        free(previousNode);
+        previousNode = *head;
+    }
 }
 
 linked_list* generate(int values[]) 
 {
-    // hardcoded because I cannot figure out dynamically generated variables
     linked_list* headNode = malloc(sizeof(linked_list));
     linked_list* node1 = malloc(sizeof(linked_list));
     linked_list* node2 = malloc(sizeof(linked_list));

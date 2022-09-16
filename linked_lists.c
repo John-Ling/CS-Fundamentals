@@ -16,11 +16,10 @@ void insert_node(linked_list** head, int value, int position);
 void free_linked_list(linked_list** head);
 
 int main(void)
-{
-    const int LINKED_LIST_END = LINKED_LIST_LENGTH - 1;
-    const int LINKED_LIST_START = 0;
+{    
+    const int START = 0;
+    const int END = 10;
     int values[] = {56, 84, 23, 46, 91, 76, 21, 38, 11, 83};
-
     const int POSITION = 4;
 
     // create linked list
@@ -31,7 +30,7 @@ int main(void)
     // you use a double pointer much like how you would use a regular pointer when dealing with non-pointer values
 
     //example use of a linked list
-    insert_node(head, 256, LINKED_LIST_END);
+    insert_node(head, 256, END);
 
     display_linked_list(head);
     free_linked_list(head);
@@ -42,7 +41,7 @@ void display_linked_list(linked_list** head)
 {
     linked_list* temp = malloc(sizeof(linked_list));
     temp = *head;
-    while (temp->pointer != NULL)
+    while (temp != NULL)
     {
         printf("%i\n", temp->value);
         temp = temp->pointer;
@@ -84,7 +83,7 @@ void insert_node(linked_list** head, int value, int position)
         }
         
         node->pointer = temp->pointer;
-        temp->pointer = node;        
+        temp->pointer = node;
     }
 }
 
@@ -92,7 +91,7 @@ void free_linked_list(linked_list** head)
 {
     linked_list* previousNode = malloc(sizeof(linked_list));
     previousNode = *head;
-    while ((*head)->pointer != NULL)
+    while (*head != NULL)
     {
         *head = (*head)->pointer;
         free(previousNode);

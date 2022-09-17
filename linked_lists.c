@@ -11,9 +11,9 @@ struct linked_list_t
 typedef struct linked_list_t linked_list;
 
 linked_list* generate(int values[]);
-void display_linked_list(linked_list** head);
-void insert_node(linked_list** head, int value, int position);
-void free_linked_list(linked_list** head);
+void display_linked_list(linked_list** head, linked_list* pointer);
+void insert_node(linked_list** head, linked_list* traversalPointer, int value, int position);
+void free_linked_list(linked_list** head, linked_list* traversalPointer);
 
 int main(void)
 {    
@@ -25,31 +25,32 @@ int main(void)
     // create linked list
     linked_list* linkedList = generate(values); // pointer to the first node (the head node) in a linked list
     linked_list** head = &linkedList; // pointer to the first pointer 
+    linked_list* traversalPointer = malloc(sizeof(linked_list)); // pointer to traverse linked list
+
     // struct** is a "double pointer" it stores the address of a another pointer that in itself stores address (pointer-ception?)
     // because all the nodes in a linked list are pointers themselves to access nodes in a linked lists without permanently changing them
     // you use a double pointer much like how you would use a regular pointer when dealing with non-pointer values
 
     //example use of a linked list
-    insert_node(head, 256, END);
+    insert_node(head, traversalPointer, 256, END);
 
-    display_linked_list(head);
-    free_linked_list(head);
+    display_linked_list(head, traversalPointer);
+    free_linked_list(head, traversalPointer);
+    free(traversalPointer);
     return 0;
 }
 
-void display_linked_list(linked_list** head)
+void display_linked_list(linked_list** head, linked_list* traversalPointer)
 {
-    linked_list* temp = malloc(sizeof(linked_list));
-    temp = *head;
-    while (temp != NULL)
+    traversalPointer = *head;
+    while (traversalPointer != NULL)
     {
-        printf("%i\n", temp->value);
-        temp = temp->pointer;
+        printf("%i\n", traversalPointer->value);
+        traversalPointer = traversalPointer->pointer;
     }
-    free(temp);
 }
 
-void insert_node(linked_list** head, int value, int position)
+void insert_node(linked_list** head, linked_list* traversalPointer, int value, int position)
 {
     linked_list* node = malloc(sizeof(linked_list));
     node->value = value;
@@ -61,41 +62,37 @@ void insert_node(linked_list** head, int value, int position)
     }
     else if (position  == LINKED_LIST_LENGTH)
     {
-        linked_list* temp = malloc(sizeof(linked_list));
-        temp = *head; // temp points to head so it can access head's nodes
+        traversalPointer = *head;
+        while (traversalPointer->pointer != NULL) // traverse linked list until end
+            traversalPointer = traversalPointer->pointer;
 
-        while (temp->pointer != NULL) // traverse linked list until end
-            temp = temp->pointer;
-
-        temp->pointer = node; // point end of list to node
+        traversalPointer->pointer = node; // point end of list to node
         node->pointer = NULL; // make node the new tail node by pointing it to null
     }
     else
     {
-        linked_list* temp = malloc(sizeof(linked_list));
-        temp = *head;
+        traversalPointer = *head;
 
         // traverse linked list until position is reached
         for (int i = 0; i < position - 1; i++)
         {
-            if (temp->pointer != NULL)
-                temp = temp->pointer;
+            if (traversalPointer->pointer != NULL)
+                traversalPointer = traversalPointer->pointer;
         }
         
-        node->pointer = temp->pointer;
-        temp->pointer = node;
+        node->pointer = traversalPointer->pointer;
+        traversalPointer->pointer = node;
     }
 }
 
-void free_linked_list(linked_list** head)
+void free_linked_list(linked_list** head, linked_list* traversalPointer)
 {
-    linked_list* previousNode = malloc(sizeof(linked_list));
-    previousNode = *head;
+    traversalPointer = *head;
     while (*head != NULL)
     {
         *head = (*head)->pointer;
-        free(previousNode);
-        previousNode = *head;
+        free(traversalPointer);
+        traversalPointer = *head;
     }
 }
 

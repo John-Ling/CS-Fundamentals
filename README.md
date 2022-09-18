@@ -1,6 +1,6 @@
 # Learn to walk before you run
 
-While programming desktop apps, designing websites and tinkering with electronics are fun pasttimes of mine,
+While programming desktop apps, designing websites and tinkering with electronics are fun hobbies of mine,
 I'm aware that in order to progress as a CS student, especially a self-taught one, fundamentals are required to truly understand 
 how your software toolkit works. 
 

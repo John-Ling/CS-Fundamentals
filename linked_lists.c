@@ -30,10 +30,6 @@ int main(void)
     linked_list* head = generate(values); // pointer to the first node (the head node) in a linked list
     linked_list* traversalPointer = malloc(sizeof(linked_list)); // pointer to traverse linked list
 
-    // struct** is a "double pointer" it stores the address of a another pointer that in itself stores address (pointer-ception?)
-    // because all the nodes in a linked list are pointers themselves to access nodes in a linked lists without permanently changing them
-    // you use a double pointer much like how you would use a regular pointer when dealing with non-pointer values
-
     //example use of a linked list
     delete_node(head, traversalPointer, END);
     display_linked_list(head, traversalPointer);

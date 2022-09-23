@@ -1,6 +1,6 @@
 test.c
 test
-linked_lists
 queues
 stacks
 .vscode
+*.o

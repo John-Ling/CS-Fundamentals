@@ -14,10 +14,10 @@ struct linked_list_t
 typedef struct linked_list_t linked_list;
 
 linked_list* generate(int values[]);
-void display_linked_list(linked_list** head, linked_list* pointer);
-void insert_node(linked_list** head, linked_list* traversalPointer, int value, int position);
-void delete_node(linked_list** head, linked_list* traversalPointer, int position);
-void free_linked_list(linked_list** head, linked_list* traversalPointer);
+void display_linked_list(linked_list* head, linked_list* pointer);
+void insert_node(linked_list* head, linked_list* traversalPointer, int value, int position);
+void delete_node(linked_list* head, linked_list* traversalPointer, int position);
+void free_linked_list(linked_list* head, linked_list* traversalPointer);
 
 int main(void)
 {    
@@ -27,8 +27,7 @@ int main(void)
     const int POSITION = 4;
 
     // create linked list
-    linked_list* linkedList = generate(values); // pointer to the first node (the head node) in a linked list
-    linked_list** head = &linkedList; // pointer to the first pointer 
+    linked_list* head = generate(values); // pointer to the first node (the head node) in a linked list
     linked_list* traversalPointer = malloc(sizeof(linked_list)); // pointer to traverse linked list
 
     // struct** is a "double pointer" it stores the address of a another pointer that in itself stores address (pointer-ception?)
@@ -43,9 +42,9 @@ int main(void)
     return 0;
 }
 
-void display_linked_list(linked_list** head, linked_list* traversalPointer)
+void display_linked_list(linked_list* head, linked_list* traversalPointer)
 {
-    traversalPointer = *head;
+    traversalPointer = head;
     while (traversalPointer != NULL)
     {
         printf("%i\n", traversalPointer->value);
@@ -53,19 +52,19 @@ void display_linked_list(linked_list** head, linked_list* traversalPointer)
     }
 }
 
-void insert_node(linked_list** head, linked_list* traversalPointer, int value, int position)
+void insert_node(linked_list* head, linked_list* traversalPointer, int value, int position)
 {
     linked_list* node = malloc(sizeof(linked_list));
     node->value = value;
     
     if (position == 0)
     {
-        node->pointer = *head; // point node to the current head (pointer) of the list
-        *head = node; // node is the new head of the linked list
+        node->pointer = head; // point node to the current head (pointer) of the list
+        head = node; // node is the new head of the linked list
     }
     else if (position == END)
     {
-        traversalPointer = *head;
+        traversalPointer = head;
         while (traversalPointer->pointer != NULL) // traverse linked list until end
             traversalPointer = traversalPointer->pointer;
 
@@ -74,7 +73,7 @@ void insert_node(linked_list** head, linked_list* traversalPointer, int value, i
     }
     else if (position > START && position < END)
     {
-        traversalPointer = *head;
+        traversalPointer = head;
 
         // traverse linked list until position is reached
         for (int i = 0; i < position - 1; i++)
@@ -88,12 +87,12 @@ void insert_node(linked_list** head, linked_list* traversalPointer, int value, i
     }
 }
 
-void delete_node(linked_list** head, linked_list* traversalPointer, int position)
+void delete_node(linked_list* head, linked_list* traversalPointer, int position)
 {
-    traversalPointer = *head; // store the current head pointer
+    traversalPointer = head; // store the current head pointer
     if (position == 0)
     {
-        *head = (*head)->pointer; // change to the new head
+        head = (head)->pointer; // change to the new head
         free(traversalPointer); // free the head pointer stored in traversalPointer
     }
     else if (position == END)
@@ -116,14 +115,14 @@ void delete_node(linked_list** head, linked_list* traversalPointer, int position
         printf("Parameter 'position' should be between 0 and the length of the linked list\n");
 }
 
-void free_linked_list(linked_list** head, linked_list* traversalPointer)
+void free_linked_list(linked_list* head, linked_list* traversalPointer)
 {
-    traversalPointer = *head;
-    while (*head != NULL)
+    traversalPointer = head;
+    while (head != NULL)
     {
-        *head = (*head)->pointer;
+        head = (head)->pointer;
         free(traversalPointer);
-        traversalPointer = *head;
+        traversalPointer = head;
     }
 }
 

@@ -4,3 +4,4 @@ queues
 stacks
 .vscode
 *.o
+*.out

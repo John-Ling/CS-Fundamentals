@@ -5,6 +5,10 @@ def main():
     linkedList = Linked_List(VALUES)
 
     # example use of a linked list
+    linkedList.insert(50, 0)
+    linkedList.search(43)
+    linkedList.delete(linkedList.maxIndex)
+    linkedList.display()
 
 class Linked_List:
     def __init__(self, values):
@@ -70,12 +74,13 @@ class Linked_List:
         self.maxIndex -= 1
     
     def search(self, value):
-        while self.head.pointer is not None:
-            if self.head.value == value:
-                print("Found value")
+        temp = self.head
+        while temp.pointer is not None:
+            if temp.value == value:
+                print(f"Found value {value}")
                 return
-            self.head = self.head.pointer
-        print("Could not find value")
+            temp = temp.pointer
+        print(f"Could not find value {value}")
 
 class Node:
     def __init__(self, value):

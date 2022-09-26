@@ -1,7 +1,11 @@
+from operator import ge
+from random import randint
+
+LIST_SIZE = 50;
 def main():
-    arr = [2,5,3,8,7,4,9,1,6]
-    insertion_sort(arr)
-    print(arr)
+    list = generate_numbers()
+    insertion_sort(list)
+    print(list)
 
 def insertion_sort(arr):
     for i in range(1, len(arr)):
@@ -14,5 +18,10 @@ def insertion_sort(arr):
             # or the left adjacent value is smaller than the moving value ( repeat until arr[ptr] > val)
         arr[ptr + 1] = val 
 
+def generate_numbers():
+    list = []
+    for i in range(LIST_SIZE):
+        list.append(randint(0, 100))
+    return list
 if __name__ == "__main__":
     main()

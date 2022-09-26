@@ -3,7 +3,9 @@ from random import randint
 def main():
     VALUES = [7, 45, 72, 12, 59, 43, 67, 83, 21, 13]
     linkedList = Linked_List(VALUES)
-    
+
+    # example use of a linked list
+
 class Linked_List:
     def __init__(self, values):
         self.startIndex = 0

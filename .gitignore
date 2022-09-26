@@ -1,6 +1,8 @@
 test.c
+test.py
 test
 queues
 stacks
 .vscode
 *.o
+*.out

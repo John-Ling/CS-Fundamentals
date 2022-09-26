@@ -32,8 +32,7 @@ int main(void)
     linked_list* traversalPointer = malloc(sizeof(linked_list)); // pointer to traverse linked list
 
     //example use of a linked list
-    //delete_node(head, traversalPointer, END);
-    insert_node(head, traversalPointer, 256, END);
+    delete_node(head, traversalPointer, END);
     display_linked_list(head);
     free_linked_list(head, traversalPointer);
     free(traversalPointer);
@@ -61,7 +60,6 @@ void insert_node(linked_list* head, linked_list* traversalPointer, int value, in
     }
     else if (position == END)
     {
-        temp = head;
         while (temp->pointer != NULL) // traverse linked list until end
             temp = temp->pointer;
 
@@ -70,8 +68,6 @@ void insert_node(linked_list* head, linked_list* traversalPointer, int value, in
     }
     else if (position > START && position < END)
     {
-        traversalPointer = head;
-
         // traverse linked list until position is reached
         for (int i = 0; i < position - 1; i++)
         {

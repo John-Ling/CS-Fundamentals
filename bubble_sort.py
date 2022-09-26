@@ -1,7 +1,12 @@
+from random import randint
+
+LIST_SIZE = 9
+
 def main():
-    arr = [5,9,2,3,4,8,7,1,6]
-    bubble_sort(arr)
-    print(arr)
+    list = generate_numbers()
+    print(f"Unsorted: {list}")
+    bubble_sort(list)
+    print(f"Sorted: {list}")
 
 def bubble_sort(arr):
     upperLimit = len(arr)
@@ -16,6 +21,12 @@ def bubble_sort(arr):
                 arr[i] = tmp
                 swaps = True
         upperLimit -= 1
+
+def generate_numbers():
+    list = []
+    for i in range(LIST_SIZE):
+        list.append(randint(0, 100))
+    return list
 
 if __name__ == "__main__":
     main()

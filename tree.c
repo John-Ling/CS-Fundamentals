@@ -24,9 +24,7 @@ int main(void)
     add_node_left(root, 40);
     add_node_right(root, 30);
     add_node_left(root, 10);
-    //inorder_traversal(root);
-    // preorder_traversal(root);
-    //postorder_traversal(root);
+    
     inorder_traversal(root);
 
     free_tree(root);
@@ -98,43 +96,43 @@ void free_tree(tree* root)
 tree* generate_tree()
 {
     tree* root = malloc(sizeof(tree));
-    root->value = 2;
+    root->value = 76;
     root->left = NULL;
     root->right = NULL;
     
     tree* node1 = malloc(sizeof(tree));
-    node1->value = 1;
+    node1->value = 50;
 
     root->left = node1;
 
     tree* node2 = malloc(sizeof(tree)); // allocate memory for another node
-    node2->value = 3;
+    node2->value = 90;
 
     root->right = node2;
 
     tree* node3 = malloc(sizeof(tree));
-    node3->value = 4;
+    node3->value = 39;
     node3->left = NULL;
     node3->right = NULL;
 
     node1->left = node3;
 
     tree* node4 = malloc(sizeof(tree));
-    node4->value = 5;
+    node4->value = 60;
     node4->left = NULL;
     node4->right = NULL;
 
     node1->right = node4;
 
     tree* node5 = malloc(sizeof(tree));
-    node5->value = 6;
+    node5->value = 70;
     node5->left = NULL;
     node5->right = NULL;
 
     node2->right = node5;
 
     tree* node6 = malloc(sizeof(tree));
-    node6->value = 7;
+    node6->value = 137;
     node6->left = NULL;
     node6->right = NULL;
 

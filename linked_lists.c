@@ -16,10 +16,10 @@ struct linked_list_t
 typedef struct linked_list_t linked_list;
 
 linked_list* generate(int values[]);
-void display_linked_list(linked_list* head);
-void insert_node(linked_list* head, linked_list* traversalPointer, int value, int position);
-void delete_node(linked_list* head, linked_list* traversalPointer, int position);
-void free_linked_list(linked_list* head, linked_list* traversalPointer);
+void display_linked_list(linked_list** head);
+void insert_node(linked_list** head, int value, int position);
+void delete_node(linked_list** head, int position);
+void free_linked_list(linked_list** head);
 
 int main(void)
 {    
@@ -29,35 +29,37 @@ int main(void)
     const int POSITION = 4;
 
     // create linked list
-    linked_list* head = generate(values); // pointer to the first node (the head node) in a linked list
-    linked_list* traversalPointer = malloc(sizeof(linked_list)); // pointer to traverse linked list
+    linked_list* linkedList = generate(values); // pointer to the first node (the head node) in a linked list
+    linked_list** head = &linkedList;
 
     //example use of a linked list
-    delete_node(head, traversalPointer, END);
+    insert_node(head, 256, 3);
+    delete_node(head, POSITION);
     display_linked_list(head);
-    free_linked_list(head, traversalPointer);
-    free(traversalPointer);
+    free_linked_list(head);
     return 0;
 }
 
-void display_linked_list(linked_list* head)
+void display_linked_list(linked_list** head)
 {
-    if (head == NULL)
-        return;
-    printf("%i\n", head->value);
-    display_linked_list(head->pointer);
+    linked_list* temp = *head;
+    while (temp != NULL)
+    {
+        printf("%i\n", temp->value);
+        temp = temp->pointer;
+    }
 }
 
-void insert_node(linked_list* head, linked_list* traversalPointer, int value, int position)
+void insert_node(linked_list** head, int value, int position)
 {
-    linked_list* temp = head;
+    linked_list* temp = *head;
     linked_list* node = malloc(sizeof(linked_list));
     node->value = value;
     
     if (position == 0)
     {
-        node->pointer = head; // point node to the current head (pointer) of the list
-        head = node; // node is the new head of the linked list
+        node->pointer = *head; // point node to the current head (pointer) of the list
+        *head = node; // node is the new head of the linked list
     }
     else if (position == END)
     {
@@ -81,40 +83,47 @@ void insert_node(linked_list* head, linked_list* traversalPointer, int value, in
     }
 }
 
-void delete_node(linked_list* head, linked_list* traversalPointer, int position)
+void delete_node(linked_list** head, int position)
 {
-    traversalPointer = head; // store the current head pointer
+    linked_list* temp = *head;
     if (position == 0)
     {
-        head = (head)->pointer; // change to the new head
-        free(traversalPointer); // free the head pointer stored in traversalPointer
+        *head = (*head)->pointer; // change to the new head
+        free(temp);
     }
     else if (position == END)
     {
-        while (traversalPointer->pointer->pointer != NULL) // travel to penultimate node
-            traversalPointer = traversalPointer->pointer;
+        while (temp->pointer->pointer != NULL) // travel to penultimate node
+            temp = temp->pointer;
 
-        free(traversalPointer->pointer); // free pointer ahead of penultimate node
-        traversalPointer->pointer = NULL; // set penultimate node to be the new tail node
+        free(temp->pointer); // free pointer ahead of penultimate node
+        temp->pointer = NULL; // set penultimate node to be the new tail node
     }
     else if (position > START && position < END)
     {
         for (int i = 0; i < position - 1; i++)
-            traversalPointer = traversalPointer->pointer;
-        traversalPointer->pointer = traversalPointer->pointer;
+            temp = temp->pointer;
+        linked_list* nodeAhead = temp->pointer->pointer; // node after node to be freed
+        free(temp->pointer);
+        temp->pointer = nodeAhead;
     }
     else 
         printf("Parameter 'position' should be between 0 and the length of the linked list\n");
 }
 
-void free_linked_list(linked_list* head, linked_list* traversalPointer)
+void reverse(linked_list* head)
 {
-    traversalPointer = head;
-    while (head != NULL)
+    ;
+}
+
+void free_linked_list(linked_list** head)
+{
+    linked_list* temp = *head;
+    while (*head != NULL)
     {
-        head = (head)->pointer;
-        free(traversalPointer);
-        traversalPointer = head;
+        *head = (*head)->pointer;
+        free(temp);
+        temp = *head;
     }
 }
 

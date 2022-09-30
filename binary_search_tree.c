@@ -54,13 +54,6 @@ void search_tree(tree* root, int value)
     }
 }
 
-void assert_validity(tree* root)
-{
-    // check if binary tree is valid
-    // a valid binary tree requires 
-    return;
-}
-
 void free_tree(tree* root)
 {
     // free allocated memory using postorder traversal left --> right --> root

@@ -9,7 +9,7 @@ class Tree_Node:
 
 def main():
     root = intialise_tree()
-    inorder_traversal(root)
+    search_tree(root, 87)
 
 def inorder_traversal(root):
     if root is None:
@@ -17,6 +17,19 @@ def inorder_traversal(root):
     inorder_traversal(root.left)
     print(root.value)
     inorder_traversal(root.right)
+
+def search_tree(root, value):
+    if root is None:
+        print("Could not found value")
+        return
+    
+    if (value < root.value):
+        search_tree(root.left, value)
+    elif (value > root.value):
+        search_tree(root.right, value)
+    else:
+        print("Found value")
+        return
 
 def intialise_tree():
     root = Tree_Node(76)

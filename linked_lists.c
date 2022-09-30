@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 // implementation of a linked list for learning purposes
+
 const int LINKED_LIST_LENGTH = 10;
 const int START = 0; // index of start of linked list
 const int END = LINKED_LIST_LENGTH - 1; // index of end of linked list

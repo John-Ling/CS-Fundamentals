@@ -1,4 +1,3 @@
-from operator import ge
 from random import randint
 
 LIST_SIZE = 50;

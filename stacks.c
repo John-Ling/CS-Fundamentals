@@ -113,7 +113,7 @@ void display_stack(stack *stack)
     char outputString[30];
     char charInteger;
     
-    for (int i = 0; i < MAX_SIZE; i++)
+    for (int i = MAX_SIZE - 1; i > -1; i--)
     {
         strcpy(baseString, "Value: ");
         charInteger = stack->values[i] + '0';

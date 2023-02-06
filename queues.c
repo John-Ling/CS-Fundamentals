@@ -41,8 +41,17 @@ int main(void)
     display_queue(pointer);
     enqueue(pointer, 6);
     enqueue(pointer, 6);
-    enqueue(pointer, 6);
-    enqueue(pointer, 8);
+    display_queue(pointer);
+    dequeue(pointer);
+    enqueue(pointer, 0);
+    enqueue(pointer, 0);
+    enqueue(pointer, 0);
+    enqueue(pointer, 0);
+    enqueue(pointer, 0);
+    display_queue(pointer);
+    dequeue(pointer);
+    display_queue(pointer);
+    enqueue(pointer, 3);
     display_queue(pointer);
     return 0;
 }
@@ -81,7 +90,7 @@ void enqueue(queue *queue, int val)
 void dequeue(queue *queue)
 {
     // return an element from the front of the queue
-    if (queue->frontPointer > queue->backPointer) 
+    if (queue->frontPointer == -1 && queue->backPointer == -1) 
         printf("queue is empty!\n");
     else
     {
@@ -111,10 +120,10 @@ void is_full(queue *queue)
 void display_queue(queue *queue)
 {
     // show contents of queue including queue pointers and null values
-    char frontPointerString[30] = " <-- Front pointer is here";
-    char backPointerString[30] = " <-- Back pointer is here";
-    char baseString[30];
-    char outputString[90];
+    char frontPointerString[35] = " <-- Front pointer is here";
+    char backPointerString[35] = " <-- Back pointer is here";
+    char baseString[35];
+    char outputString[95];
     char charInteger;
 
     for (int i = 0; i < MAX_SIZE; i++)

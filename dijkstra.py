@@ -1,3 +1,5 @@
+import heapq
+
 SOURCE_NODE = 'A'
 
 def main():
@@ -9,6 +11,11 @@ def main():
 	        'F': [(6, 'C'), (5, 'E'), (8, 'G')],
 	        'G': [(12, 'D'), (6, 'E'), (8, 'F')]}
 	graphData = generate_shortest_paths(GRAPH, SOURCE_NODE)
+	data = get_shortest_path('G', graphData)
+	print(f"Shortest path: {data[0]}")
+	print(f"Shortest path distance: {data[1]}")
+
+	graphData = priority_queue_implementation(GRAPH, SOURCE_NODE)
 	data = get_shortest_path('G', graphData)
 	print(f"Shortest path: {data[0]}")
 	print(f"Shortest path distance: {data[1]}")
@@ -40,6 +47,39 @@ def generate_shortest_paths(GRAPH, source):
 				currentNode = node 
 				lowestCost = costs[node]
 	
+	return (costs, previousNodes)
+
+def priority_queue_implementation(GRAPH, source):
+	costs = {}
+	previousNodes = {}
+	unexploredNodes = list(GRAPH.keys())
+	queue = [] # priority queue
+
+	for node in unexploredNodes:
+		costs[node] = float('inf')
+	currentNode = source
+	costs[source] = 0
+	unexploredNodes.remove(source) # we have already visted the source node as we start there
+
+	while len(unexploredNodes) != 0:
+		for i in range(len(GRAPH[currentNode])):
+			node = GRAPH[currentNode][i][1] 
+			cost = GRAPH[currentNode][i][0] + costs[currentNode]; 
+			heapq.heappush(queue, (cost, node, currentNode))
+
+		# take the top the queue (lowest cost)
+		frontQueueItem = heapq.heappop(queue)
+		lowestCostNode = frontQueueItem[1]
+
+		while lowestCostNode not in unexploredNodes: # find the top the queue that is unexplored
+			frontQueueItem = heapq.heappop(queue)
+			lowestCostNode = frontQueueItem[1]
+
+		costs[lowestCostNode] = frontQueueItem[0]
+		previousNodes[lowestCostNode] = frontQueueItem[2]
+		currentNode = lowestCostNode
+		unexploredNodes.remove(lowestCostNode)
+
 	return (costs, previousNodes)
 
 def get_shortest_path(destination, graphData):

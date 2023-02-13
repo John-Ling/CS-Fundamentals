@@ -3,20 +3,38 @@ import heapq
 SOURCE_NODE = 'A'
 
 def main():
-	GRAPH = {'A': [(5, 'B'), (6, 'C')],
-		    'B': [(5, 'A'), (4, 'D'), (6, 'E')],
-		    'C': [(6, 'A'), (7, 'E'), (6, 'F')],
-		    'D': [(4, 'B'), (3, 'E'), (12, 'G')],
-		    'E': [(6, 'B'), (7, 'C'), (3, 'D'), (6, 'G'), (5, 'F')],
-	        'F': [(6, 'C'), (5, 'E'), (8, 'G')],
-	        'G': [(12, 'D'), (6, 'E'), (8, 'F')]}
+	# GRAPH = {'A': [(5, 'B'), (6, 'C')],
+	# 	    'B': [(5, 'A'), (4, 'D'), (6, 'E')],
+	# 	    'C': [(6, 'A'), (7, 'E'), (6, 'F')],
+	# 	    'D': [(4, 'B'), (3, 'E'), (12, 'G')],
+	# 	    'E': [(6, 'B'), (7, 'C'), (3, 'D'), (6, 'G'), (5, 'F')],
+	#       'F': [(6, 'C'), (5, 'E'), (8, 'G')],
+	#       'G': [(12, 'D'), (6, 'E'), (8, 'F')]}
+	# GRAPH = {'A': [(2, 'B'), (6, 'C')],
+	# 		'B': [(6, 'A'), (8, 'D')],
+	# 		'C': [(2, 'A'), (5, 'D')],
+	# 		'D': [(5, 'B'), (8, 'C'), (15, 'E'), (10, 'F')],
+	# 		'E': [(15, 'D'), (6, 'F'), (6, 'G')],
+	# 		'F': [(10, 'D'), (6, 'E'), (2, 'G')],
+	# 		'G': [(6, 'E'), (2, 'F')]}
+	GRAPH = {'A': [(5, 'B'), (7, 'E'), (9, 'G')],
+			'B': [(5, 'A'), (6, 'C'), (7, 'E')],
+			'C': [(6, 'B'), (7, 'F'), (6, 'E')],
+			'D': [(9, 'F'), (6, 'I')],
+			'E': [(7, 'A'), (7, 'B'), (6, 'C'), (11, 'F')],
+			'F': [(6, 'C'), (11, 'E'), (11, 'G'), (float('inf'), 'H'), (9, 'D'), (10, 'I')],
+			'G': [(9, 'A'), (11, 'F')],
+			'H': [(float('inf'), 'F'), (7, 'I')],
+			'I': [(6, 'D'), (10, 'F'), (7, 'H')]
+			}
+			
 	graphData = generate_shortest_paths(GRAPH, SOURCE_NODE)
-	data = get_shortest_path('G', graphData)
+	data = get_shortest_path('I', graphData)
 	print(f"Shortest path: {data[0]}")
 	print(f"Shortest path distance: {data[1]}")
 
 	graphData = priority_queue_implementation(GRAPH, SOURCE_NODE)
-	data = get_shortest_path('G', graphData)
+	data = get_shortest_path('I', graphData)
 	print(f"Shortest path: {data[0]}")
 	print(f"Shortest path distance: {data[1]}")
 
@@ -34,7 +52,7 @@ def generate_shortest_paths(GRAPH, source):
 	while len(unexploredNodes) != 0: 
 		for i in range(len(GRAPH[currentNode])):
 			node = GRAPH[currentNode][i][1] 
-			cost = GRAPH[currentNode][i][0] + costs[currentNode]; 
+			cost = GRAPH[currentNode][i][0] + costs[currentNode]
 
 			if cost < costs[node]: # update the cost for the adjacent node
 				costs[node] = cost
@@ -64,8 +82,12 @@ def priority_queue_implementation(GRAPH, source):
 	while len(unexploredNodes) != 0:
 		for i in range(len(GRAPH[currentNode])):
 			node = GRAPH[currentNode][i][1] 
-			cost = GRAPH[currentNode][i][0] + costs[currentNode]; 
-			heapq.heappush(queue, (cost, node, currentNode))
+			cost = GRAPH[currentNode][i][0] + costs[currentNode];
+
+			if cost < costs[node]: # update distances
+				costs[node] = cost
+				previousNodes[node] = currentNode
+			heapq.heappush(queue, (cost, node)) # enqueue node 
 
 		# take the top the queue (lowest cost)
 		frontQueueItem = heapq.heappop(queue)
@@ -75,8 +97,6 @@ def priority_queue_implementation(GRAPH, source):
 			frontQueueItem = heapq.heappop(queue)
 			lowestCostNode = frontQueueItem[1]
 
-		costs[lowestCostNode] = frontQueueItem[0]
-		previousNodes[lowestCostNode] = frontQueueItem[2]
 		currentNode = lowestCostNode
 		unexploredNodes.remove(lowestCostNode)
 
@@ -88,7 +108,7 @@ def get_shortest_path(destination, graphData):
 	previousNodes = graphData[1]
 
 	if any(node not in lowestCosts for node in (SOURCE_NODE, destination)):
-		print(f"Node does not exist")
+		print("Node does not exist")
 		return;
 	
 	cost = lowestCosts[destination]

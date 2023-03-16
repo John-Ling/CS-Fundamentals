@@ -2,25 +2,25 @@
 #include <stdlib.h>
 
 // implementation of a basic binary tree for learning purposes
-struct tree_t
+struct node_t
 {
     int value;
-    struct tree_t* left;
-    struct tree_t* right;
+    struct node_t* left;
+    struct node_t* right;
 };
-typedef struct tree_t tree;
+typedef struct node_t node;
 
-tree* generate_tree();
-void inorder_traversal(tree* root);
-void preorder_traversal(tree* root);
-void postorder_traversal(tree* root);
-void free_tree(tree* root);
-void add_node_left(tree* root, int value);
-void add_node_right(tree* root, int value);
+node* generate_tree();
+void inorder_traversal(node* root);
+void preorder_traversal(node* root);
+void postorder_traversal(node* root);
+void free_tree(node* root);
+void add_node_left(node* root, int value);
+void add_node_right(node* root, int value);
 
 int main(void)
 {
-    tree* root = generate_tree();
+    node* root = generate_tree();
     
     inorder_traversal(root);
 
@@ -28,33 +28,33 @@ int main(void)
     return 0;
 }
 
-void add_node_left(tree* root, int value)
+void add_node_left(node* root, int value)
 {
-    tree* node = malloc(sizeof(tree));
+    node* node = malloc(sizeof(tree));
     node->value = value;
     node->left = NULL;
     node->right = NULL;
 
-    tree* traversalPointer = root;
+    node* traversalPointer = root;
     while (traversalPointer->left != NULL)
         traversalPointer = traversalPointer->left;
     traversalPointer->left = node;
 }
 
-void add_node_right(tree* root, int value)
+void add_node_right(node* root, int value)
 {
-    tree* node = malloc(sizeof(tree));
+    node* node = malloc(sizeof(tree));
     node->value = value;
     node->left = NULL;
     node->right = NULL;
 
-    tree* traversalPointer = root;
+    node* traversalPointer = root;
     while (traversalPointer->right != NULL)
         traversalPointer = traversalPointer->right;
     traversalPointer->right = node;
 }
 
-void inorder_traversal(tree* root)
+void inorder_traversal(node* root)
 {
     if (root == NULL)
         return;
@@ -63,7 +63,7 @@ void inorder_traversal(tree* root)
     inorder_traversal(root->right);
 }
 
-void preorder_traversal(tree* root)
+void preorder_traversal(node* root)
 {
     if (root == NULL)
         return;
@@ -72,7 +72,7 @@ void preorder_traversal(tree* root)
     preorder_traversal(root->right);
 }
 
-void postorder_traversal(tree* root)
+void postorder_traversal(node* root)
 {
     if (root == NULL)
         return;
@@ -81,7 +81,7 @@ void postorder_traversal(tree* root)
     printf("%i\n", root->value);
 }
 
-void free_tree(tree* root)
+void free_tree(node* root)
 {
     if (root == NULL)
         return;
@@ -90,49 +90,49 @@ void free_tree(tree* root)
     free(root);
 }
 
-tree* generate_tree()
+node* generate_tree()
 {
-    tree* root = malloc(sizeof(tree));
+    node* root = malloc(sizeof(tree));
     root->value = 76;
     root->left = NULL;
     root->right = NULL;
     
-    tree* node1 = malloc(sizeof(tree));
+    node* node1 = malloc(sizeof(tree));
     node1->value = 50;
     node1->left = NULL;
     node1->right = NULL;
 
     root->left = node1;
 
-    tree* node2 = malloc(sizeof(tree)); // allocate memory for another node
+    node* node2 = malloc(sizeof(tree)); // allocate memory for another node
     node2->left = NULL;
     node2->right = NULL;
     node2->value = 90;
 
     root->right = node2;
 
-    tree* node3 = malloc(sizeof(tree));
+    node* node3 = malloc(sizeof(tree));
     node3->value = 39;
     node3->left = NULL;
     node3->right = NULL;
 
     node1->left = node3;
 
-    tree* node4 = malloc(sizeof(tree));
+    node* node4 = malloc(sizeof(tree));
     node4->value = 60;
     node4->left = NULL;
     node4->right = NULL;
 
     node1->right = node4;
 
-    tree* node5 = malloc(sizeof(tree));
+    node* node5 = malloc(sizeof(tree));
     node5->value = 87;
     node5->left = NULL;
     node5->right = NULL;
 
     node2->left = node5;
 
-    tree* node6 = malloc(sizeof(tree));
+    node* node6 = malloc(sizeof(tree));
     node6->value = 124;
     node6->left = NULL;
     node6->right = NULL;

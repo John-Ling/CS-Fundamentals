@@ -103,25 +103,25 @@ node* delete(node* root, int value)
 		}
 		if (root->left == NULL)
 		{
-			node* tmp = root->right;
-			free(root);
+			node* tmp = root->right; // return the right child of the node to be deleted
+			free(root); // delete the node to be deleted
 			return tmp;
 		}
 		if (root->right == NULL)
 		{
-			node* tmp = root->left;
+			node* tmp = root->left; // return the left child of the node to be deleted
 			free(root);
 			return tmp;
 		}
 
-		node* minNode = find_min_node(root->right);
+		node* minNode = find_min_node(root->right); // find the inorder successor and copy it to the root node
 		root->value = minNode->value;
-		root->right = delete(root->right, minNode->value);
+		root->right = delete(root->right, minNode->value); // delete the node we copied from
 	}
 	return root;
 }
 
-node* find_min_node(node* root)
+node* find_min_node(node* root) // get the smallest node in the left subtree of the right child of root
 {
 	node* current = root;
 	while (current->left != NULL)

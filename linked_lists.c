@@ -20,6 +20,7 @@ void display_linked_list(linked_list** head);
 void insert_node(linked_list** head, int value, int position);
 void delete_node(linked_list** head, int position);
 void free_linked_list(linked_list** head);
+void reverse(linked_list** head);
 
 int main(void)
 {    
@@ -33,10 +34,11 @@ int main(void)
     linked_list** head = &linkedList;
 
     //example use of a linked list
-    insert_node(head, 256, 3);
-    delete_node(head, POSITION);
-    display_linked_list(head);
-    free_linked_list(head);
+	display_linked_list(head);
+	printf("Now reversing\n");
+	reverse(head);
+	display_linked_list(head);
+	free_linked_list(head);
     return 0;
 }
 
@@ -111,9 +113,19 @@ void delete_node(linked_list** head, int position)
         printf("Parameter 'position' should be between 0 and the length of the linked list\n");
 }
 
-void reverse(linked_list* head)
+void reverse(linked_list** head)
 {
-    ;
+	linked_list* current = (*head)->pointer;
+	linked_list* previous = *head;
+	previous->pointer = NULL;
+	while (current != NULL)
+	{
+		linked_list* next = current->pointer;
+		current->pointer = previous;
+		previous = current;
+		current = next;
+	}
+	*head = previous;
 }
 
 void free_linked_list(linked_list** head)

@@ -15,7 +15,7 @@ struct linked_list_t
 };
 typedef struct linked_list_t linked_list;
 
-linked_list* generate(int values[]);
+linked_list* generate(int values[], int nodeCount);
 void display_linked_list(linked_list** head);
 void insert_node(linked_list** head, int value, int position);
 void delete_node(linked_list** head, int position);
@@ -27,13 +27,13 @@ int main(void)
     const int START = 0;
     const int END = LINKED_LIST_LENGTH - 1;
     int values[] = {56, 84, 23, 46, 91, 76, 21, 38, 11, 83};
+	int nodeCount = sizeof(values) / sizeof(values[0]);
     const int POSITION = 4;
 
     // create linked list
-    linked_list* linkedList = generate(values); // pointer to the first node (the head node) in a linked list
-    linked_list** head = &linkedList;
-
-    //example use of a linked list
+    linked_list* linkedList = generate(values, nodeCount); // pointer to the first node (the head node) in a linked list
+	linked_list** head = &linkedList;
+	printf("Displaying\n");
 	display_linked_list(head);
 	printf("Now reversing\n");
 	reverse(head);
@@ -139,40 +139,16 @@ void free_linked_list(linked_list** head)
     }
 }
 
-linked_list* generate(int values[]) 
+linked_list* generate(int values[], int nodeCount) 
 {
-    linked_list* headNode = malloc(sizeof(linked_list));
-    linked_list* node1 = malloc(sizeof(linked_list));
-    linked_list* node2 = malloc(sizeof(linked_list));
-    linked_list* node3 = malloc(sizeof(linked_list));
-    linked_list* node4 = malloc(sizeof(linked_list));
-    linked_list* node5 = malloc(sizeof(linked_list));
-    linked_list* node6 = malloc(sizeof(linked_list));
-    linked_list* node7 = malloc(sizeof(linked_list));
-    linked_list* node8 = malloc(sizeof(linked_list));
-    linked_list* tailNode = malloc(sizeof(linked_list));
+    linked_list* head = malloc(sizeof(linked_list));
+	linked_list** pointer = &head;
+	head->value = values[0];
 
-    headNode->value = values[0];
-    node1->value = values[1];
-    node2->value = values[2];
-    node3->value = values[3];
-    node4->value = values[4];
-    node5->value = values[5];
-    node6->value = values[6];
-    node7->value = values[7];
-    node8->value = values[8];
-    tailNode->value = values[9];
-
-    headNode->pointer = node1;
-    node1->pointer = node2;
-    node2->pointer = node3;
-    node3->pointer = node4;
-    node4->pointer = node5;
-    node5->pointer = node6;
-    node6->pointer = node7;
-    node7->pointer = node8;
-    node8->pointer = tailNode;
-    tailNode->pointer = NULL;
-
-    return headNode;
+	for (int i = 1; i < nodeCount; i++)
+	{
+		int value = values[i];
+		insert_node(pointer, value, i);
+	}
+    return head;
 }

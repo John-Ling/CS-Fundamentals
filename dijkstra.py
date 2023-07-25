@@ -27,6 +27,11 @@ def main():
 			'H': [(float('inf'), 'F'), (7, 'I')],
 			'I': [(6, 'D'), (10, 'F'), (7, 'H')]
 			}
+	# GRAPH = {'A': [(100, 'B')],
+	#   		'B': [(100, 'C'), (600, 'D')],
+	# 		'C': [(100, 'A'), (200, 'D')],
+	# 		'D': [(float('inf'), 'A')]
+	#   		}
 			
 	graphData = generate_shortest_paths(GRAPH, SOURCE_NODE)
 	data = get_shortest_path('I', graphData)

@@ -142,13 +142,11 @@ void free_linked_list(linked_list** head)
 linked_list* generate(int values[], int nodeCount) 
 {
     linked_list* head = malloc(sizeof(linked_list));
-	linked_list** pointer = &head;
 	head->value = values[0];
-
 	for (int i = 1; i < nodeCount; i++)
 	{
 		int value = values[i];
-		insert_node(pointer, value, i);
+		insert_node(&head, value, i);
 	}
     return head;
 }

@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <math.h>
+
+// implementation of a hash table with linear probing for learning purposes
 
 #define BUCKET_COUNT 30
 
@@ -10,12 +13,13 @@ struct bucket_data_t
 typedef struct bucket_data_t bucket_data;
 
 int division_hash(int input);
+int mid_square_hash(int input);
 int string_to_ascii_value(char *str);
 int insert(char* key, char *value);
 char* retrieve(char* key);
 
 bucket_data hashTable[BUCKET_COUNT];
-int (*hash_function)(int) = &division_hash; // Change for different hash functions
+int (*hash_function)(int) = &mid_square_hash; // Change for different hash functions
 
 int main(void)
 {
@@ -23,7 +27,7 @@ int main(void)
 	{
 		hashTable[i].key = NULL; // Initialise hash table
 	}
-	
+
 	insert("Batman", "Josh");
 	insert("atmaBn", "Joshy");
 	printf("%s\n", retrieve("Batman"));
@@ -79,7 +83,6 @@ char* retrieve(char* key)
 
 	if (hashTable[hash].key == NULL)
 	{
-		printf("Key does not exist in map\n");
 		return "\0";
 	}
 	
@@ -109,10 +112,41 @@ int division_hash(int input)
 	return input % BUCKET_COUNT;
 }
 
+// Returns the middle r digits from the square of the input
 int mid_square_hash(int input) 
 {
-	int square = input^2;
-	
-	const int r = 2;
-	return 0;
+	const int r = 1; // Get the middle r digits in the square of the input
+
+	int hash = 0;
+	int square = pow(input, 2);
+	int digitCount = 1;
+	int multiplier = 10;
+
+	while ((int)(square / multiplier) != 0) // Count digits
+	{
+		digitCount++;
+		multiplier *= 10;
+	}
+
+	int digits[digitCount];
+	for (int i = digitCount - 1; i >= 0; i--)
+	{
+		digits[i] = square % 10;
+		square = (int)(square / 10);
+	}
+
+	int start = (int)(digitCount / 2);
+	if (digitCount % 2 == 0)
+	{
+		start--; // In an even number of digits with a pair of values, we start at the left value i.e we start at 2 in 23
+	}
+
+	multiplier = 1;
+	for (int i = start + r - 1; i >= start; i--)
+	{
+		hash += digits[i] * multiplier;
+		multiplier *= 10;
+	}
+
+	return hash;
 }

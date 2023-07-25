@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
-// implementation of an open-address hash table for learning purposes
+// implementation of a hash table with linear probing for learning purposes
 
 #define BUCKET_COUNT 30
 

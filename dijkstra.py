@@ -17,16 +17,39 @@ def main():
 	# 		'E': [(15, 'D'), (6, 'F'), (6, 'G')],
 	# 		'F': [(10, 'D'), (6, 'E'), (2, 'G')],
 	# 		'G': [(6, 'E'), (2, 'F')]}
-	GRAPH = {'A': [(5, 'B'), (7, 'E'), (9, 'G')],
-			'B': [(5, 'A'), (6, 'C'), (7, 'E')],
-			'C': [(6, 'B'), (7, 'F'), (6, 'E')],
-			'D': [(9, 'F'), (6, 'I')],
-			'E': [(7, 'A'), (7, 'B'), (6, 'C'), (11, 'F')],
-			'F': [(6, 'C'), (11, 'E'), (11, 'G'), (float('inf'), 'H'), (9, 'D'), (10, 'I')],
-			'G': [(9, 'A'), (11, 'F')],
-			'H': [(float('inf'), 'F'), (7, 'I')],
-			'I': [(6, 'D'), (10, 'F'), (7, 'H')]
-			}
+	# GRAPH = {'A': [(5, 'B'), (7, 'E'), (9, 'G')],
+	# 		'B': [(5, 'A'), (6, 'C'), (7, 'E')],
+	# 		'C': [(6, 'B'), (7, 'F'), (6, 'E')],
+	# 		'D': [(9, 'F'), (6, 'I')],
+	# 		'E': [(7, 'A'), (7, 'B'), (6, 'C'), (11, 'F')],
+	# 		'F': [(6, 'C'), (11, 'E'), (11, 'G'), (float('inf'), 'H'), (9, 'D'), (10, 'I')],
+	# 		'G': [(9, 'A'), (11, 'F')],
+	# 		'H': [(float('inf'), 'F'), (7, 'I')],
+	# 		'I': [(6, 'D'), (10, 'F'), (7, 'H')]
+	# 		}
+	# GRAPH = {'A': [(1, 'E1')],
+	# 	  	'E1': [(1, 'A'), (1, 'E2'), (1, 'D1')],
+	# 		'D1': [(1, 'E1')],
+	# 		'E2': [(1, 'E1'), (1, 'E3')],
+	# 		'E3': [(1, 'E2'), (1, 'D2'), (1, 'E4')],
+	# 		'E4': [(1, 'E3')],
+	# 		'D2': [(1, 'E3')]
+	# }
+
+	GRAPH = {
+		'A': [(1, 'E1'), (1, 'E2'), (1, 'E3'), (1, 'E4')],
+		'E1': [(1, 'A'), (1, 'D1'), (1, 'D2')],
+		'E2': [(1, 'A'), (1, 'D2'), (1, 'D3')],
+		'E3': [(1, 'A'), (1, 'D3'), (1, 'D4')],
+		'E4': [(1, 'A'), (1, 'D4'), (1, 'D1'), (1, 'E5')],
+		'E5': [(1, 'E4'), (1, 'E6')],
+		'E6': [(1, 'E5'), (1, 'D4')],
+		'D1': [(1, 'E4'), (1, 'E1')],
+		'D2': [(1,'E1'), (1, 'E2')],
+		'D3': [(1, 'E2'), (1, 'E3')],
+		'D4': [(1, 'E3'), (1, 'E4')]
+	}
+
 	# GRAPH = {'A': [(100, 'B')],
 	#   		'B': [(100, 'C'), (600, 'D')],
 	# 		'C': [(100, 'A'), (200, 'D')],
@@ -35,6 +58,9 @@ def main():
 			
 	graphData = generate_shortest_paths(GRAPH, SOURCE_NODE)
 	data = get_shortest_path('I', graphData)
+	print(f"Shortest path: {data[0]}")
+	print(f"Shortest path distance: {data[1]}")
+	data = get_shortest_path('D', graphData)
 	print(f"Shortest path: {data[0]}")
 	print(f"Shortest path distance: {data[1]}")
 
@@ -70,6 +96,8 @@ def generate_shortest_paths(GRAPH, source):
 				currentNode = node 
 				lowestCost = costs[node]
 	
+	print(costs)
+	print(previousNodes)
 	return (costs, previousNodes)
 
 def priority_queue_implementation(GRAPH, source):

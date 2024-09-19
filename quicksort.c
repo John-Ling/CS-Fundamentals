@@ -1,16 +1,15 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 // (very naive) implementation of the quicksort algorithm for learning purposes
 
 int quicksort(int arr[], int n);
 int partition(int arr[], int n);
 
-#define N 5
+#define N 10
 
 int main(int argc, char* argv[])
 {
-    int arr[N] = {10, 80, 30, 90, 40};
+    int arr[N] = {2, 40, 10, 80, 30, 90, 40, 50, 60, 5 };
     quicksort(arr, N);
     printf("Sorted\n");
     for (int i = 0; i < N; i++)

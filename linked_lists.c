@@ -8,12 +8,11 @@ const int LINKED_LIST_LENGTH = 10;
 const int START = 0; // index of start of linked list
 const int END = LINKED_LIST_LENGTH - 1; // index of end of linked list
 
-struct linked_list_t
+typdef struct 
 {
     int value;
     struct linked_list_t* pointer;
-};
-typedef struct linked_list_t linked_list;
+} linked_list;
 
 linked_list* generate(int values[], int nodeCount);
 void display_linked_list(linked_list** head);

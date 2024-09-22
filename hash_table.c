@@ -22,7 +22,7 @@ int delete(char* key);
 
 bucket_data hashTable[BUCKET_COUNT];
 int (*hash_function)(int) = &mid_square_hash; // Change for different hash functions
-
+`
 int main(void)
 {
 	for (int i = 0; i < BUCKET_COUNT; i++)

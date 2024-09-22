@@ -2,101 +2,57 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Fills lps[] for given pattern pat
-void computeLPSArray(const char* pat, int M, int* lps)
+int create_failure_array(int* lps, const char* pattern, const int length);
+int main(int argc, char* argv[])
 {
-    // Length of the previous longest prefix suffix
-    int len = 0;
+    char* pattern = "ABCDABD";
+    const int length = strlen(pattern);
+    int* lps = (int*)malloc(sizeof(int) * length);
+    create_failure_array(lps, pattern, length);
 
-    // lps[0] is always 0
-    lps[0] = 0;
-
-    // Loop calculates lps[i] for i = 1 to M-1
-    int i = 1;
-    while (i < M) {
-        if (pat[i] == pat[len]) {
-            len++;
-            lps[i] = len;
-            i++;
-        }
-        else {
-            if (len != 0) {
-                len = lps[len - 1];
-            }
-            else {
-                lps[i] = 0;
-                i++;
-            }
-        }
-    }
-}
-
-// Prints occurrences of pat in txt and returns an array of
-// occurrences
-int* KMPSearch(const char* pat, const char* txt, int* count)
-{
-    int M = strlen(pat);
-    int N = strlen(txt);
-
-    // Create lps[] that will hold the longest prefix suffix
-    // values for pattern
-    int* lps = (int*)malloc(M * sizeof(int));
-
-    // Preprocess the pattern (calculate lps[] array)
-    computeLPSArray(pat, M, lps);
-
-    int* result = (int*)malloc(N * sizeof(int));
-
-    // Number of occurrences found
-    *count = 0;
-
-    int i = 0; // index for txt
-    int j = 0; // index for pat
-  
-    while ((N - i) >= (M - j)) {
-        if (pat[j] == txt[i]) {
-            j++;
-            i++;
-        }
-
-        if (j == M) {
-
-            // Record the occurrence (1-based index)
-            result[*count] = i - j + 1;
-            (*count)++;
-            j = lps[j - 1];
-        }
-        else if (i < N && pat[j] != txt[i]) {
-            if (j != 0) {
-                j = lps[j - 1];
-            }
-            else {
-                i = i + 1;
-            }
-        }
-    }
-    free(lps);
-    return result;
-}
-
-// Driver code
-int main()
-{
-    const char txt[] = "geeksforgeeks";
-    const char pat[] = "geeks";
-    int count;
-
-    // Call KMPSearch and get the array of occurrences
-    int* result = KMPSearch(pat, txt, &count);
-
-    // Print all the occurrences (1-based indices)
-    for (int i = 0; i < count; i++) {
-        printf("%d ", result[i]);
+    for (int i = 0; i < length; i++)
+    {
+        printf("%d ", lps[i]);
     }
     printf("\n");
+    free(lps);
+    return 0;
+}
 
-    // Free the allocated memory
-    free(result);
+int kmp_search(const char* pattern, const char* string)
+{
+    return 0;
+}
+
+// I'll be honest I don't fully understand how this works
+// I just took the code from geeksfromgeeks, ran it through claude and adjusted a bit
+// general idea still applies just a abstract way of implementing it I guess
+int create_failure_array(int* lps, const char* pattern, const int length)
+{
+    if (length <= 0)
+        return 1;
+
+    lps[0] = -1;
+
+    int i = 0;
+    int j = -1; // length of longest prefix suffix
+    while (i < length - 1)
+    {
+        printf("i %d j %d\n", i, j);
+        if (j == -1 || pattern[i] == pattern[j])
+        {
+            // either initialise value at index i as 0
+            // or increment previous value and save it in next
+            j++;
+            i++;
+            lps[i] = j;
+        }
+        else
+        {
+            // reset 
+            j = lps[j];
+        }        
+    }
 
     return 0;
 }

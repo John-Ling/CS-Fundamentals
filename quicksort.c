@@ -44,7 +44,7 @@ int quicksort(int arr[], int n)
 
     // perform quicksort on the left
     quicksort(leftArr, itemsToLeft);
-    for (int i = 0; i < itemsToLeft; i++) // copy data back into the original array from our 
+    for (int i = 0; i < itemsToLeft; i++) // copy data back into the original array 
     {
         arr[i] = leftArr[i];
     }

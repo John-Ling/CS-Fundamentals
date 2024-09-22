@@ -1,2 +1,1 @@
-# Implementations of the fundamental data structures and algorithms
-Algorithms are fun
+# Algorithms are fun

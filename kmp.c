@@ -5,7 +5,7 @@
 int create_failure_array(int lps[], const char* pattern, const int length);
 int kmp_search(const char* pattern, const char* string);
 
-int main(int argc, char* argv[])
+int main(void)
 {
     const char* pattern = "ABCDABD";
     const char* string = "ABC ABCDAB ABCDABCDABDE";

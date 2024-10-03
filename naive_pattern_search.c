@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// implementation of naive pattern searching for learning purposes
+
 int naive_pattern_search(const char* string, const char* pattern);
 
 int main(int argc, char* argv[])

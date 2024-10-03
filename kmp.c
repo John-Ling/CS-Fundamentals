@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// implementation of the kmp algorithm for learning purposes
+
 int create_failure_array(int lps[], const char* pattern, const int length);
 int kmp_search(const char* string, const char* pattern);
 

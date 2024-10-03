@@ -8,7 +8,7 @@ const int LINKED_LIST_LENGTH = 10;
 const int START = 0; // index of start of linked list
 const int END = LINKED_LIST_LENGTH - 1; // index of end of linked list
 
-typdef struct 
+typedef struct linked_list_t
 {
     int value;
     struct linked_list_t* pointer;
@@ -22,12 +22,9 @@ void free_linked_list(linked_list** head);
 void reverse(linked_list** head);
 
 int main(void)
-{    
-    const int START = 0;
-    const int END = LINKED_LIST_LENGTH - 1;
+{
     int values[] = {56, 84, 23, 46, 91, 76, 21, 38, 11, 83};
 	int nodeCount = sizeof(values) / sizeof(values[0]);
-    const int POSITION = 4;
 
     // create linked list
     linked_list* linkedList = generate(values, nodeCount); // pointer to the first node (the head node) in a linked list

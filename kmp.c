@@ -23,7 +23,7 @@ int kmp_search(const char* pattern, const char* string)
     int i = 0;
     int found = 1;
 
-    int pointerA = i;
+    int pointerA = 0;
     int pointerB = patternLength;
     while (i < stringLength)
     {
@@ -59,7 +59,10 @@ int kmp_search(const char* pattern, const char* string)
 int create_failure_array(int lps[], const char* pattern, const int length)
 {
     if (length <= 0)
+    {
         return 1;
+    }
+            
 
     lps[0] = -1;
 

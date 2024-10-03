@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+// implementation of the BMH algorithm for learning purposes
+
 int bmh(const char* string, const char* pattern);
 
 int main(int argc, char* argv[])
 {
-
     if (argc == 1)
     {
         return 1;

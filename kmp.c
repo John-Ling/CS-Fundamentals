@@ -3,17 +3,43 @@
 #include <string.h>
 
 int create_failure_array(int lps[], const char* pattern, const int length);
-int kmp_search(const char* pattern, const char* string);
+int kmp_search(const char* string, const char* pattern);
 
 int main(int argc, char* argv[])
 {
-    const char* pattern = "ABCDABD";
-    const char* string = "ABC ABCDAB ABCDABCDABDE";
-    kmp_search(pattern, string);
+    if (argc == 1)
+    {
+        return 1;
+    }
+
+    char* strings[argc - 2];
+    for (int i = 1; i < argc - 1; i++)
+    {
+        const int length = strlen(argv[i]);
+        strings[i - 1] = (char*)malloc(sizeof(char) * length);
+        strncpy(strings[i - 1], argv[i], length);
+    }
+
+    const int patternLength = strlen(argv[argc - 1]);
+    char* pattern = (char*)malloc(sizeof(char) * patternLength);
+    strncpy(pattern, argv[argc - 1], patternLength);
+
+
+    for (int i = 0; i < argc - 2; i++)
+    {
+        kmp_search(strings[i], pattern);
+    }
+    
+    for (int i = 0; i < argc - 2; i++)
+    {
+        free(strings[i]);
+    }
+    free(pattern);
+
     return 0;
 }
 
-int kmp_search(const char* pattern, const char* string)
+int kmp_search(const char* string, const char* pattern)
 {
     const int patternLength = strlen(pattern);
     const int stringLength = strlen(string);

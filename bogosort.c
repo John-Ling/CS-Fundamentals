@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+// implementation of bogosort greatest algorithm yes yes for learning purposes
+
 int is_sorted(int arr[], int n);
 
 int main(int argc, char* argv[])

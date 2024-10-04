@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// implementation of binary search for learning purposes
+
 int binary_search(int arr[], int search, int n);
 int recursive_binary_search(int arr[], int search, int upperIndex, int lowerIndex);
 

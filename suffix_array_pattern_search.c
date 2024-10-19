@@ -2,14 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct 
+{
+    char* suffix;
+    int startIndex;
+} suffix;
+
 int generate_suffixes(int suffixArray[], const char* string);
+static int compare_suffixes(const void* a, const void* b);
 
 int main(int argc, char* argv[])
 {
-    const char* string = "banana";
-    int suffixArray[6];
+    const char* string = "ABCABCABCABC";
+    const int stringLength = strlen(string);
+    int suffixArray[stringLength];
     generate_suffixes(suffixArray, string);
-    for (int i = 0; i < 6; i++)
+
+    for (int i = 0; i < stringLength; i++)
     {
         printf("%d ", suffixArray[i]);
     }
@@ -17,21 +26,14 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+int suffix_search(const char* string, const char* pattern, int suffixArray[])
+{
+    
+    return 0;
+}
+
 int generate_suffixes(int suffixArray[], const char* string)
 {
-    typedef struct 
-    {
-        char* suffix;
-        int startIndex;
-    } suffix;
-
-    int compare_suffixes(const void* a, const void* b)
-    {
-        suffix A = *(suffix*)a;
-        suffix B = *(suffix*)b;
-        return strcmp(A.suffix, B.suffix);
-    }
-
     const int length = strlen(string);
     suffix temp[length]; // temporary array for storing and sorting suffixes
 
@@ -58,8 +60,16 @@ int generate_suffixes(int suffixArray[], const char* string)
 
     for (int i = 0; i < length; i++)
     {
+        printf("%s\n", temp[i].suffix);
         suffixArray[i] = temp[i].startIndex;
     }
 
     return 0;
+}
+
+static int compare_suffixes(const void* a, const void* b)
+{
+    suffix A = *(suffix*)a;
+    suffix B = *(suffix*)b;
+    return strcmp(A.suffix, B.suffix);
 }

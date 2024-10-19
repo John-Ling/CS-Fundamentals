@@ -7,8 +7,13 @@ int generate_suffixes(int suffixArray[], const char* string);
 int main(int argc, char* argv[])
 {
     const char* string = "banana";
-    int suffixArray[5];
+    int suffixArray[6];
     generate_suffixes(suffixArray, string);
+    for (int i = 0; i < 6; i++)
+    {
+        printf("%d ", suffixArray[i]);
+    }
+    printf("\n");
     return 0;
 }
 
@@ -19,6 +24,13 @@ int generate_suffixes(int suffixArray[], const char* string)
         char* suffix;
         int startIndex;
     } suffix;
+
+    int compare_suffixes(const void* a, const void* b)
+    {
+        suffix A = *(suffix*)a;
+        suffix B = *(suffix*)b;
+        return strcmp(A.suffix, B.suffix);
+    }
 
     const int length = strlen(string);
     suffix temp[length]; // temporary array for storing and sorting suffixes
@@ -42,10 +54,12 @@ int generate_suffixes(int suffixArray[], const char* string)
         temp[i] = suffix;
     }
 
+    qsort(temp, length, sizeof(suffix), compare_suffixes);
+
     for (int i = 0; i < length; i++)
     {
-        suffix suffix = temp[i];
-        printf("%s: %d\n", suffix.suffix, suffix.startIndex);
+        suffixArray[i] = temp[i].startIndex;
     }
+
     return 0;
 }

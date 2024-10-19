@@ -55,16 +55,14 @@ int kmp_search(const char* string, const char* pattern)
     int pointerB = patternLength;
     while (i < stringLength)
     {
-        int k = 0;
         for (int j = pointerA; j < pointerB; j++)
         {
-            if (string[j] == pattern[k])
+            if (string[j] == pattern[j - pointerA])
             {
-                k++;
                 continue;
             }
             found = 0;
-            i = j - lps[k] - 1; // skip over by setting index
+            i = j - lps[j - pointerA] - 1; // skip over by setting index
             break;
         }
 

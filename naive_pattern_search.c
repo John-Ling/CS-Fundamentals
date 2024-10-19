@@ -50,15 +50,13 @@ int naive_pattern_search(const char* string, const char* pattern)
     int found = 1;
     for (int i = 0; i < stringLength; i++)
     {
-        int k = 0;
         for (int j = pointerA; j < pointerB; j++)
         {
-            if (string[j] != pattern[k])
+            if (string[j] != pattern[j - pointerA])
             {
                 found = 0;
                 break;
             }
-            k++;
         }
 
         if (found)

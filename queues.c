@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // implementation of the (circular) queue data type for educational purposes
@@ -12,13 +13,13 @@ struct queue_t
 };
 typedef struct queue_t queue;
 
-void enqueue(queue *queue, int val);
-void dequeue(queue *queue);
-void is_empty(queue *queue);
-void is_full(queue *queue);
+int enqueue(queue *queue, int val);
+int dequeue(queue *queue);
+int is_empty(queue *queue);
+int is_full(queue *queue);
 int _calculate_pointer(int pointer);
-void intialise_queue(queue *queue);
-void display_queue(queue *queue);
+int intialise_queue(queue *queue);
+int display_queue(queue *queue);
 
 int main(void)
 {
@@ -58,40 +59,54 @@ int main(void)
 
 int _calculate_pointer(int pointer)
 {
-    return (pointer + 1) % MAX_SIZE; // formula to move pointer foward and account for circular queue wrap around
+    // formula to move pointer foward and account for circular queue wrap around
+    return (pointer + 1) % MAX_SIZE; 
 }
 
-void intialise_queue(queue *queue)
+int intialise_queue(queue *queue)
 {
-    // this is not really necessary but I want to be able to visualise the null spaces within the queue
+    // this is not really necessary but 
+    // I want to be able to visualise the null spaces within the queue
     // rather than  just seeing random garbage values
     // although the number is -1 since it's converted to a char using its ascii value 
     // it will be shown as a / because there are no ascii values for negative numbers
     for (int i = 0; i < MAX_SIZE; i++)
+    {
         queue->values[i] = -1;
+    }
+    return 0;   
 }
 
-void enqueue(queue *queue, int val)
+int enqueue(queue *queue, int val)
 {
     // add an element to the queue
     int pointer = _calculate_pointer(queue->backPointer); 
     if (pointer == queue->frontPointer)
-        printf("queue is full!\n");
-    else
     {
-        printf("Enqueuing value: %i\n", val);
-        queue->values[pointer] = val;
-        queue->backPointer = pointer;
-        if (queue->frontPointer == -1) // account for enqueing item when array is not completely filled
-            queue->frontPointer = 0; 
+        printf("queue is full!\n");
+        return 1;
     }
+
+    printf("Enqueuing value: %i\n", val);
+    queue->values[pointer] = val;
+    queue->backPointer = pointer;
+    // account for enqueing item when array is not completely filled
+    if (queue->frontPointer == -1) 
+    {
+        queue->frontPointer = 0; 
+    }
+
+    return 0;
 }
 
-void dequeue(queue *queue)
+int dequeue(queue *queue)
 {
     // return an element from the front of the queue
     if (queue->frontPointer == -1 && queue->backPointer == -1) 
+    {
         printf("queue is empty!\n");
+        return 1;
+    }
     else
     {
         int pointer = queue->frontPointer;
@@ -99,25 +114,32 @@ void dequeue(queue *queue)
         queue->frontPointer = _calculate_pointer(queue->frontPointer);
         printf("Dequeuing value: %i\n", val);
     }
+    return 0;
 }
 
-void is_empty(queue *queue)
+int is_empty(queue *queue)
 {
     if (_calculate_pointer(queue->frontPointer) > queue->backPointer)
+    {
         printf("queue is empty!\n");
-    else
-        printf("queue is not empty\n");
+        return 1;
+    }
+    printf("queue is not empty\n");
+    return 0;
 }
 
-void is_full(queue *queue)
+int is_full(queue *queue)
 {
     if (_calculate_pointer(queue->backPointer) == queue->frontPointer)
+    {
         printf("queue is full!\n");
-    else
-        printf("queue is not full\n");
+        return 1;
+    }
+    printf("queue is not full\n");
+    return 0;
 }
 
-void display_queue(queue *queue)
+int display_queue(queue *queue)
 {
     // show contents of queue including queue pointers and null values
     char frontPointerString[35] = " <-- Front pointer is here";
@@ -129,12 +151,19 @@ void display_queue(queue *queue)
     for (int i = 0; i < MAX_SIZE; i++)
     {
         strcpy(baseString, "Value: ");
-        charInteger = queue->values[i] + '0'; // convert integer to char using its ascii value
+        // convert integer to char using its ascii value
+        charInteger = queue->values[i] + '0'; 
         strncat(baseString, &charInteger, 1);
         if (queue-> frontPointer == i)
+        {
             strncat(baseString, frontPointerString, strlen(frontPointerString));
+        }
         else if (queue->backPointer == i)
+        {
             strncat(baseString, backPointerString, strlen(backPointerString));
+        }
         printf("%s\n", baseString);
     }
+
+    return 0;
 }

@@ -30,7 +30,6 @@ int main(int argc, char* argv[])
         bmh(strings[i], pattern);
     }
 
-
     for (int i = 0; i < argc - 2; i++)
     {
         free(strings[i]);
@@ -64,7 +63,6 @@ int bmh(const char* string, const char* pattern)
         int badCharacterIndex = 0;
         for (int j = pointerB - 1; j >= pointerA; j--)
         {
-            // printf("%c %c\n", string[j], pattern[k]);
             if (string[j] != pattern[k])
             {
                 found = 0;
@@ -82,7 +80,6 @@ int bmh(const char* string, const char* pattern)
         {
             // lookup in bad match table how many steps to move forward
             int offset = shiftArray[(int)string[badCharacterIndex]] - 1;
-            // printf("%d\n", offset);
             if (offset == -1)
             {
                 offset = patternLength - 1;

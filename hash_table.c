@@ -194,7 +194,9 @@ int mid_square_hash(int input)
 	int start = (int)(digitCount / 2);
 	if (digitCount % 2 == 0)
 	{
-		start--; // In an even number of digits with a pair of values, we start at the left value i.e we start at 2 in 23
+		// In an even number of digits with a pair of values, 
+		// we start at the left value i.e we start at 2 in 23
+		start--; 
 	}
 
 	multiplier = 1;

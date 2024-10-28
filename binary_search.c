@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
     if (argc == 1)
     {
         printf("Too few arguments\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     int arr[argc - 2];
@@ -23,11 +23,11 @@ int main(int argc, char* argv[])
     }
 
     const int search = atoi(argv[argc - 1]);
-    // binary_search(arr, search, argc - 2);
-    // recursive_binary_search(arr, search, argc - 2, 0);
+    binary_search(arr, search, argc - 2);
+    recursive_binary_search(arr, search, argc - 2, 0);
     multi_key_binary_search(arr, search, argc - 2);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int binary_search(int arr[], int search, int n)
@@ -49,11 +49,11 @@ int binary_search(int arr[], int search, int n)
         else
         {
             printf("Found value at index %d\n", middleIndex);
-            return 0;
+            return EXIT_SUCCESS;
         }
     }
     printf("Could not find value\n");
-    return 1;
+    return EXIT_FAILURE;
 }
 
 // variation on binary search to find multiple instances of a value
@@ -90,12 +90,12 @@ int multi_key_binary_search(int arr[], const int search, const int n)
                 printf("Found value at index %d\n", i);
                 i--;
             }
-            return 0;
+            return EXIT_SUCCESS;
         }
     }
 
     printf("Could not find value\n");
-    return 1;
+    return EXIT_FAILURE;
 }
 
 int recursive_binary_search(int arr[], int search, int upperIndex, int lowerIndex)
@@ -103,7 +103,7 @@ int recursive_binary_search(int arr[], int search, int upperIndex, int lowerInde
     if (lowerIndex > upperIndex)
     {
         printf("Could not find value\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     int middleIndex = (upperIndex + lowerIndex) / 2;
@@ -119,9 +119,8 @@ int recursive_binary_search(int arr[], int search, int upperIndex, int lowerInde
     else
     {
         printf("Found value at index %d\n", middleIndex);
-        return 0;
+        return EXIT_SUCCESS;
     }
 
-    recursive_binary_search(arr, search, upperIndex, lowerIndex);
-    return 0;
+    return recursive_binary_search(arr, search, upperIndex, lowerIndex);
 }

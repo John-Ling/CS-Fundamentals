@@ -121,11 +121,15 @@ void free_tree(node* root)
 {
     // free allocated memory using postorder traversal left --> right --> root
     if (root == NULL)
-        return;
+    {
+	    return;
+    }
     
     free_tree(root->left);
     free_tree(root->right);
     free(root);
+    root = NULL;
+    return;
 }
 
 node* generate_tree()

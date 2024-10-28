@@ -103,6 +103,7 @@ void reverse(linked_list** head)
 	{
 		linked_list* next = current->pointer;
 		current->pointer = previous;
+        /// aoijafewijapojpojfewapojapojgrpojrpojofewapijwafeoijqoihoih
 		previous = current;
 		current = next;
 	}

@@ -2,33 +2,94 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct 
-{
-    char* suffix;
-    int startIndex;
-} suffix;
+// implementation of very naive pattern searching using suffix arrays for learning purposes
 
-int generate_suffixes(int suffixArray[], const char* string);
-static int compare_suffixes(const void* a, const void* b);
+#include "suffix_array_pattern_search.h"
 
 int main(int argc, char* argv[])
 {
-    const char* string = "ABCABCABCABC";
-    const int stringLength = strlen(string);
-    int suffixArray[stringLength];
-    generate_suffixes(suffixArray, string);
-
-    for (int i = 0; i < stringLength; i++)
+    if (argc == 1)
     {
-        printf("%d ", suffixArray[i]);
+        return 1;
     }
-    printf("\n");
+
+    char* strings[argc - 2];
+    for (int i = 1; i < argc - 1; i++)
+    {
+        const int length = strlen(argv[i]);
+        strings[i - 1] = (char*)malloc(sizeof(char) * length);
+        strncpy(strings[i - 1], argv[i], length);
+    }
+
+    const int patternLength = strlen(argv[argc - 1]);
+    char* pattern = (char*)malloc(sizeof(char) * patternLength);
+    strncpy(pattern, argv[argc - 1], patternLength);
+
+    for (int i = 0; i < argc - 2; i++)
+    {
+        const int length = strlen(strings[i]);
+        int suffixArray[length];
+        generate_suffixes(suffixArray, strings[i]);
+        suffix_search(strings[i], pattern, suffixArray, length);
+    }
+
+    for (int i = 0; i < argc - 2; i++)
+    {
+        free(strings[i]);
+    }
+    free(pattern);
+
     return 0;
 }
 
-int suffix_search(const char* string, const char* pattern, int suffixArray[])
+// perform pattern searching via a suffix array and binary search
+int suffix_search(char* string, const char* pattern, int suffixArray[], const int n)
 {
-    
+    int upper = n - 1;
+    int lower = 0;
+    const int patternLength = strlen(pattern);
+
+    while (lower <= upper)
+    {
+        int mid = (upper + lower) / 2;
+        int suffixOffset = suffixArray[mid];
+        char* suffix = string + suffixOffset;
+        int result = strncmp(suffix, pattern, patternLength);
+        if (result > 0)
+        {
+            upper = mid - 1;
+        }
+        else if (result < 0)
+        {
+            lower = mid + 1;
+        }
+        else
+        {
+            printf("Found pattern at index %d\n", suffixOffset);
+            int i = mid + 1;
+            suffixOffset = suffixArray[i];
+            suffix = string + suffixOffset;
+            while (i < n && strncmp(suffix, pattern, patternLength) == 0)
+            {
+                printf("Found pattern at index %d\n", suffixOffset);
+                i++;
+                suffixOffset = suffixArray[i];
+                suffix = string + suffixOffset;
+            }
+
+            i = mid - 1;
+            suffixOffset = suffixArray[i];
+            suffix = string + suffixOffset;
+            while (i >= 0 && strncmp(suffix, pattern, patternLength) == 0)
+            {
+                printf("Found pattern at index %d\n", suffixOffset);
+                i--;
+                suffixOffset = suffixArray[i];
+                suffix = string + suffixOffset;
+            }
+            return 0;
+        }
+    }
     return 0;
 }
 
@@ -60,8 +121,8 @@ int generate_suffixes(int suffixArray[], const char* string)
 
     for (int i = 0; i < length; i++)
     {
-        printf("%s\n", temp[i].suffix);
         suffixArray[i] = temp[i].startIndex;
+        free(temp[i].suffix);
     }
 
     return 0;

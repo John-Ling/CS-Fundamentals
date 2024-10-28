@@ -7,47 +7,54 @@
 
 int main(void)
 {
-    node* root = generate_tree();
+    Node* root = generate_tree();
 	inorder_traversal(root);
     search_tree(root, 39);
     free_tree(root);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-void inorder_traversal(node* root)
+int inorder_traversal(Node* root)
 {
     if (root == NULL)
-        return;
+	{
+		return EXIT_SUCCESS;
+	}
     inorder_traversal(root->left); // visit all nodes to the left
     printf("%i\n", root->value); // visit root node
     inorder_traversal(root->right); // visit all nodes to the right
+	return EXIT_SUCCESS;
 }
 
-void search_tree(node* root, int value)
+int search_tree(Node* root, int value)
 {
     // recursively search tree using binary search for value
     if (root == NULL)
     {
         printf("Could not find value\n");
-        return;
+        return EXIT_FAILURE;
     }
 
     if (value < root->value)
-        return search_tree(root->left, value);
+	{
+		return search_tree(root->left, value);
+	}
     else if (value > root->value)  
-        return search_tree(root->right, value);
+	{
+		return search_tree(root->right, value);
+	}
     else
     {
         printf("Found value\n");
-        return;
+        return EXIT_SUCCESS;
     }
 }
 
-node* insert(node* root, int value)
+Node* insert(Node* root, int value)
 {
 	if (root == NULL) // if binary search tree is empty or reached bottom (both will be null)
 	{
-		node* node = malloc(sizeof(node));
+		Node* node = (Node*)malloc(sizeof(Node));
 		node->value = value;
 		node->left = NULL;
 		node->right = NULL;	
@@ -65,7 +72,7 @@ node* insert(node* root, int value)
 	return root;
 }
 
-node* delete(node* root, int value)
+Node* delete(Node* root, int value)
 {
 	if (root == NULL)
 	{
@@ -89,27 +96,27 @@ node* delete(node* root, int value)
 		}
 		if (root->left == NULL)
 		{
-			node* tmp = root->right; // return the right child of the node to be deleted
+			Node* tmp = root->right; // return the right child of the node to be deleted
 			free(root); // delete the node to be deleted
 			return tmp;
 		}
 		if (root->right == NULL)
 		{
-			node* tmp = root->left; // return the left child of the node to be deleted
+			Node* tmp = root->left; // return the left child of the node to be deleted
 			free(root);
 			return tmp;
 		}
 
-		node* minNode = find_min_node(root->right); // find the inorder successor and copy it to the root node
+		Node* minNode = find_min_node(root->right); // find the inorder successor and copy it to the root node
 		root->value = minNode->value;
 		root->right = delete(root->right, minNode->value); // delete the node we copied from
 	}
 	return root;
 }
 
-node* find_min_node(node* root) // get the smallest node in the left subtree of the right child of root
+Node* find_min_node(Node* root) // get the smallest node in the left subtree of the right child of root
 {
-	node* current = root;
+	Node* current = root;
 	while (current->left != NULL)
 	{
 		current = current->left;
@@ -117,24 +124,24 @@ node* find_min_node(node* root) // get the smallest node in the left subtree of 
 	return current;
 }
 
-void free_tree(node* root)
+int free_tree(Node* root)
 {
     // free allocated memory using postorder traversal left --> right --> root
     if (root == NULL)
     {
-	    return;
+	    return EXIT_SUCCESS;
     }
     
     free_tree(root->left);
     free_tree(root->right);
     free(root);
     root = NULL;
-    return;
+    return EXIT_SUCCESS;
 }
 
-node* generate_tree()
+Node* generate_tree()
 {
-    node* root = malloc(sizeof(node));
+    Node* root = (Node*)(malloc(sizeof(Node)));
     root->value = 76;
     root->left = NULL;
     root->right = NULL;

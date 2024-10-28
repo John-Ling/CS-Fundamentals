@@ -1,15 +1,14 @@
-struct node_t
+typedef struct Node_T
 {
     int value;
-    struct node_t* left;
-    struct node_t* right;
-};
-typedef struct node_t node;
+    struct Node_T* left;
+    struct Node_T* right;
+} Node;
 
-node* generate_tree();
-void inorder_traversal(node* root);
-void search_tree(node* root, int value);
-void free_tree(node* root);
-node* insert(node* root, int value);
-node* delete(node* root, int value);
-node* find_min_node(node* root);
+Node* generate_tree();
+int inorder_traversal(Node* root);
+int search_tree(Node* root, int value);
+int  free_tree(Node* root);
+Node* insert(Node* root, int value);
+Node* delete(Node* root, int value);
+Node* find_min_node(Node* root);

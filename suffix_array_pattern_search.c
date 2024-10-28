@@ -96,11 +96,11 @@ int suffix_search(char* string, const char* pattern, int suffixArray[], const in
 int generate_suffixes(int suffixArray[], const char* string)
 {
     const int length = strlen(string);
-    suffix temp[length]; // temporary array for storing and sorting suffixes
+    Suffix temp[length]; // temporary array for storing and sorting suffixes
 
     for (int i = 0; i < length; i++)
     {
-        suffix suffix;
+        Suffix suffix;
         suffix.suffix = (char*)malloc(sizeof(char) * (length - i + 1));
         if (suffix.suffix == NULL)
         {
@@ -117,7 +117,7 @@ int generate_suffixes(int suffixArray[], const char* string)
         temp[i] = suffix;
     }
 
-    qsort(temp, length, sizeof(suffix), compare_suffixes);
+    qsort(temp, length, sizeof(Suffix), compare_suffixes);
 
     for (int i = 0; i < length; i++)
     {
@@ -130,7 +130,7 @@ int generate_suffixes(int suffixArray[], const char* string)
 
 static int compare_suffixes(const void* a, const void* b)
 {
-    suffix A = *(suffix*)a;
-    suffix B = *(suffix*)b;
+    Suffix A = *(Suffix*)a;
+    Suffix B = *(Suffix*)b;
     return strcmp(A.suffix, B.suffix);
 }

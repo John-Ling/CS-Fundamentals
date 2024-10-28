@@ -1,30 +1,34 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 
 #include "hash_table.h"
 
-// implementation of a hash table with linear probing for learning purposes
+// implementation of a basic hash table with linear probing for learning purposes
 
 int main(void)
 {
+	Bucket hashTable[BUCKET_COUNT];
+
 	for (int i = 0; i < BUCKET_COUNT; i++)
 	{
 		hashTable[i].key = NULL; // Initialise hash table
 		hashTable[i].removed = 0;
 	}
 
-	insert("Batman", "Josh");
-	insert("atmaBn", "Joshy");
-	retrieve("Batman");
-	retrieve("atmaBn");
+	insert(hashTable, "Batman", "Josh");
+	insert(hashTable, "atmaBn", "Joshy");
+	retrieve(hashTable, "Batman");
+	retrieve(hashTable, "atmaBn");
 
-	delete("atmaBn");
-	retrieve("Batman");
-	retrieve("atmaBn");
-	return 0;
+	delete(hashTable, "atmaBn");
+	retrieve(hashTable, "Batman");
+	retrieve(hashTable, "atmaBn");
+	return EXIT_SUCCESS;
 }
 
-int string_to_ascii(char *str)
+int string_to_ascii(const char *str)
 {
 	int sum = 0;
 	while (*str != '\0')
@@ -35,21 +39,23 @@ int string_to_ascii(char *str)
 	return sum;
 }
 
-int insert(char* key, char *value)
+int insert(Bucket hashTable[], const char* key, const char *value)
 {
 	int ascii = string_to_ascii(key);
 	int hash = hash_function(ascii);
 
 	if (hashTable[hash].key == NULL)
 	{
-		hashTable[hash].key = key;
-		hashTable[hash].data = value;
-		return 0;
+		printf("Inserting data\n");
+		hashTable[hash].key = (char*)key;
+		hashTable[hash].data = (char*)value;
+		return EXIT_SUCCESS;
 	}
 
 	if (hashTable[hash].key == key) // Item is already present in hash table
 	{
-		return 0;
+		printf("Item already exists in table");
+		return EXIT_SUCCESS;
 	}
 
 	// Perform linear probing to find an open space
@@ -58,18 +64,19 @@ int insert(char* key, char *value)
 	{
 		if (hashTable[index].key == NULL)
 		{
-			hashTable[index].key = key;
-			hashTable[index].data = value;
-			return 0;
+			printf("Inserting data\n");
+			hashTable[index].key = (char*)key;
+			hashTable[index].data = (char*)value;
+			return EXIT_SUCCESS;
 		}
 		index += 3;
 	}
 
 	printf("Could not insert data");
-	return 1;
+	return EXIT_FAILURE;
 }
 
-char* retrieve(char* key)
+char* retrieve(Bucket hashTable[], const char* key)
 {
 	int ascii = string_to_ascii(key);
 	int hash = hash_function(ascii);
@@ -77,7 +84,7 @@ char* retrieve(char* key)
 	if (hashTable[hash].key == NULL)
 	{
 		printf("Could not retrieve key");
-		return "\0";
+		return NULL;
 	}
 	
 	if (hashTable[hash].key == key && hashTable[hash].removed == 0)
@@ -99,10 +106,10 @@ char* retrieve(char* key)
 	}
 
 	printf("Could not retrieve key\n");
-	return "\0";
+	return NULL;
 }
 
-int delete(char* key)
+int delete(Bucket hashTable[], const char* key)
 {
 	int ascii = string_to_ascii(key);
 	int hash = hash_function(ascii);
@@ -110,18 +117,18 @@ int delete(char* key)
 	if (hashTable[hash].key == NULL)
 	{
 		printf("Key provided does not exist in table");
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	if (hashTable[hash].removed)
 	{
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	if (hashTable[hash].key == key)
 	{
 		hashTable[hash].removed = 1;
-		return 0;
+		return EXIT_SUCCESS;
 	}
 
 	int index = hash + 3;
@@ -129,23 +136,23 @@ int delete(char* key)
 	{
 		if (hashTable[index].removed)
 		{
-			return 0;
+			return EXIT_SUCCESS;
 		}
 
 		if (hashTable[index].key == key)
 		{
 			hashTable[index].removed = 1;
-			return 0;
+			return EXIT_SUCCESS;
 		}
 	}
 
 	printf("Could not find key");
-	return 1;
+	return EXIT_FAILURE;
 }
 
 // Hash Functions
 
-int division_hash(int input)
+int division_hash(const int input)
 {
 	return input % BUCKET_COUNT;
 }

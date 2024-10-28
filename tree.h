@@ -1,15 +1,14 @@
-struct node_t
+typedef struct Node_t
 {
     int value;
-    struct node_t* left;
-    struct node_t* right;
-};
-typedef struct node_t node;
+    struct Node_t* left;
+    struct Node_t* right;
+} Node;
 
-node* generate_tree();
-void inorder_traversal(node* root);
-void preorder_traversal(node* root);
-void postorder_traversal(node* root);
-void free_tree(node* root);
-void add_node_left(node* root, int value);
-void add_node_right(node* root, int value);
+Node* generate_tree();
+int inorder_traversal(Node* root);
+int preorder_traversal(Node* root);
+int postorder_traversal(Node* root);
+int free_tree(Node* root);
+int add_node_left(Node* root, const int value);
+int add_node_right(Node* root, const int value);

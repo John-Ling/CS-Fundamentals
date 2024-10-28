@@ -1,17 +1,16 @@
 #define MAX_SIZE 10
 
-struct queue_t
+typedef struct
 {
     unsigned int values[MAX_SIZE];
     int frontPointer;
     int backPointer;
-};
-typedef struct queue_t queue;
+} Queue;
 
-int enqueue(queue *queue, int val);
-int dequeue(queue *queue);
-int is_empty(queue *queue);
-int is_full(queue *queue);
-int _calculate_pointer(int pointer);
-int intialise_queue(queue *queue);
-int display_queue(queue *queue);
+int enqueue(Queue *queue, const int val);
+int dequeue(Queue *queue);
+int is_empty(Queue *queue);
+int is_full(Queue *queue);
+static int calculate_pointer(const int pointer);
+int intialise_queue(Queue *queue);
+int display_queue(Queue *queue);

@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     if (argc == 1)
     {
         printf("Pass values to form the array\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     const int n = argc - 1;
 
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     }
     printf("\n");
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 
@@ -48,5 +48,5 @@ int bubble_sort(int arr[], const int n)
         }
         upper--;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -1,19 +1,17 @@
 #define BUCKET_COUNT 30
 
-struct bucket_data_t 
+typedef struct
 {
 	char* data;
 	char* key;
-	_Bool removed;
-};
-typedef struct bucket_data_t bucket_data;
+	bool removed;
+} Bucket;
 
-int division_hash(int input);
-int mid_square_hash(int input);
-int string_to_ascii(char *str);
-int insert(char* key, char *value);
-char* retrieve(char* key);
-int delete(char* key);
+int division_hash(const int input);
+int mid_square_hash(const int input);
+int string_to_ascii(const char *str);
+int insert(Bucket hashTable[], const char* key, const char *value);
+char* retrieve(Bucket hashTable[], const char* key);
+int delete(Bucket hashTable[], const char* key);
 
-bucket_data hashTable[BUCKET_COUNT];
 int (*hash_function)(int) = &mid_square_hash; // Change for different hash functions

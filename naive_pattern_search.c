@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 {
     if (argc == 1)
     {
-        return 1;
+        return EXIT_FAILURE;
     }
 
     char* strings[argc - 2];
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     }
     free(pattern);
     
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int naive_pattern_search(const char* string, const char* pattern)
@@ -68,5 +68,5 @@ int naive_pattern_search(const char* string, const char* pattern)
         pointerA++;
         pointerB++;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }

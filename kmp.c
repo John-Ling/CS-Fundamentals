@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 {
     if (argc == 1)
     {
-        return 1;
+        return EXIT_FAILURE;
     }
 
     char* strings[argc - 2];
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
     }
     free(pattern);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int kmp_search(const char* string, const char* pattern)
@@ -76,7 +76,7 @@ int kmp_search(const char* string, const char* pattern)
         pointerB++;
         i++;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 // I'll be honest I don't fully understand how this works
@@ -86,7 +86,7 @@ int create_failure_array(int lps[], const char* pattern, const int length)
 {
     if (length <= 0)
     {
-        return 1;
+        return EXIT_FAILURE;
     }
             
 
@@ -111,5 +111,5 @@ int create_failure_array(int lps[], const char* pattern, const int length)
         }        
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

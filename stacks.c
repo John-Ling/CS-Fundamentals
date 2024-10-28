@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
 #include "stacks.h"
 
@@ -7,10 +7,10 @@
 
 int main(void)
 {   
-    stack myStack;
+    Stack myStack;
     myStack.stackPointer = -1;
     // example use of a stack
-    stack* pointer = &myStack;
+    Stack* pointer = &myStack;
     initialise_stack(&myStack); // for learning purposes run this
     display_stack(pointer);
     push(pointer, 1);
@@ -26,88 +26,112 @@ int main(void)
     push(pointer, 5);
     push(pointer, 2);
     display_stack(pointer);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-void initialise_stack(stack *stack)
+int initialise_stack(Stack *stack)
 {
     // this is not really necessary (you can use the stack as is)
     // but for learning purposes I want to visualise the null sections within the array
     // rather than leaving them as garbage values
     for (int i = 0; i < MAX_SIZE; i++)
+    {
         stack->values[i] = -1;
+    }
+    return EXIT_SUCCESS; 
 }
 
-void push(stack *stack, int val)
+int push(Stack *stack, const int val)
 {
-    // adds element to the top of stack
+    // adds element to the top of Stack
     if (stack->stackPointer == MAX_SIZE - 1)
-        printf("stack full!\n");
+    {
+        printf("Stack full!\n");
+        return EXIT_FAILURE;
+    }
     else
     {
         printf("Pushing value: %i\n", val);
         stack->stackPointer++;
         stack->values[stack->stackPointer] = val;
     } 
+    return EXIT_SUCCESS;
 }
 
-void pop(stack *stack)
+int pop(Stack *stack)
 {
     // removes element from top of stack
     if (stack->stackPointer == -1)
-        printf("stack empty!\n");
+    {
+        printf("Stack empty!\n");
+        return EXIT_FAILURE;
+    }
     else
     { 
         int ptr = stack->stackPointer;
         printf("Popping value: %i\n", stack->values[ptr]);
         stack->stackPointer--; 
     }
+    return EXIT_SUCCESS;
 }
-void peek(stack *stack)
+
+int peek(Stack *stack)
 {
     // returns a copy of the element on the top of the stack without removing it
     // returns -1 if stack is empty
     int ptr = stack->stackPointer;
     if (ptr == -1)
-        printf("stack empty!\n");
+    {
+        printf("Stack empty!\n");
+        return EXIT_FAILURE;
+    }
     else 
-        printf("%i is at the top of the stack\n", stack->values[ptr]);
+    {
+        printf("%i is at the top of the Stack\n", stack->values[ptr]);
+    }
+    return EXIT_SUCCESS;
 }
 
-void is_empty(stack *stack)
+int is_empty(Stack *stack)
 {
     // check if stack is empty
     if (stack->stackPointer == -1)
-        printf("stack empty!\n");
+    {
+        printf("Stack empty!\n");
+        return EXIT_FAILURE;
+    }
     else 
+    {
         printf("Not empty!\n"); 
+    }
+    return EXIT_SUCCESS;
 }
 
-void is_full(stack *stack)
+int is_full(Stack *stack)
 {
     if (stack->stackPointer == (MAX_SIZE - 1))
-        printf("stack full!\n");
+    {
+        printf("Stack full!\n");
+        return EXIT_FAILURE;
+    }
     else 
+    {
         printf("Not full!\n"); 
+    }
+    return EXIT_SUCCESS;
 }
 
-void display_stack(stack *stack)
+int display_stack(Stack *stack)
 {
     // display all values in stack including the stack pointer
-    char pointerString[26] = " <-- stack pointer is here";
-    char baseString[9];
-    char outputString[30];
-    char charInteger;
-    
     for (int i = MAX_SIZE - 1; i > -1; i--)
     {
-        strcpy(baseString, "Value: ");
-        charInteger = stack->values[i] + '0';
-        strncat(baseString, &charInteger, 1);
-        strncat(outputString, baseString, strlen(baseString));
-        if (stack->stackPointer == i) // add stack pointer label
-            strncat(outputString, pointerString, strlen(pointerString));
-        printf("%s\n", outputString);
-        strcpy(outputString, "");
+        printf("Value: %d", stack->values[i]);
+        if (stack->stackPointer == i)
+        {
+            printf("<-- Stack pointer is here");
+        }
+        printf("\n");
     }
+    return EXIT_SUCCESS;
 }

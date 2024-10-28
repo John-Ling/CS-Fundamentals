@@ -9,7 +9,8 @@ int main(void)
 {
     Node* root = generate_tree();
 	inorder_traversal(root);
-    search_tree(root, 39);
+    search(root, 39);
+	delete(root, 39);
     free_tree(root);
     return EXIT_SUCCESS;
 }
@@ -18,7 +19,7 @@ int inorder_traversal(Node* root)
 {
     if (root == NULL)
 	{
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
     inorder_traversal(root->left); // visit all nodes to the left
     printf("%i\n", root->value); // visit root node
@@ -26,7 +27,7 @@ int inorder_traversal(Node* root)
 	return EXIT_SUCCESS;
 }
 
-int search_tree(Node* root, int value)
+int search(Node* root, const int value)
 {
     // recursively search tree using binary search for value
     if (root == NULL)
@@ -37,11 +38,11 @@ int search_tree(Node* root, int value)
 
     if (value < root->value)
 	{
-		return search_tree(root->left, value);
+		return search(root->left, value);
 	}
     else if (value > root->value)  
 	{
-		return search_tree(root->right, value);
+		return search(root->right, value);
 	}
     else
     {
@@ -50,7 +51,7 @@ int search_tree(Node* root, int value)
     }
 }
 
-Node* insert(Node* root, int value)
+Node* insert(Node* root, const int value)
 {
 	if (root == NULL) // if binary search tree is empty or reached bottom (both will be null)
 	{
@@ -72,7 +73,7 @@ Node* insert(Node* root, int value)
 	return root;
 }
 
-Node* delete(Node* root, int value)
+Node* delete(Node* root, const int value)
 {
 	if (root == NULL)
 	{
@@ -92,18 +93,24 @@ Node* delete(Node* root, int value)
 		if (root->left == NULL && root->right && NULL)
 		{
 			free(root);
+			root = NULL;
+			printf("Deleted node\n");
 			return root;
 		}
 		if (root->left == NULL)
 		{
 			Node* tmp = root->right; // return the right child of the node to be deleted
 			free(root); // delete the node to be deleted
+			root = NULL;
+			printf("Deleted node\n");
 			return tmp;
 		}
 		if (root->right == NULL)
 		{
 			Node* tmp = root->left; // return the left child of the node to be deleted
 			free(root);
+			root = NULL;
+			printf("Deleted node\n");
 			return tmp;
 		}
 

@@ -1,20 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "queues.h"
 
-// implementation of the (circular) queue data type for educational purposes
+// implementation of a circular queue data for educational purposes
 
 int main(void)
 {
-    queue myQueue;
+    Queue myQueue;
     myQueue.frontPointer = -1;
     myQueue.backPointer = -1;
-    queue* pointer = &myQueue;
+    Queue* pointer = &myQueue;
     intialise_queue(pointer);
     
-    //example use of a queue
+    //example use of a Queue
     enqueue(pointer, 3);
     enqueue(pointer, 6);
     enqueue(pointer, 2);
@@ -39,19 +38,19 @@ int main(void)
     display_queue(pointer);
     enqueue(pointer, 3);
     display_queue(pointer);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-int _calculate_pointer(int pointer)
+static int calculate_pointer(const int pointer)
 {
-    // formula to move pointer foward and account for circular queue wrap around
+    // formula to move pointer foward and account for circular Queue wrap around
     return (pointer + 1) % MAX_SIZE; 
 }
 
-int intialise_queue(queue *queue)
+int intialise_queue(Queue *queue)
 {
     // this is not really necessary but 
-    // I want to be able to visualise the null spaces within the queue
+    // I want to be able to visualise the null spaces within the Queue
     // rather than  just seeing random garbage values
     // although the number is -1 since it's converted to a char using its ascii value 
     // it will be shown as a / because there are no ascii values for negative numbers
@@ -59,17 +58,17 @@ int intialise_queue(queue *queue)
     {
         queue->values[i] = -1;
     }
-    return 0;   
+    return EXIT_SUCCESS;   
 }
 
-int enqueue(queue *queue, int val)
+int enqueue(Queue *queue, const int val)
 {
-    // add an element to the queue
-    int pointer = _calculate_pointer(queue->backPointer); 
+    // add an element to the Queue
+    int pointer = calculate_pointer(queue->backPointer); 
     if (pointer == queue->frontPointer)
     {
-        printf("queue is full!\n");
-        return 1;
+        printf("Queue is full!\n");
+        return EXIT_FAILURE;
     }
 
     printf("Enqueuing value: %i\n", val);
@@ -81,74 +80,65 @@ int enqueue(queue *queue, int val)
         queue->frontPointer = 0; 
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-int dequeue(queue *queue)
+int dequeue(Queue *queue)
 {
     // return an element from the front of the queue
     if (queue->frontPointer == -1 && queue->backPointer == -1) 
     {
-        printf("queue is empty!\n");
-        return 1;
+        printf("Queue is empty!\n");
+        return EXIT_FAILURE;
     }
     else
     {
         int pointer = queue->frontPointer;
         int val = queue->values[pointer];
-        queue->frontPointer = _calculate_pointer(queue->frontPointer);
+        queue->frontPointer = calculate_pointer(queue->frontPointer);
         printf("Dequeuing value: %i\n", val);
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-int is_empty(queue *queue)
+int is_empty(Queue *queue)
 {
-    if (_calculate_pointer(queue->frontPointer) > queue->backPointer)
+    if (calculate_pointer(queue->frontPointer) > queue->backPointer)
     {
-        printf("queue is empty!\n");
-        return 1;
+        printf("Queue is empty!\n");
+        return EXIT_FAILURE;
     }
-    printf("queue is not empty\n");
-    return 0;
+    printf("Queue is not empty\n");
+    return EXIT_SUCCESS;
 }
 
-int is_full(queue *queue)
+int is_full(Queue *queue)
 {
-    if (_calculate_pointer(queue->backPointer) == queue->frontPointer)
+    if (calculate_pointer(queue->backPointer) == queue->frontPointer)
     {
-        printf("queue is full!\n");
-        return 1;
+        printf("Queue is full!\n");
+        return EXIT_FAILURE;
     }
-    printf("queue is not full\n");
-    return 0;
+    printf("Queue is not full\n");
+    return EXIT_SUCCESS;
 }
 
-int display_queue(queue *queue)
+int display_queue(Queue *queue)
 {
-    // show contents of queue including queue pointers and null values
-    char frontPointerString[35] = " <-- Front pointer is here";
-    char backPointerString[35] = " <-- Back pointer is here";
-    char baseString[35];
-    char outputString[95];
-    char charInteger;
-
+    // show contents of Queue including Queue pointers and null values
     for (int i = 0; i < MAX_SIZE; i++)
     {
-        strcpy(baseString, "Value: ");
-        // convert integer to char using its ascii value
-        charInteger = queue->values[i] + '0'; 
-        strncat(baseString, &charInteger, 1);
-        if (queue-> frontPointer == i)
+        printf("Value: %d ", queue->values[i]);
+        if (queue->frontPointer == i)
         {
-            strncat(baseString, frontPointerString, strlen(frontPointerString));
+            printf("<-- Front pointer is here");
         }
         else if (queue->backPointer == i)
         {
-            strncat(baseString, backPointerString, strlen(backPointerString));
+            printf("<-- Back pointer is here");
         }
-        printf("%s\n", baseString);
+        printf("\n");
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

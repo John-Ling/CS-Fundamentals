@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     if (argc == 1)
     {
         printf("Pass values to form the array\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     const int n = argc - 1;
 
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
         printf("%d ", arr[i]);
     }
     printf("\n");
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int insertion_sort(int arr[], int n)
@@ -42,5 +42,5 @@ int insertion_sort(int arr[], int n)
         }
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

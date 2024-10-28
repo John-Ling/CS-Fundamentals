@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		printf("run ./bogosort N\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	const int N = atoi(argv[1]);
 
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 	}
 	printf("LETS GO!!!!!\n");
     printf("Completed in %llu iterations\n", iterations);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 int is_sorted(int arr[], int n)
@@ -59,8 +59,8 @@ int is_sorted(int arr[], int n)
 	{
 		if (arr[i] < arr[i - 1])
 		{
-			return 0;
+			return EXIT_SUCCESS;
 		}
 	}
-	return 1;
+	return EXIT_FAILURE;
 }

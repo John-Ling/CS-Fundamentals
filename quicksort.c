@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 // (very naive) implementation of the quicksort algorithm for learning purposes
 
@@ -17,14 +18,14 @@ int main(int argc, char* argv[])
         printf("%d ", arr[i]);
     }
     printf("\n");
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int quicksort(int arr[], int n)
 {
     if (n <= 1)
     {
-        return 0;
+        return EXIT_SUCCESS;
     }
     int pivotIndex = partition(arr, n);
     int itemsToLeft = pivotIndex;
@@ -55,7 +56,7 @@ int quicksort(int arr[], int n)
     {
         arr[i + pivotIndex + 1] = rightArr[i];
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int partition(int arr[], int n)
@@ -90,4 +91,9 @@ int partition(int arr[], int n)
     }
     // return the index of the pivot
     return lower;
+}
+
+int lomuto_partition(int arr[], int n)
+{
+    return EXIT_SUCCESS;
 }

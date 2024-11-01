@@ -2,15 +2,21 @@
 #define START 0 // index of start of linked list
 #define END  LINKED_LIST_LENGTH - 1 // index of end of linked list
 
-typedef struct LinkedList_t
+typedef struct ListNode_t
 {
     int value;
-    struct LinkedList_t* pointer;
+    struct ListNode_t* next;
+} ListNode;
+
+typedef struct LinkedList_t
+{
+    int itemCount;
+    ListNode* head; // front of list
 } LinkedList;
 
-LinkedList* generate(int values[], int nodeCount);
-int display_linked_list(LinkedList** head);
-int insert_node(LinkedList** head, int value, int position);
-int delete_node(LinkedList** head, int position);
-int free_linked_list(LinkedList** head);
-int reverse(LinkedList** head);
+LinkedList* create_list(int values[], int n);
+int insert_node(LinkedList* list, const int value, const int position);
+int print_list(LinkedList* list);
+int delete_node(LinkedList* list, const int index);
+int reverse_list(LinkedList* list);
+int free_list(LinkedList* list);

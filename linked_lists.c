@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 // implementation of a singly linked list for learning purposes
 
@@ -11,142 +12,196 @@ int main(void)
 	int nodeCount = sizeof(values) / sizeof(values[0]);
 
     // create linked list
-    LinkedList* linkedList = generate(values, nodeCount); 
+    LinkedList* list = create_list(values, nodeCount); 
+    print_list(list);
 
-    // pointer to the first node (the head node) in a linked list
-	LinkedList** head = &linkedList;
-	printf("Displaying\n");
-	display_linked_list(head);
-	printf("Now reversing\n");
-	reverse(head);
-	display_linked_list(head);
-	free_linked_list(head);
+    // test insertion
+    assert(insert_node(list, 300, 2) == EXIT_SUCCESS);
+    assert(insert_node(list, 600, 0) == EXIT_SUCCESS);
+    assert(insert_node(list, 900, -1) == EXIT_SUCCESS);
+
+    // test invalid insertion
+    assert(insert_node(list, 900, 999) == EXIT_FAILURE);
+    assert(insert_node(list, 900, -2) == EXIT_FAILURE);
+
+    // test deletion
+    assert(delete_node(list, 0) == EXIT_SUCCESS);
+    assert(delete_node(list, 2) == EXIT_SUCCESS);
+    assert(delete_node(list, -1) == EXIT_SUCCESS);
+
+    // test invalid deletion
+    assert(delete_node(list, 9999) == EXIT_FAILURE);
+    assert(delete_node(list, -2) == EXIT_FAILURE);
+
+    print_list(list);
+    reverse_list(list);
+    print_list(list);
+
+
+    free_list(list);
+
     return EXIT_SUCCESS;
 }
 
-int display_linked_list(LinkedList** head)
+int print_list(LinkedList* list)
 {
-    LinkedList* temp = *head;
-    while (temp != NULL)
+    ListNode* current = list->head;
+    while (current != NULL)
     {
-        printf("%i\n", temp->value);
-        temp = temp->pointer;
+        printf("%i ", current->value);
+        current = current->next;
     }
+    puts("");
     return EXIT_SUCCESS;
 }
 
-int insert_node(LinkedList** head, int value, int position)
+// inserts a value at index in a linked list
+int insert_node(LinkedList* list, const int value, const int index)
 {
-    LinkedList* temp = *head;
-    LinkedList* node = malloc(sizeof(LinkedList));
-    node->value = value;
+    if (index > list->itemCount || index < -1)
+    {
+        return EXIT_FAILURE;
+    }
     
-    if (position == 0)
+    list->itemCount++;
+    ListNode* node = (ListNode*)malloc(sizeof(ListNode));
+    node->value = value;
+
+    if (list->head == NULL)
     {
-        node->pointer = *head; // point node to the current head (pointer) of the list
-        *head = node; // node is the new head of the linked list
-    }
-    else if (position == END)
-    {
-        while (temp->pointer != NULL) // traverse linked list until end
-        {
-            temp = temp->pointer;
-        }
-            
-        temp->pointer = node; // point end of list to node
-        node->pointer = NULL; // make node the new tail node by pointing it to null
-    }
-    else if (position > START && position < END)
-    {
-        // traverse linked list until position is reached
-        for (int i = 0; i < position - 1; i++)
-        {
-            if (temp->pointer != NULL)
-            {
-                temp = temp->pointer;
-            }
-        }
-        
-        node->pointer = temp->pointer;
-        temp->pointer = node;
+        list->head = node;
+        return EXIT_SUCCESS;
     }
 
+    // insert at head
+    if (index == 0)
+    {
+        node->next = list->head;
+        list->head = node;
+    }
+    else if (index == -1) // insert at tail
+    {
+        ListNode* current = list->head;
+
+        // travel to end of list
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = node;
+    }
+    else
+    {
+        ListNode* current = list->head;
+        // travel to node that comes before index
+        for (int i = 0; i < index - 1; i++)
+        {
+            if (current->next == NULL)
+            {
+                break;
+            }
+            current = current->next;
+        }
+
+        node->next = current->next;
+        current->next = node;
+    }
     return EXIT_SUCCESS;
 }
 
-int delete_node(LinkedList** head, int position)
+int delete_node(LinkedList* list, const int index)
 {
-    LinkedList* temp = *head;
-    if (position == 0)
-    {
-        *head = (*head)->pointer; // change to the new head
-        free(temp);
-    }
-    else if (position == END)
-    {
-        while (temp->pointer->pointer != NULL) // travel to penultimate node
-        {
-            temp = temp->pointer;
-        }
 
-        free(temp->pointer); // free pointer ahead of penultimate node
-        temp->pointer = NULL; // set penultimate node to be the new tail node
-    }
-    else if (position > START && position < END)
+    if (list->itemCount - 1 < 0 || index >= list->itemCount || index < -1)
     {
-        for (int i = 0; i < position - 1; i++)
+        return EXIT_FAILURE;
+    }
+
+    list->itemCount--;
+
+    if (index == 0)
+    {
+        ListNode* temp = list->head;
+        list->head = list->head->next;
+        free(temp);
+        temp = NULL;
+    }
+    else if (index == -1)
+    {
+        ListNode* current = list->head;
+        while (current->next->next != NULL) // travel to penultimate node
         {
-            temp = temp->pointer;
+            current = current->next;
         }
-        
-        LinkedList* nodeAhead = temp->pointer->pointer; // node after node to be freed
-        free(temp->pointer);
-        temp->pointer = nodeAhead;
+        free(current->next); // delete final node
+        current->next = NULL;
     }
     else 
     {
-        printf("Parameter 'position' should be between 0 and the length of the linked list\n");
-        return EXIT_FAILURE;
+        ListNode* current = list->head;
+        
+        // travel to node that comes before index
+        for (int i = 0; i < index - 1; i++)
+        {
+            if (current->next == NULL)
+            {
+                break;
+            }
+            current = current->next;
+        }
+
+        // store node after index
+        ListNode* temp = current->next;
+
+        // isolate node to be freed by connect node at index with node after node to be freed
+        current->next = current->next->next;
+
+        free(temp);
+        temp = NULL;
     }
     return EXIT_SUCCESS;
 }
 
-int reverse(LinkedList** head)
+int reverse_list(LinkedList* list)
 {
-	LinkedList* current = (*head)->pointer;
-	LinkedList* previous = *head;
-	previous->pointer = NULL;
+    ListNode* current = list->head->next;
+    ListNode* previous = list->head;
+    previous->next = NULL;
 	while (current != NULL)
 	{
-		LinkedList* next = current->pointer;
-		current->pointer = previous;
+		ListNode* next = current->next;
+		current->next = previous;
 		previous = current;
 		current = next;
 	}
-	*head = previous;
+	list->head = previous;
     return EXIT_SUCCESS;
 }
 
-int free_linked_list(LinkedList** head)
+int free_list(LinkedList* list)
 {
-    LinkedList* temp = *head;
-    while (*head != NULL)
+    ListNode* previous = list->head;
+    list->head = list->head->next;
+    while (list->head != NULL)
     {
-        *head = (*head)->pointer;
-        free(temp);
-        temp = *head;
+        
+        free(previous);
+        previous = list->head;
+        list->head = list->head->next;
     }
+    free(previous);
+    previous = NULL;
+    free(list);
     return EXIT_SUCCESS;
 }
 
-LinkedList* generate(int values[], int nodeCount) 
+LinkedList* create_list(int values[], int n) 
 {
-    LinkedList* head = malloc(sizeof(LinkedList));
-	head->value = values[0];
-	for (int i = 1; i < nodeCount; i++)
-	{
-		int value = values[i];
-		insert_node(&head, value, i);
-	}
-    return head;
+    LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
+    list->itemCount = 0;
+    for (int i = 0; i < n; i++)
+    {
+        insert_node(list, values[i], -1);
+    }
+    return list;
 }

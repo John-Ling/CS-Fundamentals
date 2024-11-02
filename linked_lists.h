@@ -20,3 +20,4 @@ int print_list(LinkedList* list);
 int delete_node(LinkedList* list, const int index);
 int reverse_list(LinkedList* list);
 int free_list(LinkedList* list);
+static int run_test(void);

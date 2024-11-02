@@ -6,37 +6,33 @@
 
 #include "linked_lists.h"
 
-int main(void)
+int main(int argc, char* argv[])
 {
-    int values[] = {56, 84, 23, 46, 91, 76, 21, 38, 11, 83};
-	int nodeCount = sizeof(values) / sizeof(values[0]);
+    if (argc == 1)
+    {
+        printf("Pass values to form the array\n");
+        return EXIT_FAILURE;
+    }
+    const int n = argc - 1;
 
-    // create linked list
-    LinkedList* list = create_list(values, nodeCount); 
-    print_list(list);
+    int arr[n];
+    for (int i = 1; i < argc; i++)
+    {
+        arr[i - 1] = atoi(argv[i]);
+    }
 
-    // test insertion
-    assert(insert_node(list, 300, 2) == EXIT_SUCCESS);
-    assert(insert_node(list, 600, 0) == EXIT_SUCCESS);
-    assert(insert_node(list, 900, -1) == EXIT_SUCCESS);
+    LinkedList* list = create_list(arr, n);
 
-    // test invalid insertion
-    assert(insert_node(list, 900, 999) == EXIT_FAILURE);
-    assert(insert_node(list, 900, -2) == EXIT_FAILURE);
+    // basic uses of a linked list
+    insert_node(list, 50, -1);
+    insert_node(list, 10, 0);
+    insert_node(list, 43, 4);
 
-    // test deletion
-    assert(delete_node(list, 0) == EXIT_SUCCESS);
-    assert(delete_node(list, 2) == EXIT_SUCCESS);
-    assert(delete_node(list, -1) == EXIT_SUCCESS);
-
-    // test invalid deletion
-    assert(delete_node(list, 9999) == EXIT_FAILURE);
-    assert(delete_node(list, -2) == EXIT_FAILURE);
+    delete_node(list, -1);
 
     print_list(list);
     reverse_list(list);
     print_list(list);
-
 
     free_list(list);
 
@@ -65,6 +61,11 @@ int insert_node(LinkedList* list, const int value, const int index)
     
     list->itemCount++;
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
+    if (node == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+
     node->value = value;
 
     if (list->head == NULL)
@@ -184,7 +185,6 @@ int free_list(LinkedList* list)
     list->head = list->head->next;
     while (list->head != NULL)
     {
-        
         free(previous);
         previous = list->head;
         list->head = list->head->next;
@@ -198,10 +198,50 @@ int free_list(LinkedList* list)
 LinkedList* create_list(int values[], int n) 
 {
     LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
+    if (list == NULL)
+    {
+        puts("Failed to create list");
+        exit(1);
+    }
     list->itemCount = 0;
     for (int i = 0; i < n; i++)
     {
         insert_node(list, values[i], -1);
     }
     return list;
+}
+
+// test basic features of linked list
+static int run_test(void)
+{
+    int values[] = {56, 84, 23, 46, 91, 76, 21, 38, 11, 83};
+	int nodeCount = sizeof(values) / sizeof(values[0]);
+    // create linked list
+    LinkedList* list = create_list(values, nodeCount); 
+
+    // test insertion
+    assert(insert_node(list, 300, 2) == EXIT_SUCCESS);
+    assert(insert_node(list, 600, 0) == EXIT_SUCCESS);
+    assert(insert_node(list, 900, -1) == EXIT_SUCCESS);
+
+    // test invalid insertion
+    assert(insert_node(list, 900, 999) == EXIT_FAILURE);
+    assert(insert_node(list, 900, -2) == EXIT_FAILURE);
+
+    // test deletion
+    assert(delete_node(list, 0) == EXIT_SUCCESS);
+    assert(delete_node(list, 2) == EXIT_SUCCESS);
+    assert(delete_node(list, -1) == EXIT_SUCCESS);
+
+    // test invalid deletion
+    assert(delete_node(list, 9999) == EXIT_FAILURE);
+    assert(delete_node(list, -2) == EXIT_FAILURE);
+
+    // check if print and reverse works
+    print_list(list);
+    reverse_list(list);
+    print_list(list);
+
+    free_list(list);
+    return EXIT_SUCCESS;
 }

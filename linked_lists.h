@@ -1,7 +1,3 @@
-#define LINKED_LIST_LENGTH 10
-#define START 0 // index of start of linked list
-#define END  LINKED_LIST_LENGTH - 1 // index of end of linked list
-
 typedef struct ListNode_t
 {
     int value;
@@ -20,4 +16,14 @@ int print_list(LinkedList* list);
 int delete_node(LinkedList* list, const int index);
 int reverse_list(LinkedList* list);
 int free_list(LinkedList* list);
-static int run_test(void);
+
+struct LibLinkedList_l {
+    LinkedList* (*create_list)(int[], int);
+    int (*insert_node)(LinkedList*, const int, const int);
+    int (*print_list)(LinkedList*);
+    int (*delete_node)(LinkedList*, const int);
+    int (*reverse_list)(LinkedList*);
+    int (*free_list)(LinkedList*);
+};
+
+extern const struct LibLinkedList_l LibLinkedList;

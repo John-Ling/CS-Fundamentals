@@ -1,14 +1,14 @@
-typedef struct Node_T
+typedef struct BSTNode_t
 {
     int value;
-    struct Node_T* left;
-    struct Node_T* right;
-} Node;
+    struct BSTNode_t* left;
+    struct BSTNode_t* right;
+} BSTNode;
 
-Node* generate_tree();
-int inorder_traversal(Node* root);
-int search(Node* root, const int value);
-int  free_tree(Node* root);
-Node* insert(Node* root, const int value);
-Node* delete(Node* root, const int value);
-Node* find_min_node(Node* root);
+BSTNode* generate_tree();
+int inorder_traversal(BSTNode* root);
+int search_tree(BSTNode* root, const int value);
+int  free_tree(BSTNode* root);
+BSTNode* insert_tree_node(BSTNode* root, const int value);
+BSTNode* delete(BSTNode* root, const int value);
+BSTNode* find_min_node(BSTNode* root);

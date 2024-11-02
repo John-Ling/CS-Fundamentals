@@ -17,7 +17,13 @@ int main(void)
     push(pointer, 2);
     push(pointer, 3);
     push(pointer, 4);
-    peek(pointer);
+    peek(pointer); typedef struct tree tree_t;
+  
+    struct tree {
+        data_t  data;      // the data stored at this node
+        tree_t *left;      // left subtree of node
+        tree_t *rght;      // right subtree of node
+    };
     push(pointer, 6);
     push(pointer, 9);
     pop(pointer);

@@ -7,11 +7,23 @@
 
 int main(void)
 {
-    BSTNode* root = generate_tree();
+    
+	BSTNode* root = create_tree(NULL, 0);
+	puts("Chekcing");
+	printf("%p\n", root);
+	printf("%p\n", *root);
+	if ((root) == NULL)
+	{
+		puts("Null");
+		return EXIT_FAILURE;
+	}
+	insert_node(root, 900);
+	// puts("Inserting");
+	// insert(root, 900);
 	inorder_traversal(root);
-    search_tree(root, 39);
-	delete(root, 39);
-    free_tree(root);
+    // search_tree(root, 39);
+	// delete(root, 39);
+    // free_tree(root);
     return EXIT_SUCCESS;
 }
 
@@ -51,26 +63,37 @@ int search_tree(BSTNode* root, const int value)
     }
 }
 
-BSTNode* insert_tree_node(BSTNode* root, const int value)
+// interface to insert_node where only the single
+// pointer needs to be passed rather than a double pointer
+int insert(BSTNode* root, const int value)
 {
-	if (root == NULL) // if binary search tree is empty or reached bottom (both will be null)
+	return insert_node(&root, value);
+}
+
+static int insert_node(BSTNode** root, const int value)
+{
+	if ((*root) == NULL) // if binary search tree is empty or reached bottom (both will be null)
 	{
 		BSTNode* node = (BSTNode*)malloc(sizeof(BSTNode));
 		node->value = value;
-		node->left = NULL;
-		node->right = NULL;	
-		return node;
+		(*root) = node;
+		return EXIT_SUCCESS;
 	}
 
-	if (value > root->value)
+	BSTNode** next;
+	if (value > (*root)->value)
 	{
-		root->right = insert_tree_node(root->right, value);
+		next = &(*root)->right;
 	}
-	else if (value < root->value)
+	else if (value < (*root)->value)
 	{
-		root->left = insert_tree_node(root->left, value); 
+		next = &(*root)->left;
 	}
-	return root;
+	else
+	{
+		return EXIT_SUCCESS;
+	}
+	return insert(next, value);
 }
 
 BSTNode* delete(BSTNode* root, const int value)
@@ -138,7 +161,7 @@ int free_tree(BSTNode* root)
     {
 	    return EXIT_SUCCESS;
     }
-    
+
     free_tree(root->left);
     free_tree(root->right);
     free(root);
@@ -146,17 +169,12 @@ int free_tree(BSTNode* root)
     return EXIT_SUCCESS;
 }
 
-BSTNode* generate_tree()
+BSTNode* create_tree(int arr[], const int n)
 {
-    BSTNode* root = (BSTNode*)(malloc(sizeof(BSTNode)));
-    root->value = 76;
-    root->left = NULL;
-    root->right = NULL;
-	root = insert_tree_node(root, 50);
-	root = insert_tree_node(root, 90);
-	root = insert_tree_node(root, 39);
-	root = insert_tree_node(root, 60);
-	root = insert_tree_node(root, 87);
-	root = insert_tree_node(root, 124);
-    return root;
+    BSTNode* head = (BSTNode*)(malloc(sizeof(BSTNode)));
+    head->value = 76;
+	// root = &head;
+	// printf("%p\n", *root);
+    // return root;
+	return head;
 }

@@ -5,10 +5,11 @@ typedef struct BSTNode_t
     struct BSTNode_t* right;
 } BSTNode;
 
-BSTNode* generate_tree();
+BSTNode* create_tree(int arr[], const int n);
+int insert(BSTNode* root, const int value);
+static int insert_node(BSTNode** root, const int value);
 int inorder_traversal(BSTNode* root);
-int search_tree(BSTNode* root, const int value);
+int search(BSTNode* root, const int value);
 int  free_tree(BSTNode* root);
-BSTNode* insert_tree_node(BSTNode* root, const int value);
 BSTNode* delete(BSTNode* root, const int value);
 BSTNode* find_min_node(BSTNode* root);

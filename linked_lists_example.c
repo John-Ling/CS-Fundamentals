@@ -19,18 +19,19 @@ int main(int argc, char* argv[])
     }
 
     LinkedList* list = LibLinkedList.create_list(arr, n);
-    // LinkedList* list = create_list(arr, n);
 
+    printf("Start %p\n", list->head);
     // basic uses of a linked list
-    LibLinkedList.insert_node(list, 50, -1);
-    LibLinkedList.insert_node(list, 10, 0);
-    LibLinkedList.insert_node(list, 43, 4);
 
-    LibLinkedList.delete_node(list, -1);
+    LibLinkedList.insert(list, 50, -1);
+    // LibLinkedList.insert(list, 10, 0);
+    // LibLinkedList.insert(list, 43, 4);
 
-    LibLinkedList.print_list(list);
-    LibLinkedList.reverse_list(list);
-    LibLinkedList.print_list(list);
+    // LibLinkedList.delete(list, -1);
+
+    // LibLinkedList.print_list(list);
+    // LibLinkedList.reverse(list);
+    // LibLinkedList.print_list(list);
 
     free_list(list);
 

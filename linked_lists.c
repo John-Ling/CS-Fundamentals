@@ -19,7 +19,7 @@ int print_list(LinkedList* list)
 }
 
 // inserts a value at index in a linked list
-int insert_node(LinkedList* list, const int value, const int index)
+int insert(LinkedList* list, const int value, const int index)
 {
     if (index > list->itemCount || index < -1)
     {
@@ -50,12 +50,14 @@ int insert_node(LinkedList* list, const int value, const int index)
     else if (index == -1) // insert at tail
     {
         ListNode* current = list->head;
+        printf("list->head %p current %p\n", list->head, current);
 
         // travel to end of list
         while (current->next != NULL)
         {
             current = current->next;
         }
+        printf("list->head %p current %p\n", list->head, current);
         current->next = node;
     }
     else
@@ -77,7 +79,7 @@ int insert_node(LinkedList* list, const int value, const int index)
     return EXIT_SUCCESS;
 }
 
-int delete_node(LinkedList* list, const int index)
+int delete(LinkedList* list, const int index)
 {
     if (list->itemCount - 1 < 0 || index >= list->itemCount || index < -1)
     {
@@ -129,7 +131,7 @@ int delete_node(LinkedList* list, const int index)
     return EXIT_SUCCESS;
 }
 
-int reverse_list(LinkedList* list)
+int reverse(LinkedList* list)
 {
     ListNode* current = list->head->next;
     ListNode* previous = list->head;
@@ -172,17 +174,16 @@ LinkedList* create_list(int values[], int n)
     list->itemCount = 0;
     for (int i = 0; i < n; i++)
     {
-        insert_node(list, values[i], -1);
+        insert(list, values[i], -1);
     }
     return list;
 }
 
-
 const struct LibLinkedList_l LibLinkedList = {
     .create_list = create_list,
-    .insert_node = insert_node,
+    .insert = insert,
     .print_list = print_list,
-    .delete_node = delete_node,
-    .reverse_list = reverse_list,
+    .delete = delete,
+    .reverse = reverse,
     .free_list = free_list
 };

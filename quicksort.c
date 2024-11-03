@@ -93,7 +93,20 @@ int partition(int arr[], int n)
     return lower;
 }
 
+
 int lomuto_partition(int arr[], int n)
 {
     return EXIT_SUCCESS;
 }
+
+static int select_pivot(int arr[], int n )
+{
+
+}
+
+static int median_of_three(const int a, const int b, const int c)
+{
+    if (a > b && a < c)
+}
+
+

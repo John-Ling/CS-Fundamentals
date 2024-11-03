@@ -3,8 +3,9 @@
 
 // implementation of the heapsort algorithm for learning purposes
 
-static int heapify(int arr[], int n, int i);
+static int heapify(int arr[], int n);
 static int swap(int* a, int* b);
+static int sift_down(int arr[], int n, int i );
 int heapsort(int arr[], const int n);
 
 int main(int argc, char* argv[])
@@ -21,13 +22,8 @@ int main(int argc, char* argv[])
     {
         arr[i - 1] = atoi(argv[i]);
     }
-
-    for (int i = n / 2 - 1; i >= 0; i--)
-    {
-        heapify(arr, n, i);
-    }
     
-    // heapsort(arr, n);
+    heapsort(arr, n);
 
     for (int i = 0; i < n; i++)
     {
@@ -39,26 +35,19 @@ int main(int argc, char* argv[])
 
 int heapsort(int arr[], const int n)
 {
+    // create max heap 
+    heapify(arr, n);
+
     int i = 0;
     while (i < n)
-    {
-        // create max heap
-        heapify(arr, n - i, 0);
-        for (int j = 0; j < n; j++)
-        {
-            printf("%d ", arr[j]);
-        }
-        printf("\n");
-
-        printf("Got value %d\n", arr[0]);
-    
+    {   
         // move item to end of array to exclude it from future runs of heapify
         swap(&arr[0], &arr[n - i - 1]);
         i++;
+        sift_down(arr, n - i, 0);
     }
     return EXIT_SUCCESS;
 }
-
 
 // build a max heap from an unsorted array
 static int heapify(int arr[], int n)
@@ -70,8 +59,9 @@ static int heapify(int arr[], int n)
     return EXIT_SUCCESS;
 }
 
-// used to rebuild the max heap after the root is moved
-// or used to generate 
+// rebuild the max heap after the root or any single node is moved
+// this function is called sift down since it works by moving the improper root
+// down the heap into its proper place
 static int sift_down(int arr[], int n, int i )
 {
     int largestIndex = i;

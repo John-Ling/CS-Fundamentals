@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-int quicksort(int arr[], int n)
+int naive_quicksort(int arr[], int n)
 {
     if (n <= 1)
     {

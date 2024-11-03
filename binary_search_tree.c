@@ -8,28 +8,76 @@
 
 int main(void)
 {
-	int arr[5] = {5, 3, 1, 8, 9};
-	BST* bst = create_tree(arr, 5);
-	insert(bst, 900);
-	insert(bst, 900);
+	BST* bst = create_tree(NULL, 0);
+	insert(bst, 50);
+	insert(bst, 30);
+	insert(bst, 70);
+	insert(bst, 20);
+	insert(bst, 40);
+	insert(bst, 60);
+	insert(bst, 80);
 	// puts("Inserting");
 	// insert(root, 900);
-	inorder_traversal(bst->root);
+	print_tree(bst);
     // search_tree(root, 39);
 	// delete(root, 39);
     // free_tree(root);
     return EXIT_SUCCESS;
 }
 
-int inorder_traversal(BSTNode* root)
+// nicely prints out content of tree
+int print_tree(BST* bst)
+{
+	if (bst->itemCount == 0)
+	{
+		puts("Tree is empty");
+		return EXIT_FAILURE;
+	}
+
+	// array representation of tree
+	int tree[bst->itemCount];
+
+	// perform preorder traversal of tree and populate array
+	tree_to_array(bst->root, tree, bst->itemCount, 0);
+	for (int i = 0; i < bst->itemCount; i++)
+	{
+		printf("%d ", tree[i]);
+	}
+	putchar('\n');
+
+	// print items in tree array
+
+	int index = 0;
+	while (2*index+2 < bst->itemCount)
+	{
+		printf("%d\n", tree[index]);
+		printf("%d\n", tree[2*index + 1]);
+		printf("%d\n", tree[2*index + 2]);
+		index++;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+// traverses subtree starting at root using inorder traversal
+// returns integer represnting line width for use in formatting by search_tree()
+static int tree_to_array(BSTNode* root, int arr[], int n, int index)
 {
     if (root == NULL)
 	{
-		return EXIT_FAILURE;
+		return EXIT_SUCCESS;
 	}
-    inorder_traversal(root->left); // visit all nodes to the left
-    printf("%i\n", root->value); // visit root node
-    inorder_traversal(root->right); // visit all nodes to the right
+
+	arr[index] = root->value;
+	if (2*index + 1 < n)
+	{
+		tree_to_array(root->left, arr, n, 2*index + 1);	
+	}
+	if (2*index + 2 < n)
+	{
+		tree_to_array(root->right, arr, n, 2*index + 2);
+	}
+
 	return EXIT_SUCCESS;
 }
 
@@ -66,7 +114,6 @@ int insert(BST* bst, const int value)
 	{
 		bst->itemCount++;
 		return insert_node(&bst->root, value);
-		
 	}
 	else
 	{
@@ -81,8 +128,9 @@ int insert(BST* bst, const int value)
 // insert a value into  binary search tree
 static int insert_node(BSTNode** root, const int value)
 {
-	if ((*root) == NULL) // if binary search tree is empty or reached bottom (both will be null)
+	if ((*root) == NULL) 
 	{
+		// reached base of tree
 		BSTNode* node = (BSTNode*)malloc(sizeof(BSTNode));
 		node->value = value;
 		(*root) = node;
@@ -103,58 +151,72 @@ static int insert_node(BSTNode** root, const int value)
 }
 
 // interface to delete_node() similar to insert()
-// int delete(BSTNode* root, const int value)
-// {
-// 	return EXIT_FAILURE;
-// }
+int delete(BST* bst, const int value)
+{
+	if (bst->itemCount == 0)
+	{
+		// tree is empty
+		return EXIT_FAILURE;
+	}
 
-// static int delete_node(BSTNode** root, const int value)
-// {
-// 	if ((*root) == NULL)
-// 	{
-// 		return EXIT_SUCCESS;
-// 	}
+	return delete_node(&bst->root, value);
+}
 
-// 	if (value < (*root)->value)
-// 	{
-// 		return delete(&(*root)->left, value);
-// 	}
-// 	else if (value > (*root)->value)
-// 	{
-// 		return delete(&(*root)->right, value);
-// 	}
-// 	else
-// 	{
-// 		if (root->left == NULL && root->right && NULL)
-// 		{
-// 			free(root);
-// 			root = NULL;
-// 			printf("Deleted node\n");
-// 			return root;
-// 		}
-// 		if (root->left == NULL)
-// 		{
-// 			BSTNode* tmp = root->right; // return the right child of the node to be deleted
-// 			free(root); // delete the node to be deleted
-// 			root = NULL;
-// 			printf("Deleted node\n");
-// 			return tmp;
-// 		}
-// 		if (root->right == NULL)
-// 		{
-// 			BSTNode* tmp = root->left; // return the left child of the node to be deleted
-// 			free(root);
-// 			root = NULL;
-// 			printf("Deleted node\n");
-// 			return tmp;
-// 		}
+static int delete_node(BSTNode** root, const int value)
+{
+	if ((*root) == NULL)
+	{
+		// reached base of tree
+		return EXIT_SUCCESS;
+	}
 
-// 		BSTNode* minNode = find_min_node(root->right); // find the inorder successor and copy it to the root node
-// 		root->value = minNode->value;
-// 		root->right = delete(root->right, minNode->value); // delete the node we copied from
-// 	}
-// 	return root;
-// }
+	if (value < (*root)->value)
+	{
+		return delete_node(&(*root)->left, value);
+	}
+	else if (value > (*root)->value)
+	{
+		return delete_node(&(*root)->right, value);
+	}
+
+	// reached value to delete
+	if ((*root)->left == NULL && (*root)->right && NULL)
+	{
+		// node has no children
+		free(*root);
+		*root = NULL;
+		return EXIT_SUCCESS;
+	}
+	else if ((*root)->left == NULL)
+	{
+		// node to be deleted has right child
+		BSTNode* rightChild = (*root)->right;
+		free(*root); // delete the node to be deleted
+		*root = rightChild;
+		return EXIT_SUCCESS;
+	}
+	else if ((*root)->right == NULL)
+	{
+		// node to be deleted has left child
+
+		BSTNode* leftChild = (*root)->left;
+		free(*root);
+		*root = leftChild;
+		return EXIT_SUCCESS;
+	}
+
+	// node has 2 children
+	// therefore we replace node with its inorder successor
+	// find the inorder successor of the right child node
+	// then delete node we copied from
+
+	// find the inorder successor and copy it to the root node
+	BSTNode* inorderSuccessor = find_min_node((*root)->right); 
+	(*root)->value = inorderSuccessor->value;
+
+	// delete inorder successor
+	return delete_node(&(*root)->right, inorderSuccessor->value);
+}
 
 // helper function for delete()
 // gets the smallest node in the left subtree of the right child of root

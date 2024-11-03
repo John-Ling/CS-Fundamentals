@@ -79,7 +79,7 @@ int bmh(const char* string, const char* pattern)
         else
         {
             // lookup in bad match table how many steps to move forward
-            int offset = shiftArray[(int)string[badCharacterIndex]] - 1;
+            int offset = shiftArray[(int)string[badCharacterIndex]] - 1;`
             if (offset == -1)
             {
                 offset = patternLength - 1;

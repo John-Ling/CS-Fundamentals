@@ -12,17 +12,31 @@ int main(void)
 	insert(bst, 50);
 	insert(bst, 30);
 	insert(bst, 70);
-	insert(bst, 20);
-	insert(bst, 40);
-	insert(bst, 60);
-	insert(bst, 80);
+	// insert(bst, 20);
+	// insert(bst, 40);
+	// insert(bst, 60);
+	// insert(bst, 80);
+	inorder_traversal(bst->root);
 	// puts("Inserting");
 	// insert(root, 900);
-	print_tree(bst);
+	// print_tree(bst);
     // search_tree(root, 39);
 	// delete(root, 39);
     // free_tree(root);
     return EXIT_SUCCESS;
+}
+
+static int inorder_traversal(BSTNode* root)
+{
+	if (root == NULL)
+	{
+		return EXIT_SUCCESS;
+	}
+
+	printf("%d\n", root->value);
+	inorder_traversal(root->left);
+	inorder_traversal(root->right);
+	return EXIT_SUCCESS;
 }
 
 // nicely prints out content of tree

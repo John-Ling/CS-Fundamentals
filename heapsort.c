@@ -41,10 +41,17 @@ int heapsort(int arr[], const int n)
     int i = 0;
     while (i < n)
     {   
+        // first item in heapified array
+        // will be biggest or smallest value depending if max or min heap is used
+
         // move item to end of array to exclude it from future runs of heapify
         swap(&arr[0], &arr[n - i - 1]);
         i++;
+
+        // heap is now damaged since we swapped the root with another value
+        // run sift down to move value down into it's proper place
         sift_down(arr, n - i, 0);
+        // heap has been rebuilt start again
     }
     return EXIT_SUCCESS;
 }

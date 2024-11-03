@@ -1,19 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "quicksort.h"
+
 // (very naive) implementation of the quicksort algorithm for learning purposes
-
-int quicksort(int arr[], int n);
-int partition(int arr[], int n);
-
-#define N 10
 
 int main(int argc, char* argv[])
 {
-    int arr[N] = {2, 40, 10, 80, 30, 90, 40, 50, 60, 5 };
-    quicksort(arr, N);
+    if (argc == 1)
+    {
+        printf("Pass values to form the array\n");
+        return EXIT_FAILURE;
+    }
+    const int n = argc - 1;
+
+    int arr[n];
+    for (int i = 1; i < argc; i++)
+    {
+        arr[i - 1] = atoi(argv[i]);
+    }
+
+    quicksort(arr, n);
+
     printf("Sorted\n");
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < n; i++)
     {
         printf("%d ", arr[i]);
     }
@@ -65,11 +75,11 @@ int partition(int arr[], int n)
     int lower = 0;
     int upper = n;
 
-    const int PIVOT_VALUE = arr[upper - 1];
+    const int pivotValue = select_pivot(arr, n);
 
     while (next < upper)
     {
-        if (arr[next] < PIVOT_VALUE)
+        if (arr[next] < pivotValue)
         {
             int tmp = arr[lower];
             arr[lower] = arr[next];
@@ -77,7 +87,7 @@ int partition(int arr[], int n)
             lower++;
             next++;
         }
-        else if (arr[next] > PIVOT_VALUE)
+        else if (arr[next] > pivotValue)
         {
             int tmp = arr[upper - 1];
             arr[upper - 1] = arr[next];
@@ -93,20 +103,46 @@ int partition(int arr[], int n)
     return lower;
 }
 
-
-int lomuto_partition(int arr[], int n)
+// pivot functions
+static int first_item_pivot(int arr[], const int n)
 {
-    return EXIT_SUCCESS;
+    return arr[n - n];
 }
 
-static int select_pivot(int arr[], int n )
+static int last_item_pivot(int arr[], const int n)
 {
-
+    return arr[n - 1];
 }
 
-static int median_of_three(const int a, const int b, const int c)
+static int middle_item_pivot(int arr[], const int n )
 {
-    if (a > b && a < c)
+    return arr[n / 2];
+}
+
+static int random_pivot(int arr[], const int n)
+{
+    return arr[rand() % n];
+}
+
+// efficient way of finding median of 3 integers using xor
+// median is middle number when sorted
+static int median_of_three(int arr[], const int n)
+{
+    const int first = arr[0];
+    const int middle = arr[n / 2];
+    const int last = arr[n - 1];
+
+    // check if first is bigger than middle or bigger than last
+    if ((first > middle) ^ (first > last))
+    {
+        return first;
+    }
+    else if ((middle < first) ^ (middle < last))
+    {
+        return middle;
+    }
+
+    return last;
 }
 
 

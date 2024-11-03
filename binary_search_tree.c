@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "binary_search_tree.h"
 
@@ -7,20 +8,13 @@
 
 int main(void)
 {
-    
-	BSTNode* root = create_tree(NULL, 0);
-	puts("Chekcing");
-	printf("%p\n", root);
-	printf("%p\n", *root);
-	if ((root) == NULL)
-	{
-		puts("Null");
-		return EXIT_FAILURE;
-	}
-	insert_node(root, 900);
+	int arr[5] = {5, 3, 1, 8, 9};
+	BST* bst = create_tree(arr, 5);
+	insert(bst, 900);
+	insert(bst, 900);
 	// puts("Inserting");
 	// insert(root, 900);
-	inorder_traversal(root);
+	inorder_traversal(bst->root);
     // search_tree(root, 39);
 	// delete(root, 39);
     // free_tree(root);
@@ -63,13 +57,28 @@ int search_tree(BSTNode* root, const int value)
     }
 }
 
-// interface to insert_node where only the single
+// interface to insert_node() where only the single
 // pointer needs to be passed rather than a double pointer
-int insert(BSTNode* root, const int value)
+int insert(BST* bst, const int value)
 {
-	return insert_node(&root, value);
+	// if bst is empty we can just create new node
+	if (bst->itemCount != 0)
+	{
+		bst->itemCount++;
+		return insert_node(&bst->root, value);
+		
+	}
+	else
+	{
+		BSTNode* node = (BSTNode*)malloc(sizeof(BSTNode));
+		node->value = value;
+		bst->root = node;
+		bst->itemCount++;	
+	}
+	return EXIT_SUCCESS;
 }
 
+// insert a value into  binary search tree
 static int insert_node(BSTNode** root, const int value)
 {
 	if ((*root) == NULL) // if binary search tree is empty or reached bottom (both will be null)
@@ -80,71 +89,76 @@ static int insert_node(BSTNode** root, const int value)
 		return EXIT_SUCCESS;
 	}
 
-	BSTNode** next;
 	if (value > (*root)->value)
 	{
-		next = &(*root)->right;
+		return insert_node(&(*root)->right, value);
 	}
 	else if (value < (*root)->value)
 	{
-		next = &(*root)->left;
+		return insert_node(&(*root)->left, value);
 	}
-	else
-	{
-		return EXIT_SUCCESS;
-	}
-	return insert(next, value);
+
+	// duplicate values are not allowed
+	return EXIT_FAILURE;
 }
 
-BSTNode* delete(BSTNode* root, const int value)
-{
-	if (root == NULL)
-	{
-		return root;
-	}
+// interface to delete_node() similar to insert()
+// int delete(BSTNode* root, const int value)
+// {
+// 	return EXIT_FAILURE;
+// }
 
-	if (value < root->value)
-	{
-		root->left = delete(root->left, value);
-	}
-	else if (value > root->value)
-	{
-		root->right = delete(root->right, value);
-	}
-	else
-	{
-		if (root->left == NULL && root->right && NULL)
-		{
-			free(root);
-			root = NULL;
-			printf("Deleted node\n");
-			return root;
-		}
-		if (root->left == NULL)
-		{
-			BSTNode* tmp = root->right; // return the right child of the node to be deleted
-			free(root); // delete the node to be deleted
-			root = NULL;
-			printf("Deleted node\n");
-			return tmp;
-		}
-		if (root->right == NULL)
-		{
-			BSTNode* tmp = root->left; // return the left child of the node to be deleted
-			free(root);
-			root = NULL;
-			printf("Deleted node\n");
-			return tmp;
-		}
+// static int delete_node(BSTNode** root, const int value)
+// {
+// 	if ((*root) == NULL)
+// 	{
+// 		return EXIT_SUCCESS;
+// 	}
 
-		BSTNode* minNode = find_min_node(root->right); // find the inorder successor and copy it to the root node
-		root->value = minNode->value;
-		root->right = delete(root->right, minNode->value); // delete the node we copied from
-	}
-	return root;
-}
+// 	if (value < (*root)->value)
+// 	{
+// 		return delete(&(*root)->left, value);
+// 	}
+// 	else if (value > (*root)->value)
+// 	{
+// 		return delete(&(*root)->right, value);
+// 	}
+// 	else
+// 	{
+// 		if (root->left == NULL && root->right && NULL)
+// 		{
+// 			free(root);
+// 			root = NULL;
+// 			printf("Deleted node\n");
+// 			return root;
+// 		}
+// 		if (root->left == NULL)
+// 		{
+// 			BSTNode* tmp = root->right; // return the right child of the node to be deleted
+// 			free(root); // delete the node to be deleted
+// 			root = NULL;
+// 			printf("Deleted node\n");
+// 			return tmp;
+// 		}
+// 		if (root->right == NULL)
+// 		{
+// 			BSTNode* tmp = root->left; // return the left child of the node to be deleted
+// 			free(root);
+// 			root = NULL;
+// 			printf("Deleted node\n");
+// 			return tmp;
+// 		}
 
-BSTNode* find_min_node(BSTNode* root) // get the smallest node in the left subtree of the right child of root
+// 		BSTNode* minNode = find_min_node(root->right); // find the inorder successor and copy it to the root node
+// 		root->value = minNode->value;
+// 		root->right = delete(root->right, minNode->value); // delete the node we copied from
+// 	}
+// 	return root;
+// }
+
+// helper function for delete()
+// gets the smallest node in the left subtree of the right child of root
+static BSTNode* find_min_node(BSTNode* root) 
 {
 	BSTNode* current = root;
 	while (current->left != NULL)
@@ -154,9 +168,9 @@ BSTNode* find_min_node(BSTNode* root) // get the smallest node in the left subtr
 	return current;
 }
 
+// free allocated memory using postorder traversal left --> right --> root
 int free_tree(BSTNode* root)
 {
-    // free allocated memory using postorder traversal left --> right --> root
     if (root == NULL)
     {
 	    return EXIT_SUCCESS;
@@ -169,12 +183,24 @@ int free_tree(BSTNode* root)
     return EXIT_SUCCESS;
 }
 
-BSTNode* create_tree(int arr[], const int n)
+// create empty binary search tree
+// or tree with values arr pre-placed
+BST* create_tree(int arr[], const int n)
 {
-    BSTNode* head = (BSTNode*)(malloc(sizeof(BSTNode)));
-    head->value = 76;
-	// root = &head;
-	// printf("%p\n", *root);
-    // return root;
-	return head;
+	BST* bst = (BST*)malloc(sizeof(BST));
+	bst->itemCount = 0;
+
+    BSTNode* root = (BSTNode*)malloc(sizeof(BSTNode));
+	bst->root = root;
+    if (arr == NULL)
+	{
+		return bst;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		insert(bst, arr[i]);
+		bst->itemCount++;
+	}
+	return bst;
 }

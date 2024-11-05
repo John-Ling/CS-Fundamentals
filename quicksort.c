@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "quicksort.h"
+#include "utils.h"
 
 // (very naive) implementation of the quicksort algorithm for learning purposes
 
@@ -20,7 +21,11 @@ int main(int argc, char* argv[])
         arr[i - 1] = atoi(argv[i]);
     }
 
-    quicksort(arr, n);
+    // naive_quicksort(arr, n);
+    // printf("%d\n", partition(arr, n, 0, n));
+    // printf("%d\n", lomuto_partition(arr, 0, n - 1));
+
+    quicksort(arr, n, 0, n - 1);
 
     printf("Sorted\n");
     for (int i = 0; i < n; i++)
@@ -31,101 +36,87 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-int naive_quicksort(int arr[], int n)
+// an actual implementation if quicksort after seeing an implementation
+int quicksort(int arr[], const int n, int lower, int upper)
 {
-    if (n <= 1)
+    if (n < 0)
+    {
+        return EXIT_FAILURE;
+    }
+
+    // sorting a empty or 1 element array is instant
+    if (n < 1)
     {
         return EXIT_SUCCESS;
     }
-    int pivotIndex = partition(arr, n);
-    int itemsToLeft = pivotIndex;
-    int itemsToRight = n - itemsToLeft - 1;
-    int leftArr[itemsToLeft];
-    int rightArr[itemsToRight];
 
-    for (int i = 0; i < itemsToLeft; i++)
+    if (lower < upper)
     {
-        leftArr[i] = arr[i];
+        int pivotIndex = lomuto_partition(arr, lower, upper);
+
+        // run quicksort on left subarray
+        quicksort(arr, n, lower, pivotIndex - 1);
+
+        // run quicksort on right subarray
+        quicksort(arr, n, pivotIndex + 1, upper);
     }
 
-    for (int i = 0; i < itemsToRight; i++)
-    {
-        rightArr[i] = arr[i + pivotIndex + 1];
-    }
-
-    // perform quicksort on the left
-    quicksort(leftArr, itemsToLeft);
-    for (int i = 0; i < itemsToLeft; i++) // copy data back into the original array 
-    {
-        arr[i] = leftArr[i];
-    }
-
-    // perform quicksort on the right
-    quicksort(rightArr, itemsToRight);
-    for (int i = 0; i < itemsToRight; i++)
-    {
-        arr[i + pivotIndex + 1] = rightArr[i];
-    }
     return EXIT_SUCCESS;
 }
 
-int partition(int arr[], int n)
+static int lomuto_partition(int arr[], int low, int high)
 {
-    int next = 0;
-    int lower = 0;
-    int upper = n;
-
-    const int pivotValue = select_pivot(arr, n);
-
-    while (next < upper)
+    // lomuto partitioning works on the assumption that
+    // the pivot is the end of the array
+    const int pivot = high;
+    const int pivotValue = arr[pivot];
+    
+    // create two pointers to the lower area
+    int i = low; // i represents the next position to move the smaller item
+    int j = low;
+    
+    while (j <= high - 1)
     {
-        if (arr[next] < pivotValue)
+        if (arr[j] <= pivotValue)
         {
-            int tmp = arr[lower];
-            arr[lower] = arr[next];
-            arr[next] = tmp;
-            lower++;
-            next++;
+            // swap smaller item from wrong position j
+            // to correct position i
+            swap(&arr[j], &arr[i]);
+
+            // increment i to next position for smaller item
+            i++; 
         }
-        else if (arr[next] > pivotValue)
-        {
-            int tmp = arr[upper - 1];
-            arr[upper - 1] = arr[next];
-            arr[next] = tmp;
-            upper--;
-        }
-        else
-        {
-            next++;
-        }
+        j++;
     }
-    // return the index of the pivot
-    return lower;
+
+    // at the end the value of i will be the correct position
+    // of the pivot so we move the pivot into ith index
+    swap(&arr[pivot], &arr[i]);
+    return i; // return index of the pivot
 }
 
 // pivot functions
-static int first_item_pivot(int arr[], const int n)
+static int first_item_pivot(const int n)
 {
-    return arr[n - n];
+    return n - n;
 }
 
-static int last_item_pivot(int arr[], const int n)
+static int last_item_pivot(const int n)
 {
-    return arr[n - 1];
+    return n - 1;
 }
 
-static int middle_item_pivot(int arr[], const int n )
+static int middle_item_pivot(const int n)
 {
-    return arr[n / 2];
+    return n / 2;
 }
 
-static int random_pivot(int arr[], const int n)
+static int random_pivot( const int n)
 {
-    return arr[rand() % n];
+    return rand() % n;
 }
 
 // efficient way of finding median of 3 integers using xor
-// median is middle number when sorted
 static int median_of_three(int arr[], const int n)
 {
     const int first = arr[0];
@@ -144,5 +135,3 @@ static int median_of_three(int arr[], const int n)
 
     return last;
 }
-
-

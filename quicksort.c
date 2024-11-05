@@ -21,11 +21,9 @@ int main(int argc, char* argv[])
         arr[i - 1] = atoi(argv[i]);
     }
 
-    // naive_quicksort(arr, n);
-    // printf("%d\n", partition(arr, n, 0, n));
     // printf("%d\n", lomuto_partition(arr, 0, n - 1));
-
-    quicksort(arr, n, 0, n - 1);
+    quicksort(arr, n);
+    
 
     printf("Sorted\n");
     for (int i = 0; i < n; i++)
@@ -36,59 +34,59 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-// an actual implementation if quicksort after seeing an implementation
-int quicksort(int arr[], const int n, int lower, int upper)
+// interface to sort() that only requires array
+// and size variable
+int quicksort(int arr[], const int n)
 {
     if (n < 0)
     {
         return EXIT_FAILURE;
     }
 
-    // sorting a empty or 1 element array is instant
-    if (n < 1)
+    if (n <= 1)
     {
+        // empty or 1 item array
         return EXIT_SUCCESS;
     }
 
-    if (lower < upper)
-    {
-        int pivotIndex = lomuto_partition(arr, lower, upper);
+    return sort(arr, 0, n - 1);
+}
 
-        // run quicksort on left subarray
-        quicksort(arr, n, lower, pivotIndex - 1);
+// implementation of quicksort for use with quicksort()
+static int sort(int arr[], const int lowerIndex, const int upperIndex)
+{
+    int pivotIndex = lomuto_partition(arr, lowerIndex, upperIndex);
 
-        // run quicksort on right subarray
-        quicksort(arr, n, pivotIndex + 1, upper);
-    }
+    // run quicksort on left subarray
+    quicksort(arr, pivotIndex);
 
+    // run quicksort on right subarray
+    quicksort(arr, upperIndex - pivotIndex);
     return EXIT_SUCCESS;
 }
 
-static int lomuto_partition(int arr[], int low, int high)
+static int lomuto_partition(int arr[], const int lowerIndex, const int upperIndex)
 {
     // lomuto partitioning works on the assumption that
     // the pivot is the end of the array
-    const int pivot = high;
+    const int pivot = upperIndex;
     const int pivotValue = arr[pivot];
     
     // create two pointers to the lower area
-    int i = low; // i represents the next position to move the smaller item
-    int j = low;
+    int i = lowerIndex; // i represents the next position to move the smaller item
+    int j = lowerIndex;
     
-    while (j <= high - 1)
+    while (j <= upperIndex - 1)
     {
         if (arr[j] <= pivotValue)
         {
             // swap smaller item from wrong position j
             // to correct position i
             swap(&arr[j], &arr[i]);
-
-            // increment i to next position for smaller item
-            i++; 
+            i++; // increment i to next position for smaller item
         }
         j++;
     }
-
     // at the end the value of i will be the correct position
     // of the pivot so we move the pivot into ith index
     swap(&arr[pivot], &arr[i]);

@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 {
     if (argc == 1)
     {
-        printf("Pass values to form the array\n");
+        puts("Pass values to form the array");
         return EXIT_FAILURE;
     }
     const int n = argc - 1;
@@ -25,12 +25,12 @@ int main(int argc, char* argv[])
     quicksort(arr, n);
     
 
-    printf("Sorted\n");
+    puts("Sorted");
     for (int i = 0; i < n; i++)
     {
         printf("%d ", arr[i]);
     }
-    printf("\n");
+    putchar('\n');
     return EXIT_SUCCESS;
 }
 

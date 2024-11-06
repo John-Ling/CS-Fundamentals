@@ -50,14 +50,12 @@ int insert(LinkedList* list, const int value, const int index)
     else if (index == -1) // insert at tail
     {
         ListNode* current = list->head;
-        printf("list->head %p current %p\n", list->head, current);
 
         // travel to end of list
         while (current->next != NULL)
         {
             current = current->next;
         }
-        printf("list->head %p current %p\n", list->head, current);
         current->next = node;
     }
     else

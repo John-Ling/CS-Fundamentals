@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utils.h"
 // implementation of the heapsort algorithm for learning purposes
 
 static int heapify(int arr[], int n);
-static int swap(int* a, int* b);
 static int sift_down(int arr[], int n, int i );
 int heapsort(int arr[], const int n);
 
@@ -23,7 +23,8 @@ int main(int argc, char* argv[])
         arr[i - 1] = atoi(argv[i]);
     }
     
-    heapsort(arr, n);
+    // heapsort(arr, n);
+    heapify(arr, n);
 
     for (int i = 0; i < n; i++)
     {
@@ -91,13 +92,5 @@ static int sift_down(int arr[], int n, int i )
         swap(&arr[i], &arr[largestIndex]);
         sift_down(arr, n, largestIndex);
     }
-    return EXIT_SUCCESS;
-}
-
-static int swap(int* a, int* b)
-{
-    int tmp = *a;
-    *a = *b;
-    *b = tmp;
     return EXIT_SUCCESS;
 }

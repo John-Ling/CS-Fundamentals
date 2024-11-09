@@ -14,7 +14,7 @@ int print_list(LinkedList* list)
         printf("%i ", current->value);
         current = current->next;
     }
-    puts("");
+    putchar('\n');
     return EXIT_SUCCESS;
 }
 
@@ -86,6 +86,14 @@ int delete(LinkedList* list, const int index)
 
     list->itemCount--;
 
+    // if only 1 item in linked list
+    if (list->itemCount == 0)
+    {
+        free(list->head);
+        list->head = NULL;
+        return EXIT_SUCCESS;
+    }
+
     if (index == 0)
     {
         ListNode* temp = list->head;
@@ -147,6 +155,11 @@ int reverse(LinkedList* list)
 
 int free_list(LinkedList* list)
 {
+    if (list->head == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+
     ListNode* previous = list->head;
     list->head = list->head->next;
     while (list->head != NULL)
@@ -156,8 +169,9 @@ int free_list(LinkedList* list)
         list->head = list->head->next;
     }
     free(previous);
-    previous = NULL;
     free(list);
+    previous = NULL;
+    list = NULL;
     return EXIT_SUCCESS;
 }
 

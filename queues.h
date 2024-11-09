@@ -1,16 +1,13 @@
-#define MAX_SIZE 10
+#include <stdbool.h>
+#include "linked_lists.h"
 
-typedef struct
+typedef struct Queue_t
 {
-    unsigned int values[MAX_SIZE];
-    int frontPointer;
-    int backPointer;
+    LinkedList* items;
 } Queue;
 
-int enqueue(Queue *queue, const int val);
-int dequeue(Queue *queue);
-int is_empty(Queue *queue);
-int is_full(Queue *queue);
-static int calculate_pointer(const int pointer);
-int intialise_queue(Queue *queue);
-int display_queue(Queue *queue);
+int enqueue(Queue* queue, const int val);
+int dequeue(Queue* queue);
+bool is_empty(Queue* queue);
+int is_full(Queue* queue);
+int display_queue(Queue* queue);

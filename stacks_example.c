@@ -18,14 +18,16 @@ int main(int argc, char* argv[])
         arr[i - 1] = atoi(argv[i]);
     }
 
-    Stack* stack = LibStack.create_stack(arr, n);
-
+    Stack* stack = LibStack.create_stack(NULL, 0);
+    LibStack.print_stack(stack);
     puts("Pushing onto stack");
     LibStack.push(stack, 1);
     LibStack.push(stack, 2);
     LibStack.push(stack, 3);
     LibStack.push(stack, 4);
-    LibStack.pop(stack);
+    
+
+    LibStack.is_empty(stack);
 
     puts("Printing");
     LibStack.print_stack(stack);

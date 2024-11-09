@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include "stacks.h"
 
-// implementation of the stack data type for learning purposes
+// implementation of the stack data structure using a singly linked list for learning purposes
 
+// create stack out of array
 Stack* create_stack(int arr[], const int n)
 {
     if (arr == NULL && n != 0)
@@ -43,27 +44,17 @@ int push(Stack *stack, const int val)
 // pop a value off the stack
 int pop(Stack* stack)
 {
-    LibLinkedList.delete(stack->items, 0);
-    return EXIT_SUCCESS;
-}
-
-// returns a copy of the element on the top of the stack without removing it
-// returns -1 if stack is empty
-int peek(Stack* stack)
-{    
-    if (stack->items == NULL)
+    if (is_empty(stack))
     {
-        // empty stack
-        return -1;
+        return EXIT_FAILURE;
     }
-
-    return stack->items->head->value;
+    return LibLinkedList.delete(stack->items, 0);
 }
 
-// check if stack is empty
+
 bool is_empty(Stack *stack)
 {
-    return stack->items == NULL;
+    return stack->items == NULL || stack->items->head == NULL;
 }
 
 int print_stack(Stack *stack)
@@ -77,7 +68,6 @@ const struct LibStack_l LibStack = {
     .push = push,
     .print_stack = print_stack,
     .pop = pop,
-    .peek = peek,
     .is_empty = is_empty,
     .free_stack = free_stack
 };

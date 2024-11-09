@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "queues.h"
 
 // implementation of a standard queue data structure using a singly linked list for educational purposes
 
-// create queue out of array
+// create queue from array
 Queue* create_queue(int arr[], const int n)
 {
     Queue* queue = (Queue*)malloc(sizeof(Queue));
@@ -29,35 +28,33 @@ int enqueue(Queue* queue, const int val)
 }
 
 // return an element from the front of the queue
-// returns null if queue is empty or function fails
-int dequeue(Queue* queue)
-{
-    if (queue->items == NULL)
-    {
-        // empty queue
-        return NULL;        
-    }
-
-    // get element
-    int val = queue->items->head->value;
-
-    // delete element at head
-    if (LibLinkedList.delete(queue->items, 0)  == EXIT_FAILURE)
-    {
-        return NULL;
-    }
-    return val;
-}
-
-// get item at front of queue'
-// returns NULL if empty
-int peek(Queue* queue)
+// pass null to out if you don't need to receive the item
+int dequeue(Queue* queue, int* out)
 {
     if (is_empty(queue))
     {
-        return NULL;
+        return EXIT_FAILURE;
     }
-    return queue->items->head->value;
+
+    if (out != NULL)
+    {
+        *out = queue->items->head->value;
+    }
+
+    // delete element at head
+    return LibLinkedList.delete(queue->items, 0);
+}
+
+
+int peek(Queue* queue, int* out)
+{
+    if (is_empty(queue) || out == NULL)
+    {
+        EXIT_FAILURE;
+    }
+
+    *out = queue->items->head->value;
+    return EXIT_SUCCESS;
 }
 
 bool is_empty(Queue* queue)
@@ -65,7 +62,17 @@ bool is_empty(Queue* queue)
     return queue->items == NULL || queue->items->head == NULL;    
 }
 
-int display_queue(Queue* queue)
+int print_queue(Queue* queue)
 {
     return LibLinkedList.print_list(queue->items);
 }
+
+const struct LibQueue_l LibQueue = {
+    .create_queue = create_queue,
+    .enqueue = enqueue,
+    .print_queue = print_queue,
+    .dequeue = dequeue,
+    .peek = peek,
+    .is_empty = is_empty,
+    .free_queue = free_queue
+};

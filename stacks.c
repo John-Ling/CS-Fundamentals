@@ -42,15 +42,31 @@ int push(Stack *stack, const int val)
 }
 
 // pop a value off the stack
-int pop(Stack* stack)
+// pass null to out if you don't need to receive the item
+int pop(Stack* stack, int* out)
 {
     if (is_empty(stack))
     {
         return EXIT_FAILURE;
     }
+
+    if (out != NULL)
+    {
+        *out = stack->items->head->value;
+    }
     return LibLinkedList.delete(stack->items, 0);
 }
 
+int peek(Stack* stack, int* out)
+{
+    if (is_empty(stack) || out == NULL)
+    {
+        EXIT_FAILURE;
+    }
+
+    *out = stack->items->head->value;
+    return EXIT_SUCCESS;
+}
 
 bool is_empty(Stack *stack)
 {
@@ -67,6 +83,7 @@ const struct LibStack_l LibStack = {
     .create_stack = create_stack,
     .push = push,
     .print_stack = print_stack,
+    .peek = peek,
     .pop = pop,
     .is_empty = is_empty,
     .free_stack = free_stack

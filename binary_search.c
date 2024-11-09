@@ -38,7 +38,7 @@ int binary_search(int arr[], int search, int n)
     while (lowerIndex <= upperIndex)
     {
         int middleIndex = (upperIndex + lowerIndex) / 2;
-        if (search > arr[middleIndex])
+        if (search > arr[middleIndex]) 
         {
             lowerIndex = middleIndex + 1;
         }

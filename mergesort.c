@@ -65,7 +65,8 @@ int merge_sort(int arr[], const int lowerIndex, const int upperIndex)
 }
 
 // creates 2 temporary sub arrays and merges them
-// by writing the values back into the correct positions in array in ascending order
+// by writing the values back into the correct 
+// positions in array in ascending order
 static int merge(int arr[], const int lowerIndex, const int middleIndex, 
                 const int upperIndex)
 {

@@ -1,15 +1,29 @@
-#define MAX_SIZE 10
+#include <stdbool.h>
+#include "linked_lists.h"
 
-typedef struct 
+typedef struct Stack_t
 {
-    int values[MAX_SIZE]; // values within stack -1 represents a null value its represented by a / for some reason
-    int stackPointer; // pointer to top value on Stack
+    // no need for a stack pointer 
+    // since the top of the stack will be the head of the linked list
+    LinkedList* items; 
 } Stack;
 
-int initialise_stack(Stack *stack);
+Stack* create_stack(int arr[], const int n);
 int push(Stack *stack, const int val);
 int pop(Stack *stack);
 int peek(Stack *stack);
-int is_empty(Stack *stack);
-int is_full(Stack *stack);
-int display_stack(Stack *stack);
+bool is_empty(Stack *stack);
+int print_stack(Stack *stack);
+int free_stack(Stack* stack);
+
+struct LibStack_l {
+    Stack* (*create_stack)(int arr[], const int n);
+    int (*push)(Stack *stack, const int val);
+    int (*pop)(Stack *stack);
+    int (*peek)(Stack *stack);
+    bool (*is_empty)(Stack *stack);
+    int (*print_stack)(Stack *stack);
+    int (*free_stack)(Stack* stack);
+};
+
+extern const struct LibStack_l LibStack;

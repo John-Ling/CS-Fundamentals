@@ -161,7 +161,7 @@ int free_list(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
-LinkedList* create_list(int values[], int n) 
+LinkedList* create_list(int values[], const int n) 
 {
     LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
     if (list == NULL)

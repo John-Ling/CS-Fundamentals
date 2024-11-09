@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "queues.h"
+
 // implementation of DFS and BFS for learning purposes
 
 #define N 7
@@ -9,17 +11,15 @@ int main(void)
 {
     // adjacency matrix to represent a graph
     int graph[N][N] = {
-                        {0, 1, 0, 1, 0, 0, 0},
-                        {1, 0, 1, 1, 0, 1, 1},
-                        {0, 1, 0, 1, 1, 1, 0},
-                        {1, 1, 1, 0, 1, 0, 0},
-                        {0, 0, 1, 1, 0, 0, 1},
-                        {0, 1, 1, 0, 0, 0, 0},
-                        {0, 1, 0, 0, 1, 0, 0}
-        };
-
-
-
+        {0, 1, 0, 1, 0, 0, 0},
+        {1, 0, 1, 1, 0, 1, 1},
+        {0, 1, 0, 1, 1, 1, 0},
+        {1, 1, 1, 0, 1, 0, 0},
+        {0, 0, 1, 1, 0, 0, 1},
+        {0, 1, 1, 0, 0, 0, 0},
+        {0, 1, 0, 0, 1, 0, 0}
+    };
+    
     return EXIT_SUCCESS;
 }
 

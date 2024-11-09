@@ -1,10 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "linked_lists.h"
 
 // implementation of a singly linked list for learning purposes
-
-#include "linked_lists.h"
 
 int print_list(LinkedList* list)
 {

@@ -1,3 +1,10 @@
+#ifndef Linked_Lists_H
+#define Linked_Lists_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
 typedef struct ListNode_t
 {
     int value;
@@ -27,3 +34,4 @@ struct LibLinkedList_l {
 };
 
 extern const struct LibLinkedList_l LibLinkedList;
+#endif

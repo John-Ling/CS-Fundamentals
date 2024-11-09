@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "stacks.h"
 
 // implementation of the stack data structure using a singly linked list for learning purposes
@@ -59,7 +58,7 @@ int pop(Stack* stack, int* out)
 
 int peek(Stack* stack, int* out)
 {
-    if (is_empty(stack) || out == NULL)
+    if (stack_empty(stack) || out == NULL)
     {
         EXIT_FAILURE;
     }
@@ -68,7 +67,7 @@ int peek(Stack* stack, int* out)
     return EXIT_SUCCESS;
 }
 
-bool is_empty(Stack *stack)
+bool stack_empty(Stack *stack)
 {
     return stack->items == NULL || stack->items->head == NULL;
 }
@@ -85,6 +84,6 @@ const struct LibStack_l LibStack = {
     .print_stack = print_stack,
     .peek = peek,
     .pop = pop,
-    .is_empty = is_empty,
+    .stack_empty = stack_empty,
     .free_stack = free_stack
 };

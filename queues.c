@@ -1,5 +1,3 @@
-#include <stdlib.h>
-
 #include "queues.h"
 
 // implementation of a standard queue data structure using a singly linked list for educational purposes
@@ -31,7 +29,7 @@ int enqueue(Queue* queue, const int val)
 // pass null to out if you don't need to receive the item
 int dequeue(Queue* queue, int* out)
 {
-    if (is_empty(queue))
+    if (queue_empty(queue))
     {
         return EXIT_FAILURE;
     }
@@ -46,9 +44,9 @@ int dequeue(Queue* queue, int* out)
 }
 
 
-int peek(Queue* queue, int* out)
+int queue_peek(Queue* queue, int* out)
 {
-    if (is_empty(queue) || out == NULL)
+    if (queue_empty(queue) || out == NULL)
     {
         EXIT_FAILURE;
     }
@@ -57,7 +55,7 @@ int peek(Queue* queue, int* out)
     return EXIT_SUCCESS;
 }
 
-bool is_empty(Queue* queue)
+bool queue_empty(Queue* queue)
 {
     return queue->items == NULL || queue->items->head == NULL;    
 }
@@ -72,7 +70,7 @@ const struct LibQueue_l LibQueue = {
     .enqueue = enqueue,
     .print_queue = print_queue,
     .dequeue = dequeue,
-    .peek = peek,
-    .is_empty = is_empty,
+    .queue_peek = queue_peek,
+    .queue_empty = queue_empty,
     .free_queue = free_queue
 };

@@ -44,7 +44,7 @@ int push(Stack *stack, const int val)
 // pass null to out if you don't need to receive the item
 int pop(Stack* stack, int* out)
 {
-    if (is_empty(stack))
+    if (stack_empty(stack))
     {
         return EXIT_FAILURE;
     }

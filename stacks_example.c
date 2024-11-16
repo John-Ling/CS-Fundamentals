@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
         arr[i - 1] = atoi(argv[i]);
     }
 
-    Stack* stack = LibStack.create_stack(NULL, 0);
-    LibStack.print_stack(stack);
+    Stack* stack = LibStack.create(NULL, 0);
+    LibStack.print(stack);
     puts("Pushing onto stack");
     LibStack.push(stack, 1);
     LibStack.push(stack, 2);
@@ -27,11 +27,11 @@ int main(int argc, char* argv[])
     LibStack.push(stack, 4);
     
 
-    LibStack.is_empty(stack);
+    LibStack.empty(stack);
 
     puts("Printing");
-    LibStack.print_stack(stack);
-    LibStack.free_stack(stack);
+    LibStack.print(stack);
+    LibStack.free(stack);
 
     return EXIT_SUCCESS;
 }

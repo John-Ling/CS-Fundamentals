@@ -18,9 +18,9 @@ int main(int argc, char* argv[])
         arr[i - 1] = atoi(argv[i]);
     }
 
-    LinkedList* list = LibLinkedList.create_list(arr, n);
+    LinkedList* list = LibLinkedList.create(arr, n);
 
-    LibLinkedList.print_list(list);
+    LibLinkedList.print(list);
     printf("%d\n", list->itemCount);
     // basic uses of a linked list
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     // LibLinkedList.reverse(list);
     // LibLinkedList.print_list(list);
 
-    free_list(list);
+    LibLinkedList.free(list);
 
     return EXIT_SUCCESS;
 }

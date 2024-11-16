@@ -17,9 +17,9 @@ int main(int argc, char* argv[])
     {
         arr[i - 1] = atoi(argv[i]);
     }
-    Queue* queue = LibQueue.create_queue(arr, n);
+    Queue* queue = LibQueue.create(arr, n);
 
-    LibQueue.print_queue(queue);
+    LibQueue.print(queue);
 
 
     LibQueue.dequeue(queue, NULL);
@@ -31,13 +31,13 @@ int main(int argc, char* argv[])
     LibQueue.dequeue(queue, NULL);
     LibQueue.dequeue(queue, NULL);
 
-    LibQueue.print_queue(queue);
+    LibQueue.print(queue);
     LibQueue.enqueue(queue, 1);
     LibQueue.enqueue(queue, 1);
     LibQueue.enqueue(queue, 1);
     LibQueue.enqueue(queue, 1);
-    LibQueue.print_queue(queue);
+    LibQueue.print(queue);
 
-    LibQueue.free_queue(queue);
+    LibQueue.free(queue);
     return EXIT_SUCCESS;
 }

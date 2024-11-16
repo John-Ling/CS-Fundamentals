@@ -17,20 +17,20 @@ typedef struct LinkedList_t
     ListNode* head; // front of list
 } LinkedList;
 
-LinkedList* create_list(int values[], const int n);
-int insert(LinkedList* list, const int value, const int index);
-int print_list(LinkedList* list);
-int delete(LinkedList* list, const int index);
-int reverse(LinkedList* list);
-int free_list(LinkedList* list);
+LinkedList* ll_create(int values[], const int n);
+int ll_insert(LinkedList* list, const int value, const int index);
+int ll_print(LinkedList* list);
+int ll_delete(LinkedList* list, const int index);
+int ll_reverse(LinkedList* list);
+int ll_free(LinkedList* list);
 
 struct LibLinkedList_l {
-    LinkedList* (*create_list)(int values[], const int n);
+    LinkedList* (*create)(int values[], const int n);
     int (*insert)(LinkedList* list, const int value, const int index);
-    int (*print_list)(LinkedList* list);
+    int (*print)(LinkedList* list);
     int (*delete)(LinkedList* list, const int index);
     int (*reverse)(LinkedList* list);
-    int (*free_list)(LinkedList* list);
+    int (*free)(LinkedList* list);
 };
 
 extern const struct LibLinkedList_l LibLinkedList;

@@ -3,7 +3,7 @@
 // implementation of the stack data structure using a singly linked list for learning purposes
 
 // create stack out of array
-Stack* create_stack(int arr[], const int n)
+Stack* s_create(int arr[], const int n)
 {
     if (arr == NULL && n != 0)
     {
@@ -25,16 +25,16 @@ Stack* create_stack(int arr[], const int n)
     return stack;
 }
 
-int free_stack(Stack* stack)
+int s_free(Stack* stack)
 {
-    LibLinkedList.free_list(stack->items);
+    LibLinkedList.free(stack->items);
     free(stack);
     stack = NULL;
     return EXIT_SUCCESS;
 }
 
 // pushes an item onto the stack
-int push(Stack *stack, const int val)
+int s_push(Stack *stack, const int val)
 {
     LibLinkedList.insert(stack->items, val, 0);
     return EXIT_SUCCESS;
@@ -42,9 +42,9 @@ int push(Stack *stack, const int val)
 
 // pop a value off the stack
 // pass null to out if you don't need to receive the item
-int pop(Stack* stack, int* out)
+int s_pop(Stack* stack, int* out)
 {
-    if (stack_empty(stack))
+    if (s_empty(stack))
     {
         return EXIT_FAILURE;
     }
@@ -56,9 +56,9 @@ int pop(Stack* stack, int* out)
     return LibLinkedList.delete(stack->items, 0);
 }
 
-int peek(Stack* stack, int* out)
+int s_peek(Stack* stack, int* out)
 {
-    if (stack_empty(stack) || out == NULL)
+    if (s_empty(stack) || out == NULL)
     {
         EXIT_FAILURE;
     }
@@ -67,23 +67,23 @@ int peek(Stack* stack, int* out)
     return EXIT_SUCCESS;
 }
 
-bool stack_empty(Stack *stack)
+bool s_empty(Stack *stack)
 {
     return stack->items == NULL || stack->items->head == NULL;
 }
 
-int print_stack(Stack *stack)
+int s_print(Stack *stack)
 {
-    LibLinkedList.print_list(stack->items);
+    LibLinkedList.print(stack->items);
     return EXIT_SUCCESS;
 }
 
 const struct LibStack_l LibStack = {
-    .create_stack = create_stack,
-    .push = push,
-    .print_stack = print_stack,
-    .peek = peek,
-    .pop = pop,
-    .stack_empty = stack_empty,
-    .free_stack = free_stack
+    .create = s_create,
+    .push = s_push,
+    .print = s_print,
+    .peek = s_peek,
+    .pop = s_pop,
+    .empty = s_empty,
+    .free = s_free
 };

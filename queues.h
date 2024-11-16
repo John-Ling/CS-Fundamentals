@@ -10,22 +10,22 @@ typedef struct Queue_t
     LinkedList* items;
 } Queue;
 
-Queue* create_queue(int arr[], const int n);
-int free_queue(Queue* queue);
-int enqueue(Queue* queue, const int val);
-int dequeue(Queue* queue, int* out);
-int queue_peek(Queue* queue, int* out);
-bool queue_empty(Queue* queue);
-int print_queue(Queue* queue);
+Queue* q_create(int arr[], const int n);
+int q_free(Queue* queue);
+int q_enqueue(Queue* queue, const int val);
+int q_dequeue(Queue* queue, int* out);
+int q_peek(Queue* queue, int* out);
+bool q_empty(Queue* queue);
+int q_print(Queue* queue);
 
 struct LibQueue_l {
-    Queue* (*create_queue)(int arr[], const int n);
+    Queue* (*create)(int arr[], const int n);
     int (*enqueue)(Queue* queue, const int val);
     int (*dequeue)(Queue* queue, int* out);
-    int (*queue_peek)(Queue* queue, int* out);
-    bool (*queue_empty)(Queue* queue);
-    int (*free_queue)(Queue* queue);
-    int (*print_queue)(Queue* queue);
+    int (*peek)(Queue* queue, int* out);
+    bool (*empty)(Queue* queue);
+    int (*free)(Queue* queue);
+    int (*print)(Queue* queue);
 };
 
 extern const struct LibQueue_l LibQueue;

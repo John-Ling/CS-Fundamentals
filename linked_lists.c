@@ -2,7 +2,7 @@
 
 // implementation of a singly linked list for learning purposes
 
-int print_list(LinkedList* list)
+int ll_print(LinkedList* list)
 {
     ListNode* current = list->head;
     while (current != NULL)
@@ -15,7 +15,7 @@ int print_list(LinkedList* list)
 }
 
 // inserts a value at index in a linked list
-int insert(LinkedList* list, const int value, const int index)
+int ll_insert(LinkedList* list, const int value, const int index)
 {
     if (index > list->itemCount || index < -1)
     {
@@ -73,7 +73,7 @@ int insert(LinkedList* list, const int value, const int index)
     return EXIT_SUCCESS;
 }
 
-int delete(LinkedList* list, const int index)
+int ll_delete(LinkedList* list, const int index)
 {
     if (list->itemCount - 1 < 0 || index >= list->itemCount || index < -1)
     {
@@ -133,7 +133,7 @@ int delete(LinkedList* list, const int index)
     return EXIT_SUCCESS;
 }
 
-int reverse(LinkedList* list)
+int ll_reverse(LinkedList* list)
 {
     ListNode* current = list->head->next;
     ListNode* previous = list->head;
@@ -149,7 +149,7 @@ int reverse(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
-int free_list(LinkedList* list)
+int ll_free(LinkedList* list)
 {
     if (list->head == NULL)
     {
@@ -171,7 +171,7 @@ int free_list(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
-LinkedList* create_list(int values[], const int n) 
+LinkedList* ll_create(int values[], const int n) 
 {
     LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
     if (list == NULL)
@@ -182,16 +182,16 @@ LinkedList* create_list(int values[], const int n)
     list->itemCount = 0;
     for (int i = 0; i < n; i++)
     {
-        insert(list, values[i], -1);
+        ll_insert(list, values[i], -1);
     }
     return list;
 }
 
 const struct LibLinkedList_l LibLinkedList = {
-    .create_list = create_list,
-    .insert = insert,
-    .print_list = print_list,
-    .delete = delete,
-    .reverse = reverse,
-    .free_list = free_list
+    .create = ll_create,
+    .insert = ll_insert,
+    .print = ll_print,
+    .delete = ll_delete,
+    .reverse = ll_reverse,
+    .free = ll_free
 };

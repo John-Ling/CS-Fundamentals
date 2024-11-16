@@ -11,22 +11,22 @@ typedef struct Stack_t
     LinkedList* items; 
 } Stack;
 
-Stack* create_stack(int arr[], const int n);
-int push(Stack *stack, const int val);
-int pop(Stack* stack, int* out);
-int peek(Stack* stack, int* out);
-bool stack_empty(Stack *stack);
-int print_stack(Stack *stack);
-int free_stack(Stack* stack);
+Stack* s_create(int arr[], const int n);
+int s_push(Stack *stack, const int val);
+int s_pop(Stack* stack, int* out);
+int s_peek(Stack* stack, int* out);
+bool s_empty(Stack *stack);
+int s_print(Stack *stack);
+int s_free(Stack* stack);
 
 struct LibStack_l {
-    Stack* (*create_stack)(int arr[], const int n);
+    Stack* (*create)(int arr[], const int n);
     int (*push)(Stack* stack, const int val);
     int (*pop)(Stack* stack, int* out);
     int (*peek)(Stack* stack, int* out);
-    bool (*stack_empty)(Stack* stack);
-    int (*print_stack)(Stack* stack);
-    int (*free_stack)(Stack* stack);
+    bool (*empty)(Stack* stack);
+    int (*print)(Stack* stack);
+    int (*free)(Stack* stack);
 };
 
 extern const struct LibStack_l LibStack;

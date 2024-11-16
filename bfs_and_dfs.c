@@ -41,12 +41,12 @@ int dfs(int graph[N][N], int start)
     inFrontier[start] = 1;
 
     // create stack with inital value of start
-    Stack* frontier = LibStack.create_stack(NULL, 0);
+    Stack* frontier = LibStack.create(NULL, 0);
     LibStack.push(frontier, start);
     int currentNode = start;
 
     // keep going until there are no more nodes to explore
-    while (!LibStack.stack_empty(frontier))
+    while (!LibStack.empty(frontier))
     {
         LibStack.pop(frontier, &currentNode); // get top of stack to update current node
         printf("%d ", currentNode);
@@ -72,7 +72,7 @@ int dfs(int graph[N][N], int start)
     }
     putchar('\n');
 
-    LibStack.free_stack(frontier);
+    LibStack.free(frontier);
 
     return EXIT_SUCCESS;
 }
@@ -94,12 +94,12 @@ int bfs(int graph[N][N], int start)
     inFrontier[start] = 1;
 
     // create queue with inital value of start
-    Queue* frontier = LibQueue.create_queue(NULL, 0);
+    Queue* frontier = LibQueue.create(NULL, 0);
     LibQueue.enqueue(frontier, start);
     int currentNode = start;
 
     // keep going until there are no more nodes to explore
-    while (!LibQueue.queue_empty(frontier))
+    while (!LibQueue.empty(frontier))
     {
         LibQueue.dequeue(frontier, &currentNode); // get front of queue to update current node
         printf("%d ", currentNode);
@@ -125,7 +125,7 @@ int bfs(int graph[N][N], int start)
         }   
     }
     putchar('\n');
-    LibQueue.free_queue(frontier);
+    LibQueue.free(frontier);
 
     return EXIT_SUCCESS;
 }

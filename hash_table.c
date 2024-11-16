@@ -32,30 +32,21 @@ int main(void)
 	// str = "hello!";
 	// printf("%lu\n", hash(str, strlen(str)));
 
-	HashTable* table = create_hash_table(1, 2, 30);
+	HashTable* table = ht_create(1, 2, 30);
 
-	const char* str = "hello";
-	printf("%u\n", hash(str));
-	str = "hell";
-	printf("%u\n", hash(str));
+	int key = 34;
+	char* value = "234";
+	ht_insert(table, &key, &value);
+	
 	return EXIT_SUCCESS;
 }
-
 
 // creates a hash table with a certain key and value type determined by
 // 1: STRING
 // 2: INT
-HashTable* create_hash_table(const int keyOption, const int valueOption, const int size)
+HashTable* ht_create(const int keyOption, const int valueOption, const int size)
 {
 	if (keyOption < 0 || valueOption < 0)
-	{
-		return NULL;
-	}
-
-	enum HashType keyType;
-	enum HashType valueType;
-
-	if (set_type(keyOption, &keyType) || set_type(valueOption, &valueType))
 	{
 		return NULL;
 	}
@@ -66,14 +57,59 @@ HashTable* create_hash_table(const int keyOption, const int valueOption, const i
 		return NULL;
 	}
 
+	// create types
+	enum HashType keyType;
+	enum HashType valueType;
+
+	if (set_type(keyOption, &keyType) || set_type(valueOption, &valueType))
+	{
+		return NULL;
+	}
+
 	table->keyType = keyType;
 	table->valueType = valueType;
+
+	// create value and key arrays
+	table->keys = (HashKey*)malloc(sizeof(HashKey) * size);
+	if (table->keys == NULL)
+	{
+		return NULL;
+	}
+	table->values = (HashValue*)malloc(sizeof(HashValue) * size);
+	if (table->values == NULL)
+	{
+		return NULL;
+	}
+
 	table->size = size;
 	return table;
 }
 
-int table_insert()
+// inserts a key and value pair into the hash table
+int ht_insert(HashTable* table, void* key, void* value)
+{
+	// calculate hash depending on datatype of key
+	unsigned int hash = calc_hash(key, table->keyType) % table->size;
 
+	// write value to values in table
+	if (table->keys[hash] != NULL)
+	{
+		// value already inserted
+		puts("key already in hash table");
+		return EXIT_FAILURE;
+	}
+
+	if (table->values[hash] != NULL)
+	{
+		puts("value already in hash table");
+		return EXIT_FAILURE;
+	}
+
+	table->keys[hash] = key;
+	table->values[hash] = value;
+	
+	return EXIT_SUCCESS;
+}
 
 // hash table helper functions
 
@@ -96,13 +132,30 @@ static int set_type(const int option, enum HashType* type)
 	return EXIT_SUCCESS;
 }
 
-static unsigned int hash(const char* s)
+// calculate the hash of a generic value n
+static unsigned int calc_hash(void* n, enum HashType type)
+{
+	unsigned int hash;
+	if (type == STRING)
+	{
+		char* _n = n;
+		hash = hash_string(_n);
+	}
+	else if (type == INT)
+	{
+		int* _n = n;
+		hash = hash_num(*_n);
+	}
+	return hash;
+}
+
+static unsigned int hash_string(const char* s)
 {
 	unsigned int x = 0;
 	while (*s)
 	{
 		x += (int)*s;
-		*s++;
+		s++;
 	}
 
 	return hash_num(x);

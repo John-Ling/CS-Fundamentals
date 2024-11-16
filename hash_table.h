@@ -16,9 +16,11 @@ typedef struct HashTable_t
 	int size;
 } HashTable;
 
-HashTable* create_hash_table(const int keyOption, const int valueOption, const int size);
+HashTable* ht_create(const int keyOption, const int valueOption, const int size);
+int ht_insert(HashTable* table, void* key, void* value);
 static int set_type(const int option, enum HashType* type);
-static unsigned int hash(const char* s);
+static unsigned int calc_hash(void* n, enum HashType type);
+static unsigned int hash_string(const char* s);
 static unsigned int hash_num(unsigned int x);
 // int division_hash(const int input);
 // int mid_square_hash(const int input);

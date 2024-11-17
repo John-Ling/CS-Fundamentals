@@ -1,13 +1,16 @@
 #include "linked_lists.h"
 
-// implementation of a singly linked list for learning purposes
+// library that allows for a linked list of any type to be created for learning purposes
 
-int ll_print(LinkedList* list)
+// TODO
+// make linked list generic see https://www.geeksforgeeks.org/generic-linked-list-in-c-2/
+
+int ll_print(LinkedList* list, void print(void*))
 {
     ListNode* current = list->head;
     while (current != NULL)
     {
-        printf("%i ", current->value);
+        print(current->value);
         current = current->next;
     }
     putchar('\n');
@@ -15,7 +18,8 @@ int ll_print(LinkedList* list)
 }
 
 // inserts a value at index in a linked list
-int ll_insert(LinkedList* list, const int value, const int index)
+// inserting at index -1 inserts at the end of the list
+int ll_insert(LinkedList* list, void* value, const int index)
 {
     if (index > list->itemCount || index < -1)
     {
@@ -24,19 +28,24 @@ int ll_insert(LinkedList* list, const int value, const int index)
     
     list->itemCount++;
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
+    node->value = (void**)malloc(sizeof(void*));
     if (node == NULL)
     {
         return EXIT_FAILURE;
     }
 
-    node->value = value;
+    puts("Setting value");
+    memcpy(node->value, value, list->dataSize); // assign value 
 
+    puts("Setting");
     if (list->head == NULL)
     {
+        // list is empty
         list->head = node;
         return EXIT_SUCCESS;
     }
 
+    puts("inserting elsewhere");
     // insert at head
     if (index == 0)
     {
@@ -160,30 +169,35 @@ int ll_free(LinkedList* list)
     list->head = list->head->next;
     while (list->head != NULL)
     {
+        free(previous->value);
         free(previous);
         previous = list->head;
         list->head = list->head->next;
     }
     free(previous);
+    free(previous->value);
     free(list);
     previous = NULL;
     list = NULL;
     return EXIT_SUCCESS;
 }
 
-LinkedList* ll_create(int values[], const int n) 
+LinkedList* ll_create(void* values[], const int n)
 {
     LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
     if (list == NULL)
     {
-        puts("Failed to create list");
-        exit(1);
+        return NULL;
     }
+
+    size_t typeSize = sizeof(typeof(*values));
+    list->dataSize = typeSize;
     list->itemCount = 0;
     for (int i = 0; i < n; i++)
     {
         ll_insert(list, values[i], -1);
     }
+    
     return list;
 }
 

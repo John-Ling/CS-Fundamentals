@@ -94,7 +94,9 @@ int ll_delete(LinkedList* list, const int index)
     // if only 1 item in linked list
     if (list->itemCount == 0)
     {
+        free(list->head->value);
         free(list->head);
+        list->head->value = NULL;
         list->head = NULL;
         return EXIT_SUCCESS;
     }
@@ -103,7 +105,9 @@ int ll_delete(LinkedList* list, const int index)
     {
         ListNode* temp = list->head;
         list->head = list->head->next;
+        free(temp->value);
         free(temp);
+        temp->value = NULL;
         temp = NULL;
     }
     else if (index == -1)
@@ -113,7 +117,10 @@ int ll_delete(LinkedList* list, const int index)
         {
             current = current->next;
         }
-        free(current->next); // delete final node
+         // delete final node
+        free(current->next->value);
+        free(current->next);
+        current->next->value = NULL;
         current->next = NULL;
     }
     else 
@@ -136,7 +143,9 @@ int ll_delete(LinkedList* list, const int index)
         // isolate node to be freed by connect node at index with node after node to be freed
         current->next = current->next->next;
 
+        free(temp->value);
         free(temp);
+        temp->value = NULL;
         temp = NULL;
     }
     return EXIT_SUCCESS;
@@ -144,6 +153,11 @@ int ll_delete(LinkedList* list, const int index)
 
 int ll_reverse(LinkedList* list)
 {
+    if (list->head == NULL)
+    {
+        // list is empty
+        return EXIT_FAILURE;
+    }
     ListNode* current = list->head->next;
     ListNode* previous = list->head;
     previous->next = NULL;
@@ -162,6 +176,8 @@ int ll_free(LinkedList* list)
 {
     if (list->head == NULL)
     {
+        free(list);
+        list = NULL;
         return EXIT_FAILURE;
     }
 
@@ -174,16 +190,24 @@ int ll_free(LinkedList* list)
         previous = list->head;
         list->head = list->head->next;
     }
-    free(previous);
     free(previous->value);
+    free(previous);
     free(list);
     previous = NULL;
     list = NULL;
     return EXIT_SUCCESS;
 }
 
-LinkedList* ll_create(void* values[], const int n)
+// create an empty linked list by passing NULL
+// or convert any array into a linked list by converting it into void pointers
+// using CONVERT_ARRAY/convert array and 
+LinkedList* ll_create(void* values[], const size_t n)
 {
+    if (values == NULL && n != 0)
+    {
+        return NULL;
+    }
+
     LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
     if (list == NULL)
     {
@@ -193,9 +217,16 @@ LinkedList* ll_create(void* values[], const int n)
     size_t typeSize = sizeof(typeof(*values));
     list->dataSize = typeSize;
     list->itemCount = 0;
+
+
     for (int i = 0; i < n; i++)
     {
         ll_insert(list, values[i], -1);
+    }
+
+    if (values != NULL)
+    {
+        free_void_array(values, n);
     }
     
     return list;

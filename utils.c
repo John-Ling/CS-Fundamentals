@@ -15,7 +15,7 @@ void* convert(void* x, const size_t typeSize)
     return converted;
 }
 
-void** convert_array(void* arr, const size_t n, const size_t typeSize)
+void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 {
     printf("%d\n", typeSize);
     void** array = (void**)malloc(sizeof(void*) * n);

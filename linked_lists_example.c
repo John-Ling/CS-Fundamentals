@@ -4,9 +4,15 @@
 #include "linked_lists.h"
 #include "utils.h"
 
-void print_int(void* i)
+struct s {
+        char* name;
+        int isDead;
+};
+
+void print(void* a)
 {
-    printf("%d ", *(int*)i);
+    struct s* b = (struct s*)a;
+    printf("%s %d ", b->name, b->isDead);
     return;
 }
 
@@ -24,47 +30,75 @@ int main(int argc, char* argv[])
     {
         arr[i - 1] = atoi(argv[i]);
     }
-
-    // the idea
-    // should be able to pass
-
+    
     // void** a = CONVERT_ARRAY(arr, n);
     // LinkedList* list = LibLinkedList.create(array_to_void_array(arr, n, sizeof(int)), n);
-    LinkedList* list = LibLinkedList.create(NULL, 0);
-    printf("%d\n", sizeof(LinkedList));
+
+    // idea implement easy insert macros for integers, chars, floats, arrays, 
+    // impelemnt easy print macros overload both insert and print function
+
+    LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(struct s));
+    struct s a;
+    a.name = "John";
+    a.isDead = 0;
+    LibLinkedList.insert(list, &a, -1);
+    a.name = "campbell";
+    a.isDead = 0;
+    LibLinkedList.insert(list, &a, -1);
+    a.name = "uncle";
+    a.isDead = 1;
+    LibLinkedList.insert(list, &a, -1);
+    // unsigned long a = 45;
+    // printf("%d\n", sizeof(LinkedList));
     // LibLinkedList.print(list, print_int);
     // printf("%d\n", list->itemCount);
     // basic uses of a linked list
 
-    int ab = 50;
-    LibLinkedList.insert(list, &ab, -1);
-    ab = 40;
-    LibLinkedList.insert(list, &ab, 0);
+    // int ab = 50;
+    // LibLinkedList.insert(list, &ab, -1);
+    // ab = 40;
+    // LibLinkedList.insert(list, &ab, 0);
+
+    // float pi = 3.14;
+    // LibLinkedList.insert(list, &pi, -1);
+
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     LibLinkedList.insert(list, &i, -1);
+    // }
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     LibLinkedList.insert_int(list, i, -1);
+    // }
     // LibLinkedList.insert(list, 43, 4);
 
-    LibLinkedList.delete(list, -1);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 0);
-    LibLinkedList.delete(list, 2);
-    LibLinkedList.delete(list, -1);
-    LibLinkedList.delete(list, -1);
-    LibLinkedList.delete(list, -1);
-    LibLinkedList.delete(list, -5);
-    LibLinkedList.delete(list, 5);
-    for (int i = 0; i < 10; i++)
-    {
-        LibLinkedList.delete(list, 0);
-        printf("%d\n", list->itemCount);
-    }
+    // LibLinkedList.delete(list, -1);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 0);
+    // LibLinkedList.delete(list, 2);
+    // LibLinkedList.delete(list, -1);
+    // LibLinkedList.delete(list, -1);
+    // LibLinkedList.delete(list, -1);
+    // LibLinkedList.delete(list, -5);
+    // LibLinkedList.delete(list, 5);
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     LibLinkedList.delete(list, 0);
+    //     printf("%d\n", list->itemCount);
+    // }
     
-    LibLinkedList.print(list, print_int);
+    a.name = "grandpa";
+    a.isDead = 1;
+    LibLinkedList.insert(list, &a, -1);
+    LibLinkedList.print(list, print);
+    LibLinkedList.delete(list, -1);
     LibLinkedList.reverse(list);
-    LibLinkedList.print(list, print_int);
+    LibLinkedList.print(list, print);
 
     LibLinkedList.free(list);
 

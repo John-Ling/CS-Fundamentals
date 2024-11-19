@@ -2,9 +2,6 @@
 
 // library that allows for a linked list of any type to be created for learning purposes
 
-// TODO
-// make linked list generic see https://www.geeksforgeeks.org/generic-linked-list-in-c-2/
-
 int ll_print(LinkedList* list, void print(void*))
 {
     ListNode* current = list->head;
@@ -21,7 +18,7 @@ int ll_print(LinkedList* list, void print(void*))
 // inserting at index -1 inserts at the end of the list
 int ll_insert(LinkedList* list, void* value, const int index)
 {
-    if (index > list->itemCount || index < -1)
+    if (index > list->itemCount || index < -1 || list == NULL)
     {
         return EXIT_FAILURE;
     }
@@ -34,10 +31,7 @@ int ll_insert(LinkedList* list, void* value, const int index)
         return EXIT_FAILURE;
     }
 
-    puts("Setting value");
     memcpy(node->value, value, list->dataSize); // assign value 
-
-    puts("Setting");
     if (list->head == NULL)
     {
         // list is empty
@@ -45,7 +39,6 @@ int ll_insert(LinkedList* list, void* value, const int index)
         return EXIT_SUCCESS;
     }
 
-    puts("inserting elsewhere");
     // insert at head
     if (index == 0)
     {
@@ -82,6 +75,31 @@ int ll_insert(LinkedList* list, void* value, const int index)
     return EXIT_SUCCESS;
 }
 
+int ll_insert_int(LinkedList* list, int value, const int index)
+{
+    return ll_insert(list, &value, index);
+}
+
+int ll_insert_str(LinkedList* list, char* value, const int index)
+{
+    return ll_insert(list, (void*)value, index);
+}
+
+int ll_insert_flt(LinkedList* list, float value, const int index)
+{
+    return ll_insert(list, &value, index);
+}
+
+int ll_insert_dbl(LinkedList* list, double value, const int index)
+{
+    return ll_insert(list, &value, index);
+}
+
+int ll_insert_chr(LinkedList* list, char value, const int index)
+{
+    return ll_insert(list, &value, index);
+}
+
 int ll_delete(LinkedList* list, const int index)
 {
     if (list->itemCount - 1 < 0 || index >= list->itemCount || index < -1)
@@ -89,25 +107,13 @@ int ll_delete(LinkedList* list, const int index)
         return EXIT_FAILURE;
     }
 
-    list->itemCount--;
-
-    // if only 1 item in linked list
-    if (list->itemCount == 0)
-    {
-        free(list->head->value);
-        free(list->head);
-        list->head->value = NULL;
-        list->head = NULL;
-        return EXIT_SUCCESS;
-    }
-
-    if (index == 0)
+    if (index == 0 || list->itemCount == 0)
     {
         ListNode* temp = list->head;
         list->head = list->head->next;
         free(temp->value);
-        free(temp);
         temp->value = NULL;
+        free(temp);
         temp = NULL;
     }
     else if (index == -1)
@@ -119,8 +125,8 @@ int ll_delete(LinkedList* list, const int index)
         }
          // delete final node
         free(current->next->value);
-        free(current->next);
         current->next->value = NULL;
+        free(current->next);
         current->next = NULL;
     }
     else 
@@ -144,8 +150,8 @@ int ll_delete(LinkedList* list, const int index)
         current->next = current->next->next;
 
         free(temp->value);
-        free(temp);
         temp->value = NULL;
+        free(temp);
         temp = NULL;
     }
     return EXIT_SUCCESS;
@@ -200,8 +206,9 @@ int ll_free(LinkedList* list)
 
 // create an empty linked list by passing NULL
 // or convert any array into a linked list by converting it into void pointers
-// using CONVERT_ARRAY/convert array and 
-LinkedList* ll_create(void* values[], const size_t n)
+// using array_to_void_array() and passing it
+// byte size (aka datatype) of items being stored needs to be specified
+LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
 {
     if (values == NULL && n != 0)
     {
@@ -214,12 +221,10 @@ LinkedList* ll_create(void* values[], const size_t n)
         return NULL;
     }
 
-    size_t typeSize = sizeof(typeof(*values));
     list->dataSize = typeSize;
     list->itemCount = 0;
 
-
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         ll_insert(list, values[i], -1);
     }
@@ -235,6 +240,11 @@ LinkedList* ll_create(void* values[], const size_t n)
 const struct LibLinkedList_l LibLinkedList = {
     .create = ll_create,
     .insert = ll_insert,
+    .insert_int = ll_insert_int,
+    .insert_chr = ll_insert_chr,
+    .insert_dbl = ll_insert_dbl,
+    .insert_flt = ll_insert_flt,
+    .insert_str = ll_insert_str,
     .print = ll_print,
     .delete = ll_delete,
     .reverse = ll_reverse,

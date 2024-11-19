@@ -8,7 +8,19 @@ void swap(int* a, int* b)
     return;
 }
 
-void* convert(void* x, const size_t typeSize)
+void print_int(void* i)
+{
+    printf("%d ", *(int*)i);
+    return;
+}
+
+void print_str(void* s)
+{
+    printf("%s ", (char*)s);
+    return;
+}
+
+void* to_void(void* x, const size_t typeSize)
 {
     void* converted = (void*)malloc(typeSize);
     memcpy(converted, x, typeSize);
@@ -17,7 +29,6 @@ void* convert(void* x, const size_t typeSize)
 
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 {
-    printf("%d\n", typeSize);
     void** array = (void**)malloc(sizeof(void*) * n);
     if (array == NULL)
     {
@@ -38,6 +49,7 @@ void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 
     return array;
 }
+
 
 // frees void array created using convert_array
 int free_void_array(void* arr[], size_t n)

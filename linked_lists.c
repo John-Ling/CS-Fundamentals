@@ -2,7 +2,7 @@
 
 // library that allows for a linked list of any type to be created for learning purposes
 
-int ll_print(LinkedList* list, void print(void*))
+int ll_print(LinkedList* list, void print(const void*))
 {
     ListNode* current = list->head;
     while (current != NULL)

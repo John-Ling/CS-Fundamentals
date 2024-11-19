@@ -25,7 +25,7 @@ int ll_insert_str(LinkedList* list, char* value, const int index);
 int ll_insert_flt(LinkedList* list, float value, const int index);
 int ll_insert_dbl(LinkedList* list, double value, const int index);
 int ll_insert_chr(LinkedList* list, char value, const int index);
-int ll_print(LinkedList* list, void print(void*));
+int ll_print(LinkedList* list, void print(const void*));
 int ll_delete(LinkedList* list, const int index);
 int ll_reverse(LinkedList* list);
 int ll_free(LinkedList* list);
@@ -38,7 +38,7 @@ struct LibLinkedList_l {
     int (*insert_flt)(LinkedList* list, float value, const int index);
     int (*insert_dbl)(LinkedList* list, double value, const int index);
     int (*insert_chr)(LinkedList* list, char value, const int index);
-    int (*print)(LinkedList* list, void print(void*));
+    int (*print)(LinkedList* list, void print(const void*));
     int (*delete)(LinkedList* list, const int index);
     int (*reverse)(LinkedList* list);
     int (*free)(LinkedList* list);

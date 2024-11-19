@@ -13,13 +13,11 @@ enum Type
     INT
 };
 
-void print_int(void* i);
-void print_str(void* s);
+void print_int(const void* i);
+void print_str(const void* s);
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize);
-void* to_void(void* x, const size_t typeSize);
 int free_void_array(void* arr[], size_t n);
 
 #define CONVERT_ARRAY(arr, n) array_to_void_array((void*)arr, n, sizeof(typeof(*arr)))
-#define CONVERT(x) to_void((void*)&x, sizeof(x))
 
 #endif

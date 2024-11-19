@@ -2,13 +2,7 @@
 #include <stdlib.h>
 
 #include "stacks.h"
-
-void* int_to_void(int x)
-{
-    void* ptr = NULL;
-    memcpy(ptr, &x, sizeof(x));
-    return ptr;
-}
+#include "utils.h"
 
 int main(int argc, char* argv[])
 {   
@@ -25,10 +19,10 @@ int main(int argc, char* argv[])
     //     arr[i - 1] = atoi(argv[i]);
     // }
 
-    Stack* stack = LibStack.create(NULL, 0, sizeof(int));
+    Stack* stack = LibStack.create(NULL, 0, sizeof(char*));
 
     // char* a = "John";
-    int a = 5;
+    // int a = 5;
     // void* x = (void*)a;
     // printf("%s\n", (char*)x);
     // for (int i = 0; i < 5; i++)
@@ -37,19 +31,9 @@ int main(int argc, char* argv[])
     //     printf("%c ", *(char*)x);
     // }
     // puts("Pushing onto stack");
-    LibStack.push(stack, (void*)a);
-    // a = "Andrew";
-    a = 1;
-    LibStack.push(stack, (void*)a);
-    // a = "Jun An";
-    a = 3;
-    LibStack.push(stack, (void*)a);
-    // a = "Campbell";
-    a = 1;
-    LibStack.push(stack, (void*)a);
-    // a  "Frank";
-    a = 2;
-    LibStack.push(stack, (void*)a);
+    LibStack.push_str(stack, "Andrew");
+    LibStack.push_str(stack, "Frank");
+    LibStack.push_str(stack, "Jun An");
 
     // a = 2;
     // LibStack.push(stack, &a);
@@ -63,12 +47,13 @@ int main(int argc, char* argv[])
     // LibStack.push(stack, CONVERT(3));
     // LibStack.push(stack, CONVERT(4));
     puts("Printing");
-    LibStack.print(stack, print_int);
+    LibStack.print(stack, print_str);
 
     LibStack.is_empty(stack);
+    LibStack.pop(stack, NULL);
 
     puts("Printing");
-    LibStack.print(stack, print_int);
+    LibStack.print(stack, print_str);
     LibStack.free(stack);
 
     return EXIT_SUCCESS;

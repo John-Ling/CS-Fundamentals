@@ -8,13 +8,13 @@ void swap(int* a, int* b)
     return;
 }
 
-void print_int(void* i)
+void print_int(const void* i)
 {
     printf("%d ", *(int*)i);
     return;
 }
 
-void print_str(void* s)
+void print_str(const void* s)
 {
     printf("%s ", (char*)s);
     return;

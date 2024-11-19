@@ -34,9 +34,34 @@ int s_free(Stack* stack)
 }
 
 // pushes an item onto the stack
-int s_push(Stack* stack, void* val)
+int s_push(Stack* stack, const void* value)
 {
-    return LibLinkedList.insert(stack->items, val, 0);
+    return LibLinkedList.insert(stack->items, value, 0);
+}
+
+int s_push_int(Stack* stack, int value)
+{
+    return s_push(stack, &value);
+}
+
+int s_push_flt(Stack* stack, float value)
+{
+    return s_push(stack, &value);
+}
+
+int s_push_dbl(Stack* stack, double value)
+{
+    return s_push(stack, &value);
+}
+
+int s_push_chr(Stack* stack, char value)
+{
+    return s_push(stack, &value);
+}
+
+int s_push_str(Stack* stack, const char* value)
+{
+    return s_push(stack, (void*)value);
 }
 
 // pop a value off the stack
@@ -71,7 +96,7 @@ bool s_empty(Stack *stack)
     return stack->items == NULL || stack->items->head == NULL;
 }
 
-int s_print(Stack *stack, void (*print)(void* value))
+int s_print(Stack *stack, void (*print)(const void* value))
 {
     return LibLinkedList.print(stack->items, print);
 }
@@ -79,6 +104,11 @@ int s_print(Stack *stack, void (*print)(void* value))
 const struct LibStack_l LibStack = {
     .create = s_create,
     .push = s_push,
+    .push_chr = s_push_chr,
+    .push_dbl = s_push_dbl,
+    .push_flt = s_push_flt,
+    .push_int = s_push_int,
+    .push_str = s_push_str,
     .print = s_print,
     .peek = s_peek,
     .pop = s_pop,

@@ -10,7 +10,6 @@ void swap(int* a, int* b)
 
 void default_free(void* value)
 {
-    puts("Freeing generic item");
     free(value);
     value = NULL;
     return;

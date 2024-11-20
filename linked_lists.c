@@ -24,17 +24,13 @@ int ll_insert(LinkedList* list, void* value, const int index)
     }
     
     list->itemCount++;
-
-    puts("Allocating");
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
-    puts("Setting up value");
     node->value = (void**)malloc(sizeof(void*));
     if (node == NULL)
     {
         return EXIT_FAILURE;
     }
 
-    puts("Copying");
     memcpy(node->value, value, list->dataSize); // assign value
 
     if (list->head == NULL)
@@ -191,13 +187,11 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
     // this allows for larger free functions for complex structs
     if (free_item == NULL)
     {
-        puts("Using defualt free");
         free_item = default_free;
     }
 
     if (list->head == NULL)
     {
-        puts("Head is null");
         free(list);
         list = NULL;
         return EXIT_FAILURE;

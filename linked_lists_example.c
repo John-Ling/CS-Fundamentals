@@ -5,11 +5,11 @@
 #include "utils.h"
 
 struct s {
-        char* name;
-        int isDead;
+    char* name;
+    int isDead;
 };
 
-void print(void* a)
+void print(const void* a)
 {
     struct s* b = (struct s*)a;
     printf("%s %d ", b->name, b->isDead);
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     // int ab = 50;
     // LibLinkedList.insert(list, &ab, -1);
     // ab = 40;
-    // LibLinkedList.insert(list, &ab, 0);
+// LibLinkedList.insert(list, &ab, 0);
 
     // float pi = 3.14;
     // LibLinkedList.insert(list, &pi, -1);
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     LibLinkedList.reverse(list);
     LibLinkedList.print(list, print);
 
-    LibLinkedList.free(list);
+    LibLinkedList.free(list, NULL);
 
     return EXIT_SUCCESS;
 }

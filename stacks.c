@@ -17,16 +17,18 @@ Stack* s_create(void* arr[], const size_t n, const size_t typeSize)
         // insert at the head of the linked list
         if (s_push(stack, arr[i]) == EXIT_FAILURE)
         {
-            s_free(stack);
+            s_free(stack, NULL);
             return NULL;
         }
     }
     return stack;
 }
 
-int s_free(Stack* stack)
+// takes a user defined function pointer for freeing memory
+// passing NULL will use a basic default function that works for most applications
+int s_free(Stack* stack, void (*free_item)(void*))
 {
-    LibLinkedList.free(stack->items);
+    LibLinkedList.free(stack->items, free_item);
     stack->items = NULL;
     free(stack);
     stack = NULL;

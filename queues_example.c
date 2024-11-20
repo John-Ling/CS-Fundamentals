@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "queues.h"
+#include "utils.h"
 
 int main(int argc, char* argv[])
 {
@@ -17,9 +18,9 @@ int main(int argc, char* argv[])
     {
         arr[i - 1] = atoi(argv[i]);
     }
-    Queue* queue = LibQueue.create(arr, n);
+    Queue* queue = LibQueue.create(CONVERT_ARRAY(arr, n), n, sizeof(int));
 
-    LibQueue.print(queue);
+    LibQueue.print(queue, print_int);
 
 
     LibQueue.dequeue(queue, NULL);
@@ -31,13 +32,13 @@ int main(int argc, char* argv[])
     LibQueue.dequeue(queue, NULL);
     LibQueue.dequeue(queue, NULL);
 
-    LibQueue.print(queue);
-    LibQueue.enqueue(queue, 1);
-    LibQueue.enqueue(queue, 1);
-    LibQueue.enqueue(queue, 1);
-    LibQueue.enqueue(queue, 1);
-    LibQueue.print(queue);
+    LibQueue.print(queue, print_int);
+    LibQueue.enqueue_int(queue, 1);
+    LibQueue.enqueue_int(queue, 1);
+    LibQueue.enqueue_int(queue, 1);
+    LibQueue.enqueue_int(queue, 1);
+    LibQueue.print(queue, print_int);
 
-    LibQueue.free(queue);
+    LibQueue.free(queue, NULL);
     return EXIT_SUCCESS;
 }

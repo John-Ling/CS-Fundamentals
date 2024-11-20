@@ -41,12 +41,12 @@ int dfs(int graph[N][N], int start)
     inFrontier[start] = 1;
 
     // create stack with inital value of start
-    Stack* frontier = LibStack.create(NULL, 0);
-    LibStack.push(frontier, start);
+    Stack* frontier = LibStack.create(NULL, 0, sizeof(int));
+    LibStack.push_int(frontier, start);
     int currentNode = start;
 
     // keep going until there are no more nodes to explore
-    while (!LibStack.empty(frontier))
+    while (!LibStack.is_empty(frontier))
     {
         LibStack.pop(frontier, &currentNode); // get top of stack to update current node
         printf("%d ", currentNode);
@@ -66,13 +66,13 @@ int dfs(int graph[N][N], int start)
                 continue;
             }
 
-            LibStack.push(frontier, adjacent[i]);
+            LibStack.push_int(frontier, adjacent[i]);
             inFrontier[adjacent[i]] = 1;
         }        
     }
     putchar('\n');
 
-    LibStack.free(frontier);
+    LibStack.free(frontier, NULL);
 
     return EXIT_SUCCESS;
 }
@@ -94,12 +94,12 @@ int bfs(int graph[N][N], int start)
     inFrontier[start] = 1;
 
     // create queue with inital value of start
-    Queue* frontier = LibQueue.create(NULL, 0);
-    LibQueue.enqueue(frontier, start);
+    Queue* frontier = LibQueue.create(NULL, 0, sizeof(int));
+    LibQueue.enqueue_int(frontier, start);
     int currentNode = start;
 
     // keep going until there are no more nodes to explore
-    while (!LibQueue.empty(frontier))
+    while (!LibQueue.is_empty(frontier))
     {
         LibQueue.dequeue(frontier, &currentNode); // get front of queue to update current node
         printf("%d ", currentNode);
@@ -120,12 +120,12 @@ int bfs(int graph[N][N], int start)
                 continue;
             }
 
-            LibQueue.enqueue(frontier, adjacent[i]);
+            LibQueue.enqueue_int(frontier, adjacent[i]);
             inFrontier[adjacent[i]] = 1;
         }   
     }
     putchar('\n');
-    LibQueue.free(frontier);
+    LibQueue.free(frontier, NULL);
 
     return EXIT_SUCCESS;
 }

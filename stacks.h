@@ -3,12 +3,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "linked_lists.h"
 
-typedef struct Stack_t
+typedef struct
 {
-    // no need for a stack pointer 
-    // since the top of the stack will be the head of the linked list
     LinkedList* items; 
 } Stack;
 
@@ -22,8 +21,8 @@ int s_push_chr(Stack* stack, char value);
 int s_pop(Stack* stack, void* out);
 int s_peek(Stack* stack, void* out);
 bool s_empty(Stack* stack);
-int s_print(Stack* stack, void (*print)(const void* value));
-int s_free(Stack* stack);
+int s_print(Stack* stack, void (*print)(const void*));
+int s_free(Stack* stack, void (*free_item)(void*));
 
 struct LibStack_l {
     Stack* (*create)(void* arr[], const size_t n, const size_t typeSize);
@@ -36,8 +35,8 @@ struct LibStack_l {
     int (*pop)(Stack* stack, void* out);
     int (*peek)(Stack* stack, void* out);
     bool (*is_empty)(Stack* stack);
-    int (*print)(Stack* stack, void (*print)(const void* value));
-    int (*free)(Stack* stack);
+    int (*print)(Stack* stack, void (*print)(const void*));
+    int (*free)(Stack* stack, void (*free_item)(void*));
 };
 
 extern const struct LibStack_l LibStack;

@@ -3,7 +3,6 @@
 
 #include "linked_lists.h"
 #include "utils.h"
-
 struct s {
     char* name;
     int isDead;

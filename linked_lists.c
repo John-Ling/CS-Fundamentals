@@ -24,14 +24,19 @@ int ll_insert(LinkedList* list, void* value, const int index)
     }
     
     list->itemCount++;
+
+    puts("Allocating");
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
+    puts("Setting up value");
     node->value = (void**)malloc(sizeof(void*));
     if (node == NULL)
     {
         return EXIT_FAILURE;
     }
 
-    memcpy(node->value, value, list->dataSize); // assign value 
+    puts("Copying");
+    memcpy(node->value, value, list->dataSize); // assign value
+
     if (list->head == NULL)
     {
         // list is empty
@@ -178,10 +183,21 @@ int ll_reverse(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
-int ll_free(LinkedList* list)
+// performs free_item() on each item in the linked list
+// if free_item is NULL will default to basic free function
+int ll_free(LinkedList* list, void (*free_item)(void*))
 {
+    // allow override of defualt free function with user's own
+    // this allows for larger free functions for complex structs
+    if (free_item == NULL)
+    {
+        puts("Using defualt free");
+        free_item = default_free;
+    }
+
     if (list->head == NULL)
     {
+        puts("Head is null");
         free(list);
         list = NULL;
         return EXIT_FAILURE;
@@ -191,12 +207,12 @@ int ll_free(LinkedList* list)
     list->head = list->head->next;
     while (list->head != NULL)
     {
-        free(previous->value);
+        free_item(previous->value);
         free(previous);
         previous = list->head;
         list->head = list->head->next;
     }
-    free(previous->value);
+    free_item(previous->value);
     free(previous);
     free(list);
     previous = NULL;

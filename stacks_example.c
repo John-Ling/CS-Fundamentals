@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     puts("Printing");
     LibStack.print(stack, print_str);
-    LibStack.free(stack);
+    LibStack.free(stack, NULL);
 
     return EXIT_SUCCESS;
 }

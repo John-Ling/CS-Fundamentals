@@ -8,6 +8,14 @@ void swap(int* a, int* b)
     return;
 }
 
+void default_free(void* value)
+{
+    puts("Freeing generic item");
+    free(value);
+    value = NULL;
+    return;
+}
+
 void print_int(const void* i)
 {
     printf("%d ", *(int*)i);
@@ -49,7 +57,6 @@ void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 
     return array;
 }
-
 
 // frees void array created using convert_array
 int free_void_array(void* arr[], size_t n)

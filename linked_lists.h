@@ -28,7 +28,7 @@ int ll_insert_chr(LinkedList* list, char value, const int index);
 int ll_print(LinkedList* list, void print(const void*));
 int ll_delete(LinkedList* list, const int index);
 int ll_reverse(LinkedList* list);
-int ll_free(LinkedList* list);
+int ll_free(LinkedList* list, void free_item(void*));
 
 struct LibLinkedList_l {
     LinkedList* (*create)(void* values[], const size_t n, const size_t typeSize);
@@ -41,7 +41,7 @@ struct LibLinkedList_l {
     int (*print)(LinkedList* list, void print(const void*));
     int (*delete)(LinkedList* list, const int index);
     int (*reverse)(LinkedList* list);
-    int (*free)(LinkedList* list);
+    int (*free)(LinkedList* list, void free_item(void*));
 };
 
 extern const struct LibLinkedList_l LibLinkedList;

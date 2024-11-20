@@ -13,6 +13,7 @@ enum Type
     INT
 };
 
+void default_free(void* value);
 void print_int(const void* i);
 void print_str(const void* s);
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize);

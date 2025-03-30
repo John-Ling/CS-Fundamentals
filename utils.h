@@ -7,12 +7,6 @@
 
 void swap(int* a, int* b);
 
-enum Type
-{
-    STRING,
-    INT
-};
-
 void default_free(void* value);
 void print_int(const void* i);
 void print_str(const void* s);

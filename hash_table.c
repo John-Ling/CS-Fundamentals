@@ -46,42 +46,44 @@ int ht_free(HashTable* table, void free_item(void*))
 	return EXIT_SUCCESS;
 }
 
-// inserts a key and value pair into the hash table
-// int ht_insert(HashTable* table, void* key, void* value)
-// {
-	// calculate hash depending on datatype of key
-	// unsigned int hash = calc_hash(key, table->keyType) % table->size;
+int ht_insert_str(HashTable* table, const char* key, void* value) 
+{
+	// generate hash of string
+	// try add to index
+	// resolve collisions if needed
+	const int index = hash_string(key) % table->bucketCount;
+	return ht_insert(table, index, value);
+}
 
-	// // write value to values in table
-	// if (table->keys[hash] != NULL)
-	// {
-	// 	// value already inserted
-	// 	// resolve conflicts using either 
-	// 	// open addressing or chaining`
 
-	// 	puts("key already in hash table");
-	// 	return EXIT_FAILURE;
-	// }
 
-	// if (table->values[hash] != NULL)
-	// {
-	// 	puts("value already in hash table");
-	// 	return EXIT_FAILURE;
-	// }
+int ht_get_str(HashTable* table, const char* key, void* out)
+{
+	// hash string to get index
+	// check if index is not null
+	// if not then traverse linked list until key is found 
+	// return 0 if found 1 if not 
+	const int index = hash_string(key) % table->bucketCount;
 
-	// table->keys[hash] = key;
-	// table->values[hash] = value;
-	
-// 	return EXIT_SUCCESS;
-// }
+	if (table->buckets[index] == NULL)
+	{
+		return EXIT_FAILURE;
+	}	
 
-// hash table helper functions
+	return EXIT_SUCCESS;
+}
 
-// handles collisions in the hash table using separate chaining
-// static int handle_collision(HashTable* table, void* item, const int index)
-// {
-// 	return 0;
-// }
+
+
+
+static int ht_insert(HashTable* table, const index, void* value)
+{
+	// insert data into correct bucket
+	// LibLinkedList.insert will insert data to the back of the list
+	// making insertion super easy
+	return LibLinkedList.insert(table->buckets[index], value, -1);
+}
+
 
 // returns the correct memory size based on hash type
 static size_t set_type(HashType type)
@@ -120,25 +122,25 @@ static size_t set_type(HashType type)
 // 	return hash;
 // }
 
-// static unsigned int hash_string(const char* s)
-// {
-// 	unsigned int x = 0;
-// 	while (*s)
-// 	{
-// 		x += (int)*s;
-// 		s++;
-// 	}
 
-// 	return hash_num(x);
-// }
+// djb2 hashing algorithm by Dan Bernstein
+static unsigned int hash_string(const char* s)
+{
+	unsigned long hash = 5381;
+	while (s != NULL)	
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+		hash = hash * 33 ^ *s;
 
-// static unsigned int hash_num(unsigned int x)
-// {
-// 	x = ((x >> 16) ^ x) * 0x45d9f3b;
-//     x = ((x >> 16) ^ x) * 0x45d9f3b;
-//     x = (x >> 16) ^ x;
-//     return x % 100;
-// }
+	return hash;
+}
+
+static unsigned int hash_num(unsigned int x)
+{
+	x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
+    return x % 100;
+}
 
 const struct LibHashTable_l LibHashTable = {
     .create = ht_create,

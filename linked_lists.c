@@ -179,11 +179,36 @@ int ll_reverse(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
+int ll_search(LinkedList* list, void* search, int compare(const void*, const void*))
+{
+    ListNode* current = list->head;
+    int found = EXIT_FAILURE;
+    int position = 0;
+    while (current != NULL && found == EXIT_FAILURE)
+    {
+        if (compare(current->value, search) == EXIT_SUCCESS)
+        {
+            return position;
+        }
+        position++;
+        current = current->next;
+    }
+
+    return -1;
+}
+
+int ll_search_int(LinkedList* list, int search)
+{
+    return ll_search(list, &search, compare_int);
+}
+
+
+
 // performs free_item() on each item in the linked list
 // if free_item is NULL will default to basic free function
 int ll_free(LinkedList* list, void (*free_item)(void*))
 {
-    // allow override of defualt free function with user's own
+    // allow override of default free function with user's own
     // this allows for larger free functions for complex structs
     if (free_item == NULL)
     {
@@ -258,5 +283,7 @@ const struct LibLinkedList_l LibLinkedList = {
     .print = ll_print,
     .delete = ll_delete,
     .reverse = ll_reverse,
+    .search = ll_search,
+    .search_int = ll_search_int,
     .free = ll_free
 };

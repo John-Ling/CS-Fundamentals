@@ -40,6 +40,13 @@ int main(int argc, char* argv[])
     // print linked list
     LibLinkedList.print(list, print_int);
 
+    // search for values
+    printf("%d\n", LibLinkedList.search_int(list, 9));
+
+    printf("%d\n", LibLinkedList.search_int(list, 1));
+
+    printf("%d\n", LibLinkedList.search_int(list, 100));
+
     LibLinkedList.free(list, default_free);
     return EXIT_SUCCESS;
 }

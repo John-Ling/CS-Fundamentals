@@ -32,11 +32,23 @@ typedef struct HashTable_t
 	HashType type; // specifies the data type used for a key
 } HashTable;
 
+
 HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataSize);
-int ht_insert(HashTable* table, void* key, void* value);
+int ht_insert_str(HashTable* table, char* key, void* value);
+int ht_insert_chr(HashTable* table, char key, void* value);
+int ht_insert_int(HashTable* table, int key, void* value);
+int ht_insert_flt(HashTable* table, float key, void* value);
+int ht_insert_dbl(HashTable* table, double key, void* value);
+
+// insert data into specific bucket (index) in hash table
+// performs separate chaining to resolve collisions
+static int ht_insert(HashTable* table, const index, void* value);
 int ht_free(HashTable* table, void free_item(void*));
+
+int ht_get_str(HashTable* table, const char* key, void* out);
+
 static size_t set_type(HashType type);
-// static unsigned int hash_string(const char* s);
+static unsigned int hash_string(const char* s);
 // static unsigned int hash_num(unsigned int x);
 
 struct LibHashTable_l {

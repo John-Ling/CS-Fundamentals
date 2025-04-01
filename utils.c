@@ -34,6 +34,15 @@ void* to_void(void* x, const size_t typeSize)
     return converted;
 }
 
+int compare_int(const void* a, const void* b)
+{
+    if (*(int*)a == *(int*)b)
+    {
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 {
     void** array = (void**)malloc(sizeof(void*) * n);

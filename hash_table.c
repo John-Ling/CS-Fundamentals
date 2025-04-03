@@ -51,11 +51,10 @@ int ht_insert_str(HashTable* table, const char* key, void* value)
 	// generate hash of string
 	// try add to index
 	// resolve collisions if needed
+
 	const int index = hash_string(key) % table->bucketCount;
 	return ht_insert(table, index, value);
 }
-
-
 
 int ht_get_str(HashTable* table, const char* key, void* out)
 {
@@ -70,11 +69,10 @@ int ht_get_str(HashTable* table, const char* key, void* out)
 		return EXIT_FAILURE;
 	}	
 
+	
+
 	return EXIT_SUCCESS;
 }
-
-
-
 
 static int ht_insert(HashTable* table, const index, void* value)
 {
@@ -126,11 +124,13 @@ static size_t set_type(HashType type)
 // djb2 hashing algorithm by Dan Bernstein
 static unsigned int hash_string(const char* s)
 {
+	// hash(i - 1) * 33 ^ str[i];
 	unsigned long hash = 5381;
 	while (s != NULL)	
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-		hash = hash * 33 ^ *s;
-
+	{
+		hash = hash * 33 ^ *s; /* hash * 33 + c */
+		s++;
+	}
 	return hash;
 }
 

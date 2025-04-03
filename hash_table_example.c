@@ -14,6 +14,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+
+
     LibHashTable.free(table, default_free);
 
     return EXIT_SUCCESS;

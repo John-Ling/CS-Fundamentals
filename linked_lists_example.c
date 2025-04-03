@@ -48,5 +48,7 @@ int main(int argc, char* argv[])
     printf("%d\n", LibLinkedList.search_int(list, 100));
 
     LibLinkedList.free(list, default_free);
+
+    LibLinkedList.free(list, default_free);
     return EXIT_SUCCESS;
 }

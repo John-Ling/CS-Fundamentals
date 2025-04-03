@@ -11,6 +11,7 @@ void default_free(void* value);
 void print_int(const void* i);
 void print_str(const void* s);
 int compare_int(const void* a, const void* b);
+int compare_str(const void* a, const void* b);
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize);
 int free_void_array(void* arr[], size_t n);
 

@@ -43,6 +43,36 @@ int compare_int(const void* a, const void* b)
     return EXIT_FAILURE;
 }
 
+int compare_str(const void* a, const void* b)
+{
+    char* s1 = (char*)a;
+    char* s2 = (char*)b;
+
+    while (1)
+    {
+        if (*s1 == NULL && *s2 == NULL)
+        {
+            // both strings have finished at the same time
+            break;
+        }
+
+        if ((*s1 == NULL && *s2 != NULL) || (*s1 != NULL && *s2 == NULL))
+        {
+            return EXIT_FAILURE;
+        }
+
+        if (*s1 != *s2)
+        {
+            return EXIT_FAILURE;
+        }
+        s1++;
+        s2++;
+    }
+
+    // success
+    return EXIT_SUCCESS;
+}
+
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 {
     void** array = (void**)malloc(sizeof(void*) * n);

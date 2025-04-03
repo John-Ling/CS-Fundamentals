@@ -28,8 +28,9 @@ int ll_insert_chr(LinkedList* list, char value, const int index);
 int ll_print(LinkedList* list, void print(const void*));
 int ll_delete(LinkedList* list, const int index);
 int ll_reverse(LinkedList* list);
-int ll_search_int(LinkedList* list, int search);
 int ll_search(LinkedList* list, void* search, int compare(const void*, const void*));
+int ll_search_int(LinkedList* list, int search);
+int ll_search_str(LinkedList* list, char* search);
 int ll_free(LinkedList* list, void free_item(void*));
 
 struct LibLinkedList_l {
@@ -60,6 +61,8 @@ struct LibLinkedList_l {
     // returns -1 if unable to find
     int (*search)(LinkedList* list, void* search, int compare(const void*, const void*));
     int (*search_int)(LinkedList* list, int search);
+
+    int (*search_str)(LinkedList* list, char* search);
     // performs free_item() on each item in the linked list
     // if free_item is NULL will default to basic free function
     int (*free)(LinkedList* list, void free_item(void*));

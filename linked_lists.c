@@ -32,7 +32,6 @@ int ll_insert(LinkedList* list, void* value, const int index)
     }
 
     memcpy(node->value, value, list->dataSize); // assign value
-
     if (list->head == NULL)
     {
         // list is empty
@@ -221,7 +220,7 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
     {
         free(list);
         list = NULL;
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
     ListNode* previous = list->head;

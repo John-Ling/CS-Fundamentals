@@ -14,7 +14,18 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    int a = 5;
 
+    LibHashTable.insert_str(table, "Hello World", &a);
+    // LibHashTable.insert_str(table, "Hello World", &a);
+    // LibHashTable.insert_str(table, "Hello World", &a);
+    // LibHashTable.insert_str(table, "Hello World", &a);
+
+    // LibHashTable.insert_str(table, "Hello world", &a);
+    // LibHashTable.insert_str(table, "Hello world", &a);
+    // LibHashTable.insert_str(table, "Hello world", &a);
+    // LibHashTable.insert_str(table, "Hello world", &a);
+    // LibHashTable.insert_str(table, "Hello world", &a);
 
     LibHashTable.free(table, default_free);
 

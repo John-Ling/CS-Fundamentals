@@ -2,6 +2,13 @@
 
 // implementation of a basic hash table with separate chaining for learning purposes
 
+// allocated 
+// table
+// buckets
+// buckets for each index
+// key value pair
+// key value pair key and value
+
 // creates a hash table 
 HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataSize)
 {
@@ -15,6 +22,9 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 	table->type= keyType;
 	table->bucketCount = bucketCount;
 
+	table->keySize = set_type(keyType);
+	table->dataSize = dataSize;
+
 	// create buckets in hash table
 	// generate static array
 	table->buckets = (LinkedList**)malloc(sizeof(LinkedList*) * bucketCount);
@@ -22,7 +32,9 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 	// populate array with linked lists
 	for (int i = 0; i < bucketCount; i++)
 	{
-		table->buckets[i] = LibLinkedList.create(NULL, 0, dataSize);
+		// create linked list of key value structs
+		table->buckets[i] = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
+
 		if (table->buckets[i] == NULL)
 		{
 			return NULL;
@@ -32,11 +44,18 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 	return table;
 }
 
+
 int ht_free(HashTable* table, void free_item(void*))
 {
-	for (int i = 0; i < table->bucketCount; i++) 
+	if (free_item == NULL)
 	{
-		LibLinkedList.free(table->buckets[i], free_item);
+		free_item = default_free;
+	}
+
+    for (int i = 0; i < table->bucketCount; i++)
+	{
+		ht_free_bucket(table->buckets[i], free_item);
+		// LibLinkedList.free(table->buckets[i], free_item);
 	}
 
 	free(table->buckets);
@@ -46,14 +65,72 @@ int ht_free(HashTable* table, void free_item(void*))
 	return EXIT_SUCCESS;
 }
 
+// modified version of the 
+static int ht_free_bucket(LinkedList* list, void free_item(void*))
+{
+	if ((list)->head == NULL)
+    {
+		puts("Freeing head");
+        free(list);
+		puts("Freeing list");
+        list = NULL;
+        return EXIT_SUCCESS;
+    }
+
+	puts("Starting");
+    ListNode* previous = list->head;
+	KeyValue* pair = (KeyValue*)previous->value;
+    list->head = list->head->next;
+    while ((list)->head != NULL)
+    {
+		puts("Freeing pair");
+		// free key value pair
+		free(pair->key);
+		pair->key = NULL;
+		free_item(pair->data);
+		pair->data = NULL; 
+		
+		puts("Freeing node");
+		// free list node
+		free_item(previous->value);
+		previous->value = NULL;
+        free(previous);
+        previous = list->head;
+        list->head = list->head->next;
+		
+		if (list->head != NULL)
+		{
+			pair = (KeyValue*)list->head->value;
+		}
+    }
+
+	// todo fix this memory freeing issue
+	// something is not working it makes me sad :(
+	printf("%s\n", (char*)pair->key);
+	free(pair->key);
+	pair->key = NULL;
+	free_item(pair->data);
+	pair->data = NULL;
+	// free(pair);
+	// pair = NULL;
+
+	puts("Done");
+    free_item(previous->value);
+	previous->value = NULL;
+    free(previous);
+    previous = NULL;
+	free(list);
+	(list) = NULL;
+    return EXIT_SUCCESS;
+}
+
 int ht_insert_str(HashTable* table, const char* key, void* value) 
 {
 	// generate hash of string
 	// try add to index
 	// resolve collisions if needed
-
 	const int index = hash_string(key) % table->bucketCount;
-	return ht_insert(table, index, value);
+	return ht_insert(table, index, (void*)key, value);
 }
 
 int ht_get_str(HashTable* table, const char* key, void* out)
@@ -67,21 +144,39 @@ int ht_get_str(HashTable* table, const char* key, void* out)
 	if (table->buckets[index] == NULL)
 	{
 		return EXIT_FAILURE;
-	}	
+	}
 
+	ListNode* current = table->buckets[index]->head;
 	
+	// go through
+	// linked list until 
+	while (current != NULL)
+	{
+		if (compare_str(current->value, (void*)key) == EXIT_SUCCESS)
+		{
+			// 
+			
+		}
+		current = current->next;
+	}
 
 	return EXIT_SUCCESS;
 }
 
-static int ht_insert(HashTable* table, const index, void* value)
+int ht_insert(HashTable* table, const int index, void* key, void* value)
 {
 	// insert data into correct bucket
 	// LibLinkedList.insert will insert data to the back of the list
 	// making insertion super easy
-	return LibLinkedList.insert(table->buckets[index], value, -1);
-}
 
+	KeyValue* keyValuePair = (KeyValue*)malloc(sizeof(KeyValue));
+	keyValuePair->data = (void**)malloc(sizeof(void*));
+	memcpy(keyValuePair->data, value, table->dataSize);
+	keyValuePair->key = (void**)malloc(sizeof(void*));
+	memcpy(keyValuePair->key, value, table->keySize);
+
+	return LibLinkedList.insert(table->buckets[index], (void*)keyValuePair, -1);
+}
 
 // returns the correct memory size based on hash type
 static size_t set_type(HashType type)
@@ -126,7 +221,7 @@ static unsigned int hash_string(const char* s)
 {
 	// hash(i - 1) * 33 ^ str[i];
 	unsigned long hash = 5381;
-	while (s != NULL)	
+	while (*s != NULL)	
 	{
 		hash = hash * 33 ^ *s; /* hash * 33 + c */
 		s++;
@@ -144,5 +239,6 @@ static unsigned int hash_num(unsigned int x)
 
 const struct LibHashTable_l LibHashTable = {
     .create = ht_create,
-    .free = ht_free
+    .free = ht_free,
+	.insert_str = ht_insert_str
 };

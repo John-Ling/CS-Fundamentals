@@ -34,7 +34,7 @@ int dfs(int graph[N][N], int start)
     // keep track of visited nodes
     int visited[N] = {0};
     
-    // keep track of nodes in frontier efficently
+    // keep track of nodes in frontier efficiently
     int inFrontier[N] = {0};
 
     visited[start] = 1;
@@ -87,7 +87,7 @@ int bfs(int graph[N][N], int start)
     // keep track of visited nodes
     int visited[N] = {0};
     
-    // keep track of nodes in frontier efficently
+    // keep track of nodes in frontier efficiently
     int inFrontier[N] = {0};
 
     visited[start] = 1;

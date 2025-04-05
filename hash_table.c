@@ -55,7 +55,6 @@ int ht_free(HashTable* table, void free_item(void*))
     for (int i = 0; i < table->bucketCount; i++)
 	{
 		ht_free_bucket(table->buckets[i], free_item);
-		// LibLinkedList.free(table->buckets[i], free_item);
 	}
 
 	free(table->buckets);
@@ -70,51 +69,38 @@ static int ht_free_bucket(LinkedList* list, void free_item(void*))
 {
 	if ((list)->head == NULL)
     {
-		puts("Freeing head");
         free(list);
-		puts("Freeing list");
         list = NULL;
         return EXIT_SUCCESS;
     }
 
-	puts("Starting");
     ListNode* previous = list->head;
 	KeyValue* pair = (KeyValue*)previous->value;
     list->head = list->head->next;
-    while ((list)->head != NULL)
+    while (list->head != NULL)
     {
-		puts("Freeing pair");
 		// free key value pair
 		free(pair->key);
 		pair->key = NULL;
 		free_item(pair->data);
 		pair->data = NULL; 
 		
-		puts("Freeing node");
-		// free list node
+
+
 		free_item(previous->value);
 		previous->value = NULL;
         free(previous);
         previous = list->head;
+		pair = (KeyValue*)list->head->value;
         list->head = list->head->next;
-		
-		if (list->head != NULL)
-		{
-			pair = (KeyValue*)list->head->value;
-		}
     }
 
-	// todo fix this memory freeing issue
-	// something is not working it makes me sad :(
-	printf("%s\n", (char*)pair->key);
+	// free final
 	free(pair->key);
 	pair->key = NULL;
 	free_item(pair->data);
 	pair->data = NULL;
-	// free(pair);
-	// pair = NULL;
 
-	puts("Done");
     free_item(previous->value);
 	previous->value = NULL;
     free(previous);
@@ -169,13 +155,22 @@ int ht_insert(HashTable* table, const int index, void* key, void* value)
 	// LibLinkedList.insert will insert data to the back of the list
 	// making insertion super easy
 
+	// create key value pair
 	KeyValue* keyValuePair = (KeyValue*)malloc(sizeof(KeyValue));
 	keyValuePair->data = (void**)malloc(sizeof(void*));
 	memcpy(keyValuePair->data, value, table->dataSize);
 	keyValuePair->key = (void**)malloc(sizeof(void*));
 	memcpy(keyValuePair->key, value, table->keySize);
 
-	return LibLinkedList.insert(table->buckets[index], (void*)keyValuePair, -1);
+	int ret = LibLinkedList.insert(table->buckets[index], (void*)keyValuePair, -1);
+
+	// linked list insert will create a new node and copy over 
+	// the data via memcpy it has its own record of keyValuePair however the members key and data
+	// are still in memory and still need to be used
+	// the keyValuePair struct we initialised is not needed though so we free it
+	free(keyValuePair);
+	keyValuePair = NULL;
+	return ret;
 }
 
 // returns the correct memory size based on hash type

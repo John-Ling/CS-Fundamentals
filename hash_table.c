@@ -119,7 +119,7 @@ int ht_insert_str(HashTable* table, const char* key, void* value)
 	return ht_insert(table, index, (void*)key, value);
 }
 
-int ht_get_str(HashTable* table, const char* key, void* out)
+void* ht_get_str(HashTable* table, const char* key)
 {
 	// hash string to get index
 	// check if index is not null
@@ -129,7 +129,8 @@ int ht_get_str(HashTable* table, const char* key, void* out)
 
 	if (table->buckets[index] == NULL)
 	{
-		return EXIT_FAILURE;
+		puts("Null");
+		return NULL;
 	}
 
 	ListNode* current = table->buckets[index]->head;
@@ -138,15 +139,17 @@ int ht_get_str(HashTable* table, const char* key, void* out)
 	// linked list until 
 	while (current != NULL)
 	{
-		if (compare_str(current->value, (void*)key) == EXIT_SUCCESS)
+		KeyValue* pair = (KeyValue*)current->value;
+		
+		if (compare_str(pair->key, (void*)key) == EXIT_SUCCESS)
 		{
-			// 
-			
+			return pair->data;
 		}
 		current = current->next;
 	}
 
-	return EXIT_SUCCESS;
+	puts("Could not find ");
+	return NULL;
 }
 
 int ht_insert(HashTable* table, const int index, void* key, void* value)
@@ -235,5 +238,6 @@ static unsigned int hash_num(unsigned int x)
 const struct LibHashTable_l LibHashTable = {
     .create = ht_create,
     .free = ht_free,
-	.insert_str = ht_insert_str
+	.insert_str = ht_insert_str,
+	.get_str = ht_get_str
 };

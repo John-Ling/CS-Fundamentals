@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
 #include <math.h>
 
 #include "linked_lists.h"
@@ -56,7 +54,7 @@ int ht_insert(HashTable* table, const int index, void* key, void* value);
 int ht_free(HashTable* table, void free_item(void*));
 static int ht_free_bucket(LinkedList* list, void free_item(void*));
 
-int ht_get_str(HashTable* table, const char* key, void* out);
+void* ht_get_str(HashTable* table, const char* key);
 
 static size_t set_type(HashType type);
 static unsigned int hash_string(const char* s);
@@ -70,6 +68,8 @@ struct LibHashTable_l {
     int (*free)(HashTable* table, void free_item(void*));
 
 	int (*insert_str)(HashTable* table, const char* key, void* value);
+
+	void* (*get_str)(HashTable* table, const char* key);
 };
 
 extern const struct LibHashTable_l LibHashTable;

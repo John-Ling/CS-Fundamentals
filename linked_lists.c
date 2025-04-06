@@ -14,24 +14,28 @@ int ll_print(LinkedList* list, void print(const void*))
     return EXIT_SUCCESS;
 }
 
-// inserts a value at index in a linked list
-// inserting at index -1 inserts at the end of the list
-int ll_insert(LinkedList* list, void* value, const int index)
+static ListNode* __ll_create_node(void* data, const size_t size)
 {
-    if (index > list->itemCount || index < -1 || list == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-    
-    list->itemCount++;
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
-    node->value = (void**)malloc(sizeof(void*));
     if (node == NULL)
     {
-        return EXIT_FAILURE;
+        return NULL;
     }
 
-    memcpy(node->value, value, list->dataSize); // assign value
+    node->value = (void**)malloc(sizeof(void*));
+
+    if (node->value == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(node->value, data, size);
+    return node;
+}
+
+static int __ll_insert_node(LinkedList* list, ListNode* node, const int index)
+{
+    // insert node into correct position
     if (list->head == NULL)
     {
         // list is empty
@@ -72,7 +76,28 @@ int ll_insert(LinkedList* list, void* value, const int index)
         node->next = current->next;
         current->next = node;
     }
+
     return EXIT_SUCCESS;
+}
+
+// inserts a value at index in a linked list
+// inserting at index -1 inserts at the end of the list
+int ll_insert(LinkedList* list, void* value, const int index)
+{
+    if (index > list->itemCount || index < -1 || list == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+    
+    list->itemCount++;
+
+    ListNode* node = __ll_create_node(value, sizeof(list->dataSize));
+    if (node == NULL)
+    {
+        return EXIT_FAILURE;
+    }
+
+    return __ll_insert_node(list, node, index);
 }
 
 int ll_insert_int(LinkedList* list, int value, const int index)
@@ -82,7 +107,22 @@ int ll_insert_int(LinkedList* list, int value, const int index)
 
 int ll_insert_str(LinkedList* list, char* value, const int index)
 {
-    return ll_insert(list, (void*)value, index);
+    // since string can have variable length
+    // we need to create a node of appropriate size
+    // then insert
+
+    char* s = value;
+    int length = 0;
+    while (*s)
+    {
+        s++;
+        length++;
+    }
+
+    ListNode* node = __ll_create_node((void*)value, sizeof(char) * length);
+
+    // use internal insert_node function to directly insert node
+    return __ll_insert_node(list, node, index);
 }
 
 int ll_insert_flt(LinkedList* list, float value, const int index)

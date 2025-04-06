@@ -23,6 +23,17 @@ int main(int argc, char* argv[])
     LibHashTable.insert_str(table, "Hello Worl3d", &a);
     LibHashTable.insert_str(table, "Hello sorld", &a);
 
+    void* c = LibHashTable.get_str(table, "Hello World");
+
+    if (c == NULL)
+    {
+        puts("error");
+    }
+    else
+    {
+        printf("%d\n", *(int*)c);
+    }
+
     // LibHashTable.insert_str(table, "Hello world", &a);
     // LibHashTable.insert_str(table, "Hello world", &a);
     // LibHashTable.insert_str(table, "Hello world", &a);

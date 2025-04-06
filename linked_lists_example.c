@@ -24,30 +24,44 @@ void free_pair(void* pair)
 
 int main(void)
 {
-    LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
+
+    LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(char*));
+
+    LibLinkedList.insert_str(list, "Hello World", -1);
+    LibLinkedList.insert_str(list, "Hello World", -1);
+    LibLinkedList.insert_str(list, "Hello World", -1);
+    LibLinkedList.insert_str(list, "Hello World", -1);
+    LibLinkedList.insert_str(list, "Hello World", -1);
+
+    LibLinkedList.print(list, print_str);
+    LibLinkedList.free(list, default_free);
+    // LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
     
-    for (int i = 0; i < 10; i++)
-    {
-        KeyValue* pair = (KeyValue*)malloc(sizeof(KeyValue));
-        pair->data = (void**)malloc(sizeof(void*));
-        pair->key = (void**)malloc(sizeof(void*));
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     KeyValue* pair = (KeyValue*)malloc(sizeof(KeyValue));
+    //     pair->data = (void**)malloc(sizeof(void*));
+    //     pair->key = (void**)malloc(sizeof(void*));
 
-        const char* key = "Hello World";
-        int value = 5;
+    //     char* key = "Hello";
+    //     int value = 5;
 
-        memcpy(pair->key, (void*)key, sizeof(char*));
-        memcpy(pair->data, &value, sizeof(int));
-        LibLinkedList.insert(list, (void*)pair, -1);
+    //     memcpy(pair->key, (void*)key, sizeof(char*));
+    //     memcpy(pair->data, &value, sizeof(int));
 
-        free(pair);
-    }
+    //     printf("%s\n", (char*)pair->key);
+    //     printf("%d\n", *(int*)pair->data);
+    //     LibLinkedList.insert(list, (void*)pair, -1);
+
+    //     free(pair);
+    // }
     
-    // LibLinkedList.insert(list, (void*)pair, -1);
-    // LibLinkedList.insert(list, (void*)pair, -1);
-    // LibLinkedList.insert(list, (void*)pair, -1);
-    // LibLinkedList.insert(list, (void*)pair, -1);
-    // LibLinkedList.insert(list, (void*)pair, -1);
-    LibLinkedList.free(list, free_pair);
+    // // LibLinkedList.insert(list, (void*)pair, -1);
+    // // LibLinkedList.insert(list, (void*)pair, -1);
+    // // LibLinkedList.insert(list, (void*)pair, -1);
+    // // LibLinkedList.insert(list, (void*)pair, -1);
+    // // LibLinkedList.insert(list, (void*)pair, -1);
+    // LibLinkedList.free(list, free_pair);
     
     return EXIT_SUCCESS;
 }

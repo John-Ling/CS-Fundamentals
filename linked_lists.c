@@ -170,18 +170,23 @@ int ll_insert_chr(LinkedList* list, char value, const int index)
     return ll_insert(list, &value, index);
 }
 
-int ll_delete(LinkedList* list, const int index)
+int ll_delete(LinkedList* list, const int index, void free_item(void*))
 {
     if (list->itemCount - 1 < 0 || index >= list->itemCount || index < -1)
     {
         return EXIT_FAILURE;
     }
 
+    if (free_item == NULL)
+    {
+        free_item = default_free;
+    }
+
     if (index == 0 || list->itemCount == 0)
     {
         ListNode* temp = list->head;
         list->head = list->head->next;
-        free(temp->value);
+        free_item(temp->value);
         temp->value = NULL;
         free(temp);
         temp = NULL;
@@ -194,7 +199,7 @@ int ll_delete(LinkedList* list, const int index)
             current = current->next;
         }
          // delete final node
-        free(current->next->value);
+        free_item(current->next->value);
         current->next->value = NULL;
         free(current->next);
         current->next = NULL;
@@ -219,7 +224,7 @@ int ll_delete(LinkedList* list, const int index)
         // isolate node to be freed by connect node at index with node after node to be freed
         current->next = current->next->next;
 
-        free(temp->value);
+        free_item(temp->value);
         temp->value = NULL;
         free(temp);
         temp = NULL;

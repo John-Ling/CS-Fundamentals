@@ -25,6 +25,8 @@ void free_pair(void* pair)
 int main(void)
 {
 
+    // testing linked list of strings
+
     LinkedList* list1 = LibLinkedList.create(NULL, 0, sizeof(char*));
 
     LibLinkedList.insert_str(list1, "Hello World", -1);
@@ -35,6 +37,9 @@ int main(void)
 
     LibLinkedList.print(list1, print_str);
     LibLinkedList.free(list1, default_free);
+
+    // testing linked list of user defined structs
+    // in this context these structs will be used as part of a hash table
     LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
     
     for (int i = 0; i < 10; i++)

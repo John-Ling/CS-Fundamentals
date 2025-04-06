@@ -51,11 +51,12 @@ int ht_insert_dbl(HashTable* table, double key, void* value);
 // insert data into specific bucket (index) in hash table
 // performs separate chaining to resolve collisions
 int ht_insert(HashTable* table, const int index, void* key, void* value);
+static int __ht_insert(HashTable* table, const int index, KeyValue* pair);
 int ht_free(HashTable* table, void free_item(void*));
-static int ht_free_bucket(LinkedList* list, void free_item(void*));
-
 void* ht_get_str(HashTable* table, const char* key);
 
+static int __ht_free_bucket(LinkedList* list, void free_item(void*));
+static KeyValue* __ht_create_pair(void* key, void* value, size_t keySize, size_t valueSize);
 size_t set_type(HashType type);
 unsigned int hash_string(const char* s);
 

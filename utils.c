@@ -52,13 +52,13 @@ int compare_str(const void* a, const void* b)
 
     while (1)
     {
-        if (*s1 == NULL && *s2 == NULL)
+        if (!*s1 && !*s2)
         {
             // both strings have finished at the same time
             break;
         }
 
-        if ((*s1 == NULL && *s2 != NULL) || (*s1 != NULL && *s2 == NULL))
+        if ((!*s1 && *s2) || (*s1 && !*s2))
         {
             return EXIT_FAILURE;
         }

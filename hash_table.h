@@ -56,8 +56,8 @@ static int ht_free_bucket(LinkedList* list, void free_item(void*));
 
 void* ht_get_str(HashTable* table, const char* key);
 
-static size_t set_type(HashType type);
-static unsigned int hash_string(const char* s);
+size_t set_type(HashType type);
+unsigned int hash_string(const char* s);
 
 void ht_free_key_value_pair(void* pair);
 // static unsigned int hash_num(unsigned int x);

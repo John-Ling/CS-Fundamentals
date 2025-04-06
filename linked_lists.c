@@ -2,6 +2,39 @@
 
 // library that allows for a linked list of any type to be created for learning purposes
 
+// create an empty linked list by passing NULL
+// or convert any array into a linked list by converting it into void pointers
+// using array_to_void_array() and passing it
+// byte size (aka datatype) of items being stored needs to be specified
+LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
+{
+    if (values == NULL && n != 0)
+    {
+        return NULL;
+    }
+
+    LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
+    if (list == NULL)
+    {
+        return NULL;
+    }
+
+    list->dataSize = typeSize;
+    list->itemCount = 0;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        ll_insert(list, values[i], -1);
+    }
+
+    if (values != NULL)
+    {
+        free_void_array(values, n);
+    }
+    
+    return list;
+}
+
 int ll_print(LinkedList* list, void print(const void*))
 {
     ListNode* current = list->head;
@@ -14,7 +47,7 @@ int ll_print(LinkedList* list, void print(const void*))
     return EXIT_SUCCESS;
 }
 
-static ListNode* __ll_create_node(void* data, const size_t size)
+ListNode* __ll_create_node(void* data, const size_t size)
 {
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
     if (node == NULL)
@@ -26,6 +59,7 @@ static ListNode* __ll_create_node(void* data, const size_t size)
 
     if (node->value == NULL)
     {
+        free(node);
         return NULL;
     }
 
@@ -33,7 +67,8 @@ static ListNode* __ll_create_node(void* data, const size_t size)
     return node;
 }
 
-static int __ll_insert_node(LinkedList* list, ListNode* node, const int index)
+
+int __ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
     // insert node into correct position
     if (list->head == NULL)
@@ -91,12 +126,7 @@ int ll_insert(LinkedList* list, void* value, const int index)
     
     list->itemCount++;
 
-    ListNode* node = __ll_create_node(value, sizeof(list->dataSize));
-    if (node == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-
+    ListNode* node = __ll_create_node(value, list->dataSize);
     return __ll_insert_node(list, node, index);
 }
 
@@ -265,52 +295,23 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
 
     ListNode* previous = list->head;
     list->head = list->head->next;
+
     while (list->head != NULL)
     {
+        puts("Freeing item");
         free_item(previous->value);
         free(previous);
         previous = list->head;
         list->head = list->head->next;
     }
+
+    puts("Freeing final");
     free_item(previous->value);
     free(previous);
     free(list);
     previous = NULL;
     list = NULL;
     return EXIT_SUCCESS;
-}
-
-// create an empty linked list by passing NULL
-// or convert any array into a linked list by converting it into void pointers
-// using array_to_void_array() and passing it
-// byte size (aka datatype) of items being stored needs to be specified
-LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
-{
-    if (values == NULL && n != 0)
-    {
-        return NULL;
-    }
-
-    LinkedList* list = (LinkedList*)malloc(sizeof(LinkedList));
-    if (list == NULL)
-    {
-        return NULL;
-    }
-
-    list->dataSize = typeSize;
-    list->itemCount = 0;
-
-    for (size_t i = 0; i < n; i++)
-    {
-        ll_insert(list, values[i], -1);
-    }
-
-    if (values != NULL)
-    {
-        free_void_array(values, n);
-    }
-    
-    return list;
 }
 
 const struct LibLinkedList_l LibLinkedList = {

@@ -1,25 +1,17 @@
 #include "hash_table.h"
 
 // implementation of a basic hash table with separate chaining for learning purposes
-
-// allocated 
-// table
-// buckets
-// buckets for each index
-// key value pair
-// key value pair key and value
-
-// creates a hash table 
+// creates a hash table
 HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataSize)
 {
-	HashTable* table = (HashTable*)malloc(sizeof(HashTable));
+	HashTable* table = (HashTable* )malloc(sizeof(HashTable));
 	if (table == NULL)
 	{
 		return NULL;
 	}
 
 	// set type
-	table->type= keyType;
+	table->type = keyType;
 	table->bucketCount = bucketCount;
 
 	table->keySize = set_type(keyType);
@@ -44,17 +36,17 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 	return table;
 }
 
-int ht_insert_str(HashTable* table, const char* key, void* value) 
+int ht_insert_str(HashTable* table, const char* key, void* value)
 {
 	// get length of string
 	char* s = key;
-    int length = 0;
-    while (*s)
-    {
-        s++;
-        length++;
-    }
-	
+	int length = 0;
+	while (*s)
+	{
+		s++;
+		length++;
+	}
+
 	const int index = hash_string(key) % table->bucketCount;
 	KeyValue* pair = __ht_create_pair(key, value, sizeof(char) * length, table->dataSize);
 
@@ -69,9 +61,9 @@ int ht_insert(HashTable* table, const int index, void* key, void* value)
 	// create key value pair
 	KeyValue* keyValuePair = __ht_create_pair(key, value, table->keySize, table->dataSize);
 	printf("%s\n", (char*)keyValuePair->key);
-	int ret = LibLinkedList.insert(table->buckets[index], (void*)keyValuePair, -1);
+	int ret = LibLinkedList.insert(table->buckets[index], (void* )keyValuePair, -1);
 
-	// linked list insert will create a new node and copy over 
+	// linked list insert will create a new node and copy over
 	// the data via memcpy it has its own record of keyValuePair however the members key and data
 	// are still in memory and still need to be used
 	// the keyValuePair struct we initialised is not needed though so we free it
@@ -89,8 +81,8 @@ void* ht_get_str(HashTable* table, const char* key)
 {
 	// hash string to get index
 	// check if index is not null
-	// if not then traverse linked list until key is found 
-	// return 0 if found 1 if not 
+	// if not then traverse linked list until key is found
+	// return 0 if found 1 if not
 	const int index = hash_string(key) % table->bucketCount;
 
 	if (table->buckets[index] == NULL)
@@ -100,9 +92,9 @@ void* ht_get_str(HashTable* table, const char* key)
 	}
 
 	ListNode* current = table->buckets[index]->head;
-	
+
 	// go through
-	// linked list until 
+	// linked list until
 	while (current != NULL)
 	{
 		KeyValue* pair = (KeyValue*)current->value;
@@ -117,14 +109,107 @@ void* ht_get_str(HashTable* table, const char* key)
 	return NULL;
 }
 
-int ht_free(HashTable* table, void free_item(void*))
+int ht_delete(HashTable* table, void* key, const int index, void free_item(void*),
+			int compare_key(const void* a, const void* b))
+{
+	if (free_item == NULL)
+	{
+		free_item = free;
+	}
+
+	if (compare_key == NULL)
+	{
+		return EXIT_FAILURE;
+	}
+
+	LinkedList* list = table->buckets[index];
+	ListNode* current = list->head;
+	ListNode* previous = current;
+
+	if (list->itemCount == 0)
+	{
+		// empty list
+		return EXIT_SUCCESS;
+	}
+
+	// handle case where only 1 item is in list
+	if (list->itemCount == 1) 
+	{
+		KeyValue* pair = (KeyValue*)current->value;
+		// check 
+		if (compare_key(pair->key, key) == EXIT_FAILURE)
+		{
+			return EXIT_FAILURE;
+		}
+
+		list->itemCount = list->itemCount - 1;
+		free_item(pair->data);
+		pair->data = NULL;
+		free(pair->key);
+		pair->key = NULL;
+
+		free(current->value);
+		current->value = NULL;
+		free(current);
+		current = NULL;
+		list->head = NULL;
+		return EXIT_SUCCESS;
+	}
+
+	int found = 0;
+	current = current->next;
+	while (current != NULL)
+	{
+		// go through linked list until either end is reached
+		// or key match is found
+		KeyValue* pair = (KeyValue*)current->value;
+
+		if (compare_key(pair->key, key) == EXIT_SUCCESS)
+		{
+			found = 1;
+			break;
+		}
+		previous = current;
+		current = current->next;
+	}
+
+	if (found == 0)
+	{
+		return EXIT_FAILURE;
+	}
+
+	list->itemCount = list->itemCount - 1;
+	// attach pointer
+	previous->next = current->next;
+
+
+	KeyValue* pair = (KeyValue*)current->value;
+	free_item(pair->data);
+	pair->data = NULL;
+	free(pair->key);
+	pair->key = NULL;
+	free(current->value);
+	current->value = NULL;
+	free(current);
+	current = NULL;
+
+    return EXIT_SUCCESS;
+}
+
+int ht_delete_str(HashTable* table, const char* key, void free_item(void*))
+{
+	int index = hash_string(key) % table->bucketCount;
+	return ht_delete(table, key, index, free_item, compare_str);
+}
+
+int ht_free(HashTable* table, void free_item(void* ))
 {
 	if (free_item == NULL)
 	{
 		free_item = default_free;
 	}
 
-    for (int i = 0; i < table->bucketCount; i++)
+	for (int i = 0; i < table->bucketCount; i++)
 	{
 		__ht_free_bucket(table->buckets[i], free_item);
 	}
@@ -142,30 +227,32 @@ int ht_free(HashTable* table, void free_item(void*))
 static int __ht_free_bucket(LinkedList* list, void free_item(void*))
 {
 	if ((list)->head == NULL)
-    {
-        free(list);
-        list = NULL;
-        return EXIT_SUCCESS;
-    }
+	{
+		free(list);
+		list = NULL;
+		return EXIT_SUCCESS;
+	}
 
-    ListNode* previous = list->head;
-	KeyValue* pair = (KeyValue*)previous->value;
-    list->head = list->head->next;
-    while (list->head != NULL)
-    {
+	ListNode* previous = list->head;
+	KeyValue* pair = (KeyValue* )previous->value;
+
+	list->head = list->head->next;
+	while (list->head != NULL)
+	{
 		// free key value pair
 		free(pair->key);
 		pair->key = NULL;
 		free_item(pair->data);
-		pair->data = NULL; 
+		pair->data = NULL;
 
 		free_item(previous->value);
 		previous->value = NULL;
-        free(previous);
-        previous = list->head;
-		pair = (KeyValue*)list->head->value;
-        list->head = list->head->next;
-    }
+
+		free(previous);
+		previous = list->head;
+		pair = (KeyValue* )list->head->value;
+		list->head = list->head->next;
+	}
 
 	// free final
 	free(pair->key);
@@ -173,26 +260,25 @@ static int __ht_free_bucket(LinkedList* list, void free_item(void*))
 	free_item(pair->data);
 	pair->data = NULL;
 
-    free_item(previous->value);
+	free_item(previous->value);
 	previous->value = NULL;
-    free(previous);
-    previous = NULL;
+	free(previous);
+	previous = NULL;
 	free(list);
 	list = NULL;
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
-
 
 static KeyValue* __ht_create_pair(void* key, void* value, size_t keySize, size_t valueSize)
 {
-	KeyValue* pair = (KeyValue*)malloc(sizeof(KeyValue));
+	KeyValue* pair = (KeyValue* )malloc(sizeof(KeyValue));
 	if (pair == NULL)
 	{
 		return NULL;
 	}
 
-	pair->data = (void**)malloc(sizeof(void*));
-	pair->key = (void**)malloc(sizeof(void*));
+	pair->data = (void** )malloc(sizeof(void* ));
+	pair->key = (void** )malloc(sizeof(void* ));
 
 	if (pair->data == NULL || pair->key == NULL)
 	{
@@ -210,20 +296,20 @@ static KeyValue* __ht_create_pair(void* key, void* value, size_t keySize, size_t
 // returns the correct memory size based on hash type
 size_t set_type(HashType type)
 {
-	switch(type)
+	switch (type)
 	{
-		case 1:
-			return sizeof(char*);
-		case 2:
-			return sizeof(int);
-		case 3:
-			return sizeof(char);
-		case 4:
-			return sizeof(double);
-		case 5:
-			return sizeof(float);
-		default:
-			return -1;
+	case 1:
+		return sizeof(char* );
+	case 2:
+		return sizeof(int);
+	case 3:
+		return sizeof(char);
+	case 4:
+		return sizeof(double);
+	case 5:
+		return sizeof(float);
+	default:
+		return -1;
 	}
 }
 
@@ -244,15 +330,14 @@ size_t set_type(HashType type)
 // 	return hash;
 // }
 
-
 // djb2 hashing algorithm by Dan Bernstein
 unsigned int hash_string(const char* s)
 {
 	// hash(i - 1) * 33 ^ str[i];
 	unsigned long hash = 5381;
-	while (*s != NULL)	
+	while (*s != NULL)
 	{
-		hash = hash * 33 ^ *s; /* hash * 33 + c */
+		hash = hash * 33 ^ *s;
 		s++;
 	}
 	return hash;
@@ -261,14 +346,16 @@ unsigned int hash_string(const char* s)
 static unsigned int hash_num(unsigned int x)
 {
 	x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = ((x >> 16) ^ x) * 0x45d9f3b;
-    x = (x >> 16) ^ x;
-    return x % 100;
+	x = ((x >> 16) ^ x) * 0x45d9f3b;
+	x = (x >> 16) ^ x;
+	return x % 100;
 }
 
 const struct LibHashTable_l LibHashTable = {
-    .create = ht_create,
-    .free = ht_free,
+	.create = ht_create,
+	.free = ht_free,
 	.insert_str = ht_insert_str,
-	.get_str = ht_get_str
+	.get_str = ht_get_str,
+	.delete = ht_delete,
+	.delete_str = ht_delete_str
 };

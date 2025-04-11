@@ -54,6 +54,9 @@ int ht_insert(HashTable* table, const int index, void* key, void* value);
 static int __ht_insert(HashTable* table, const int index, KeyValue* pair);
 int ht_free(HashTable* table, void free_item(void*));
 void* ht_get_str(HashTable* table, const char* key);
+int ht_delete(HashTable* table, void* key, const int index, void free_item(void*), 
+			int compare_key(const void* a, const void* b));
+int ht_delete_str(HashTable* table, const char* key, void free_item(void*));
 
 static int __ht_free_bucket(LinkedList* list, void free_item(void*));
 static KeyValue* __ht_create_pair(void* key, void* value, size_t keySize, size_t valueSize);
@@ -71,6 +74,11 @@ struct LibHashTable_l {
 	int (*insert_str)(HashTable* table, const char* key, void* value);
 
 	void* (*get_str)(HashTable* table, const char* key);
+
+	int (*delete)(HashTable* table, void* key, const int index, void free_item(void*), 
+				int compare_key(const void* a, const void* b));
+	
+	int (*delete_str)(HashTable* table, const char* key, void free_item(void*));
 };
 
 extern const struct LibHashTable_l LibHashTable;

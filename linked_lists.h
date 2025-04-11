@@ -54,7 +54,13 @@ struct LibLinkedList_l {
 
     
     int (*print)(LinkedList* list, void print(const void*));
+
+    // remove a node using a user-defined free function at 
+    // a 0-indexed position
+    // deleting at index -1 deletes the node at the back
     int (*delete)(LinkedList* list, const int index, void free_item(void*));
+
+
     int (*reverse)(LinkedList* list);
 
 

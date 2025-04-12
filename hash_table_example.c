@@ -130,7 +130,6 @@ int main(void)
         LibLinkedList.print(table->buckets[i], print_key);
     }
 
-    puts("Running free");
     LibHashTable.free(table, default_free);
 
     return EXIT_SUCCESS;

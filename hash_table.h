@@ -48,19 +48,13 @@ int ht_insert_int(HashTable* table, int key, void* value);
 int ht_insert_flt(HashTable* table, float key, void* value);
 int ht_insert_dbl(HashTable* table, double key, void* value);
 
-// insert data into specific bucket (index) in hash table
-// performs separate chaining to resolve collisions
-int ht_insert(HashTable* table, const int index, void* key, void* value);
-static int __ht_insert(HashTable* table, const int index, KeyValue* pair);
+
 int ht_free(HashTable* table, void free_item(void*));
 void* ht_get_str(HashTable* table, const char* key);
-int ht_delete(HashTable* table, void* key, const int index, void free_item(void*), 
-			int compare_key(const void* a, const void* b));
 int ht_delete_str(HashTable* table, const char* key, void free_item(void*));
 
-static int __ht_free_bucket(LinkedList* list, void free_item(void*));
-static KeyValue* __ht_create_pair(void* key, void* value, size_t keySize, size_t valueSize);
-size_t set_type(HashType type);
+int ht_print_keys(HashTable* table, void print(const void*));
+
 unsigned int hash_string(const char* s);
 
 void ht_free_key_value_pair(void* pair);
@@ -75,10 +69,10 @@ struct LibHashTable_l {
 
 	void* (*get_str)(HashTable* table, const char* key);
 
-	int (*delete)(HashTable* table, void* key, const int index, void free_item(void*), 
-				int compare_key(const void* a, const void* b));
 	
 	int (*delete_str)(HashTable* table, const char* key, void free_item(void*));
+
+	int (*print_keys)(HashTable* table, void print(const void*));
 };
 
 extern const struct LibHashTable_l LibHashTable;

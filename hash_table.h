@@ -13,9 +13,7 @@ typedef enum HashType_e
 {
 	STRING = 1, 
 	INT,
-	CHAR,
-	DBL,
-	FLT
+	CHAR
 } HashType;
 
 
@@ -41,21 +39,21 @@ typedef struct KeyValue_t
 } KeyValue;
 
 
-HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataSize);
-int ht_insert_str(HashTable* table, const char* key, void* value);
-int ht_insert_chr(HashTable* table, char key, void* value);
-int ht_insert_int(HashTable* table, int key, void* value);
-int ht_insert_flt(HashTable* table, float key, void* value);
-int ht_insert_dbl(HashTable* table, double key, void* value);
-
+HashTable* ht_create(HashType keyType, int bucketCount, size_t dataSize);
+int ht_insert_str(HashTable* table, const char* key, const void* value);
+int ht_insert_chr(HashTable* table, char key, const void* value);
+int ht_insert_int(HashTable* table, int key, const void* value);
 
 int ht_free(HashTable* table, void free_item(void*));
 void* ht_get_str(HashTable* table, const char* key);
+void* ht_get_chr(HashTable* table, char key);
+void* ht_get_int(HashTable* table, int key);
+
 int ht_delete_str(HashTable* table, const char* key, void free_item(void*));
+int ht_delete_int(HashTable* table, int key, void free_item(void*));
+int ht_delete_chr(HashTable* table, char key, void free_item(void*));
 
 int ht_print_keys(HashTable* table, void print(const void*));
-
-unsigned int hash_string(const char* s);
 
 void ht_free_key_value_pair(void* pair);
 // static unsigned int hash_num(unsigned int x);
@@ -65,12 +63,17 @@ struct LibHashTable_l {
     HashTable* (*create)(HashType keyType, const int bucketCount, const size_t dataSize);
     int (*free)(HashTable* table, void free_item(void*));
 
-	int (*insert_str)(HashTable* table, const char* key, void* value);
+	int (*insert_str)(HashTable* table, const char* key, const void* value);
+	int (*insert_int)(HashTable* table, int key, const void* value);
+	int (*insert_chr)(HashTable* table, char key, const void* value);
 
 	void* (*get_str)(HashTable* table, const char* key);
-
+	void* (*get_chr)(HashTable* table, char key);
+	void* (*get_int)(HashTable* table, int key);
 	
 	int (*delete_str)(HashTable* table, const char* key, void free_item(void*));
+	int (*delete_int)(HashTable* table, int key, void free_item(void*));
+	int (*delete_chr)(HashTable* table, char key, void free_item(void*));
 
 	int (*print_keys)(HashTable* table, void print(const void*));
 };

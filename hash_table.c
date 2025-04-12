@@ -6,11 +6,11 @@ static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keyS
 // insert data into specific bucket (index) in hash table
 // performs separate chaining to resolve collisions
 static int _ht_insert(HashTable* table, int index, KeyValue* pair);
-
 static int _ht_delete(HashTable* table, const void* key, int index, void free_item(void*),
 			int compare_key(const void* a, const void* b));
-
 size_t _set_type(HashType type);
+static unsigned int _ht_hash_string(const char* s);
+static unsigned int _ht_hash_int(int x);
 
 // implementation of a basic hash table with separate chaining for learning purposes
 // creates a hash table
@@ -48,7 +48,7 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 	return table;
 }
 
-int ht_insert_str(HashTable* table, const char* key, void* value)
+int ht_insert_str(HashTable* table, const char* key, const void* value)
 {
 	// get length of string
 	const char* s = key;
@@ -59,12 +59,35 @@ int ht_insert_str(HashTable* table, const char* key, void* value)
 		length++;
 	}
 
-	const int index = hash_string(key) % table->bucketCount;
+	const int index = _ht_hash_string(key) % table->bucketCount;
 	KeyValue* pair = _ht_create_pair(key, value, sizeof(char) * length, table->dataSize);
 
 	// use hidden method to directly insert pair
 	_ht_insert(table, index, pair);
 	free(pair);
+	pair = NULL;
+	return EXIT_SUCCESS;
+}
+
+int ht_insert_int(HashTable* table, int key, const void* value)
+{
+	int bucketIndex = _ht_hash_int(key) % table->bucketCount;
+	KeyValue* pair = _ht_create_pair(&key, value, sizeof(int), table->dataSize);
+
+	_ht_insert(table, bucketIndex, pair);
+	free(pair);
+	pair = NULL;
+	return EXIT_SUCCESS;
+}
+
+int ht_insert_chr(HashTable* table, char key, const void* value)
+{
+	int bucketIndex = _ht_hash_int((int)key) % table->bucketCount;
+	KeyValue* pair = _ht_create_pair(&key, value, sizeof(char), table->dataSize);
+	
+	_ht_insert(table, bucketIndex, pair);
+	free(pair);
+	pair = NULL;
 	return EXIT_SUCCESS;
 }
 
@@ -72,7 +95,6 @@ int ht_insert(HashTable* table, int index, void* key, void* value)
 {
 	// create key value pair
 	KeyValue* keyValuePair = _ht_create_pair(key, value, table->keySize, table->dataSize);
-	printf("%s\n", (char*)keyValuePair->key);
 	int ret = LibLinkedList.insert(table->buckets[index], (void* )keyValuePair, -1);
 
 	// linked list insert will create a new node and copy over
@@ -96,11 +118,10 @@ void* ht_get_str(HashTable* table, const char* key)
 	// check if index is not null
 	// if not then traverse linked list until key is found
 	// return 0 if found 1 if not
-	const int index = hash_string(key) % table->bucketCount;
+	const int index = _ht_hash_string(key) % table->bucketCount;
 
 	if (table->buckets[index] == NULL)
 	{
-		puts("Null");
 		return NULL;
 	}
 
@@ -118,12 +139,40 @@ void* ht_get_str(HashTable* table, const char* key)
 		current = current->next;
 	}
 
-	puts("Could not find ");
 	return NULL;
 }
 
+void* ht_get_int(HashTable* table, int key)
+{
+	int bucketIndex = _ht_hash_int(key) % table->bucketCount;
+
+	if (table->buckets[bucketIndex] == NULL)
+	{
+		return NULL;
+	}
+
+	ListNode* current = table->buckets[bucketIndex]->head;
+
+	while (current != NULL)
+	{
+		KeyValue* pair = (KeyValue*)current->value;
+		if (compare_int(pair->key, &key) == EXIT_SUCCESS)
+		{
+			return pair->data;
+		}
+		current = current->next;
+	}
+
+	return NULL;
+}
+
+void* ht_get_chr(HashTable* table, char key)
+{
+	return ht_get_int(table, (int)key);
+}
+
 static int _ht_delete(HashTable* table, const void* key, int index, void free_item(void*),
-			int compare_key(const void* a, const void* b))
+					int compare_key(const void* a, const void* b))
 {
 	if (free_item == NULL)
 	{
@@ -139,10 +188,9 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 	ListNode* current = list->head;
 	ListNode* previous = current;
 
-	if (list->itemCount == 0)
+	if (list->head == NULL)
 	{
-		// empty list
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	// handle case where only 1 item is in list
@@ -156,6 +204,8 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 		}
 
 		list->itemCount = list->itemCount - 1;
+
+		
 		free_item(pair->data);
 		pair->data = NULL;
 		free(pair->key);
@@ -211,11 +261,22 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 
 int ht_delete_str(HashTable* table, const char* key, void free_item(void*))
 {
-	int index = hash_string(key) % table->bucketCount;
+	int index = _ht_hash_string(key) % table->bucketCount;
 	return _ht_delete(table, key, index, free_item, compare_str);
 }
 
-int ht_free(HashTable* table, void free_item(void* ))
+int ht_delete_int(HashTable* table, int key, void free_item(void*))
+{
+	int bucketIndex = _ht_hash_int(key) % table->bucketCount;
+	return _ht_delete(table, &key, bucketIndex, free_item, compare_int);
+}
+
+int ht_delete_chr(HashTable* table, char key, void free_item(void*))
+{
+	return ht_delete_int(table, (int)key, free_item);
+}
+
+int ht_free(HashTable* table, void free_item(void*))
 {
 	if (free_item == NULL)
 	{
@@ -332,34 +393,13 @@ size_t _set_type(HashType type)
 		return sizeof(int);
 	case 3:
 		return sizeof(char);
-	case 4:
-		return sizeof(double);
-	case 5:
-		return sizeof(float);
 	default:
 		return -1;
 	}
 }
 
-// calculate the hash of a generic value n
-// static unsigned int calc_hash(void* n, enum HashType type)
-// {
-// 	unsigned int hash;
-// 	if (type == STRING)
-// 	{
-// 		char* _n = n;
-// 		hash = hash_string(_n);
-// 	}
-// 	else if (type == INT)
-// 	{
-// 		int* _n = n;
-// 		hash = hash_num(*_n);
-// 	}
-// 	return hash;
-// }
-
 // djb2 hashing algorithm by Dan Bernstein
-unsigned int hash_string(const char* s)
+static unsigned int _ht_hash_string(const char* s)
 {
 	// hash(i - 1) * 33 ^ str[i];
 	unsigned long hash = 5381;
@@ -371,19 +411,25 @@ unsigned int hash_string(const char* s)
 	return hash;
 }
 
-static unsigned int hash_num(unsigned int x)
+static unsigned int _ht_hash_int(int x)
 {
 	x = ((x >> 16) ^ x) * 0x45d9f3b;
 	x = ((x >> 16) ^ x) * 0x45d9f3b;
 	x = (x >> 16) ^ x;
-	return x % 100;
+	return x;
 }
 
 const struct LibHashTable_l LibHashTable = {
 	.create = ht_create,
 	.free = ht_free,
 	.insert_str = ht_insert_str,
+	.insert_int = ht_insert_int,
+	.insert_chr = ht_insert_chr,
 	.get_str = ht_get_str,
+	.get_int = ht_get_int,
+	.get_chr = ht_get_chr,
 	.delete_str = ht_delete_str,
+	.delete_int = ht_delete_int,
+	.delete_chr = ht_delete_chr,
 	.print_keys = ht_print_keys
 };

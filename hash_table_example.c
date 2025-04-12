@@ -4,7 +4,10 @@
 #include "hash_table.h"
 #include "utils.h"
 
-void print_key(const void* data)
+int string_test(void);
+int int_test(void);
+
+void print_key_str(const void* data)
 {
     if (data == NULL)
     {
@@ -17,7 +20,87 @@ void print_key(const void* data)
     return;
 }
 
+void print_key_int(const void* data)
+{
+    if (data == NULL)
+    {
+        return;
+    }
+
+    KeyValue* pair = (KeyValue*)data;
+    printf("%d ", *(int*)pair->key);
+    return;
+}
+
 int main(void)
+{
+    puts("RUNNING STRING TEST");
+    string_test();
+    puts("RUNNING INT TEST");
+    int_test();    
+
+    return EXIT_SUCCESS;
+}
+
+int int_test(void)
+{
+    HashType type = INT;
+    HashTable* table = LibHashTable.create(type, 10, sizeof(int));
+
+    if (table == NULL)
+    {
+        puts("Not ta daa");
+        return EXIT_FAILURE;
+    }
+
+    int b = 234;
+
+    LibHashTable.insert_int(table, 1, &b);
+    LibHashTable.insert_int(table, 2323, &b);
+    LibHashTable.insert_int(table, 2, &b);
+    LibHashTable.insert_int(table, 3, &b);
+
+    LibHashTable.print_keys(table, print_key_int);
+
+    LibHashTable.delete_int(table, 2, free);
+    
+    puts("Checking deletion of non-existent key");
+    if (LibHashTable.delete_int(table, 2, free) == EXIT_FAILURE)
+    {
+        puts("Correct");
+    }
+    else
+    {
+        puts("Failed");
+    }
+
+    LibHashTable.print_keys(table, print_key_int);
+
+    puts("Checking retrieval");
+    void* c = LibHashTable.get_int(table, 3);
+
+    if (c == NULL)
+    {
+        puts("Failed");
+    }
+    else
+    {
+        printf("%d\n", *(int*)c);
+    }
+
+    puts("Testing retrieval for non existent key");
+    if (LibHashTable.get_int(table, 3) == NULL)
+    {
+        puts("Correct");
+    }
+
+    puts("Freeing");
+    LibHashTable.free(table, free);
+
+    return EXIT_SUCCESS;
+}
+
+int string_test(void)
 {
     HashType type = STRING;
     HashTable* table = LibHashTable.create(type, 10, sizeof(int));
@@ -40,15 +123,7 @@ int main(void)
     a = 43;
     LibHashTable.insert_str(table, "Hello sorld", &a);
 
-    for (int i = 0; i < table->bucketCount; i++)
-    {
-        if (table->buckets[i]->head == NULL)
-        {
-            puts("NOTHING HERE");
-            continue;
-        }
-        LibLinkedList.print(table->buckets[i], print_key);
-    }
+    LibHashTable.print_keys(table, print_key_str);
 
     void* c = LibHashTable.get_str(table, "Hello World");
 
@@ -79,7 +154,6 @@ int main(void)
     puts("Deleting Hello world");
     LibHashTable.delete_str(table, "Hello world", free);
 
-    
 
     puts("Testing deletion of non existent item");
     if (LibHashTable.delete_str(table, "Hello world", free)  == EXIT_FAILURE)
@@ -87,30 +161,12 @@ int main(void)
         puts("Correct");
     }
 
-    for (int i = 0; i < table->bucketCount; i++)
-    {
-        if (table->buckets[i]->head == NULL)
-        {
-            puts("NOTHING HERE");
-            continue;
-        }
-        LibLinkedList.print(table->buckets[i], print_key);
-    }
-
+    LibHashTable.print_keys(table, print_key_str);
 
     puts("Deleting Hello sorld");
     printf("%d\n", LibHashTable.delete_str(table, "Hello sorld", free));
     
-
-    for (int i = 0; i < table->bucketCount; i++)
-    {
-        if (table->buckets[i]->head == NULL)
-        {
-            puts("NOTHING HERE");
-            continue;
-        }
-        LibLinkedList.print(table->buckets[i], print_key);
-    }
+    LibHashTable.print_keys(table, print_key_str);
 
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
@@ -120,17 +176,8 @@ int main(void)
     
     puts("Final");
 
-    for (int i = 0; i < table->bucketCount; i++)
-    {
-        if (table->buckets[i]->head == NULL)
-        {
-            puts("NOTHING HERE");
-            continue;
-        }
-        LibLinkedList.print(table->buckets[i], print_key);
-    }
+    LibHashTable.print_keys(table, print_key_str);
 
-    LibHashTable.free(table, default_free);
-
+    LibHashTable.free(table, free);
     return EXIT_SUCCESS;
 }

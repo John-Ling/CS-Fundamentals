@@ -33,9 +33,6 @@ int ll_search_int(LinkedList* list, int search);
 int ll_search_str(LinkedList* list, char* search);
 int ll_free(LinkedList* list, void free_item(void*));
 
-ListNode* __ll_create_node(void* data, const size_t size);
-int __ll_insert_node(LinkedList* list, ListNode* node, const int index);
-
 struct LibLinkedList_l {
     // create an empty linked list by passing NULL
     // or convert any array into a linked list by converting it into void pointers

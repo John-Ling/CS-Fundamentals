@@ -1,5 +1,8 @@
 #include "linked_lists.h"
 
+static ListNode* _ll_create_node(void* data, const size_t size);
+static int _ll_insert_node(LinkedList* list, ListNode* node, const int index);
+
 // library that allows for a linked list of any type to be created for learning purposes
 
 // create an empty linked list by passing NULL
@@ -47,7 +50,7 @@ int ll_print(LinkedList* list, void print(const void*))
     return EXIT_SUCCESS;
 }
 
-ListNode* __ll_create_node(void* data, const size_t size)
+ListNode* _ll_create_node(void* data, const size_t size)
 {
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
     if (node == NULL)
@@ -68,7 +71,7 @@ ListNode* __ll_create_node(void* data, const size_t size)
 }
 
 
-int __ll_insert_node(LinkedList* list, ListNode* node, const int index)
+int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
     // insert node into correct position
     if (list->head == NULL)
@@ -126,8 +129,8 @@ int ll_insert(LinkedList* list, void* value, const int index)
     
     list->itemCount++;
 
-    ListNode* node = __ll_create_node(value, list->dataSize);
-    return __ll_insert_node(list, node, index);
+    ListNode* node = _ll_create_node(value, list->dataSize);
+    return _ll_insert_node(list, node, index);
 }
 
 int ll_insert_int(LinkedList* list, int value, const int index)
@@ -149,10 +152,10 @@ int ll_insert_str(LinkedList* list, char* value, const int index)
         length++;
     }
 
-    ListNode* node = __ll_create_node((void*)value, sizeof(char) * length);
+    ListNode* node = _ll_create_node((void*)value, sizeof(char) * length);
 
     // use internal insert_node function to directly insert node
-    return __ll_insert_node(list, node, index);
+    return _ll_insert_node(list, node, index);
 }
 
 int ll_insert_flt(LinkedList* list, float value, const int index)

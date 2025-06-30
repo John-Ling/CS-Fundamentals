@@ -99,7 +99,6 @@ void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
     return array;
 }
 
-// frees void array created using convert_array
 int free_void_array(void* arr[], size_t n)
 {
     for (size_t i = 0; i < n; i++)

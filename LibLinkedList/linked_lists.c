@@ -1,9 +1,58 @@
 #include "linked_lists.h"
 
-static ListNode* _ll_create_node(void* data, const size_t size);
-static int _ll_insert_node(LinkedList* list, ListNode* node, const int index);
-
 // library that allows for a linked list of any type to be created for learning purposes
+
+static int _ht_compare_int(const void* a, const void* b)
+{
+    return *(int*)a == *(int*)b ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int _ht_compare_chr(const void* a, const void*b)
+{
+    return _ht_compare_int(a, b);
+}
+
+static int _ht_compare_str(const void* a, const void* b)
+{
+    char* s1 = (char*)a;
+    char* s2 = (char*)b;
+
+    while (1)
+    {
+        if (!*s1 && !*s2)
+        {
+            // both strings have finished at the same time
+            break;
+        }
+
+        if ((!*s1 && *s2) || (*s1 && !*s2))
+        {
+            return EXIT_FAILURE;
+        }
+
+        if (*s1 != *s2)
+        {
+            return EXIT_FAILURE;
+        }
+        s1++;
+        s2++;
+    }
+
+    // success
+    return EXIT_SUCCESS;
+}
+
+static int _ht_free_void_array(void* arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        free(arr[i]);
+        arr[i] = NULL;
+    }
+    free(arr);
+    arr = NULL;
+    return EXIT_SUCCESS;
+}
 
 // create an empty linked list by passing NULL
 // or convert any array into a linked list by converting it into void pointers
@@ -32,7 +81,7 @@ LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
 
     if (values != NULL)
     {
-        free_void_array(values, n);
+        _ht_free_void_array(values, n);
     }
     
     return list;
@@ -50,7 +99,7 @@ int ll_print(LinkedList* list, void print(const void*))
     return EXIT_SUCCESS;
 }
 
-ListNode* _ll_create_node(void* data, const size_t size)
+static ListNode* _ll_create_node(void* data, const size_t size)
 {
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
     if (node == NULL)
@@ -70,8 +119,7 @@ ListNode* _ll_create_node(void* data, const size_t size)
     return node;
 }
 
-
-int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
+static int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
     // insert node into correct position
     if (list->head == NULL)
@@ -182,7 +230,7 @@ int ll_delete(LinkedList* list, const int index, void free_item(void*))
 
     if (free_item == NULL)
     {
-        free_item = default_free;
+        free_item = free;
     }
 
     if (index == 0 || list->itemCount == 0)
@@ -275,12 +323,17 @@ int ll_search(LinkedList* list, void* search, int compare(const void*, const voi
 
 int ll_search_int(LinkedList* list, int search)
 {
-    return ll_search(list, &search, compare_int);
+    return ll_search(list, &search, _ht_compare_int);
 }
 
 int ll_search_str(LinkedList* list, char* search)
 {
-    return ll_search(list, (void*)search, compare_str);
+    return ll_search(list, (void*)search, _ht_compare_str);
+}
+
+int ll_search_chr(LinkedList* list, char search)
+{
+    return ll_search(list, &search, _ht_compare_chr);
 }
 
 // performs free_item() on each item in the linked list
@@ -291,7 +344,7 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
     // this allows for larger free functions for complex structs
     if (free_item == NULL)
     {
-        free_item = default_free;
+        free_item = free;
     }
 
     if (list->head == NULL)
@@ -336,5 +389,6 @@ const struct LibLinkedList_l LibLinkedList = {
     .search = ll_search,
     .search_int = ll_search_int,
     .search_str = ll_search_str,
+    .search_chr = ll_search_chr,
     .free = ll_free
 };

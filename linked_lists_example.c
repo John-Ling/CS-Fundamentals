@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "linked_lists.h"
+#include <linked_lists.h>
 #include "utils.h"
 
 typedef struct KeyValue_t

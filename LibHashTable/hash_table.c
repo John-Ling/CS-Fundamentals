@@ -280,7 +280,7 @@ int ht_free(HashTable* table, void free_item(void*))
 {
 	if (free_item == NULL)
 	{
-		free_item = default_free;
+		free_item = free;
 	}
 
 	for (int i = 0; i < table->bucketCount; i++)

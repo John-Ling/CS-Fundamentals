@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "linked_lists.h"
+#include "./utils.h"
 
 // possible types that can be used as keys for 
 // the hash table

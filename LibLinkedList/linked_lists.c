@@ -99,7 +99,9 @@ int ll_print(LinkedList* list, void print(const void*))
     return EXIT_SUCCESS;
 }
 
-static ListNode* _ll_create_node(void* data, const size_t size)
+
+// Creates a list node and returns its address
+ListNode* _ll_create_node(void* data, const size_t size)
 {
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
     if (node == NULL)
@@ -119,7 +121,7 @@ static ListNode* _ll_create_node(void* data, const size_t size)
     return node;
 }
 
-static int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
+ int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
     // insert node into correct position
     if (list->head == NULL)
@@ -307,9 +309,8 @@ int ll_reverse(LinkedList* list)
 int ll_search(LinkedList* list, void* search, int compare(const void*, const void*))
 {
     ListNode* current = list->head;
-    int found = EXIT_FAILURE;
     int position = 0;
-    while (current != NULL && found == EXIT_FAILURE)
+    while (current != NULL)
     {
         if (compare(current->value, search) == EXIT_SUCCESS)
         {

@@ -20,6 +20,13 @@ void free_pair(void* pair)
     return;
 }
 
+
+void print_pair(const void* pair)
+{
+    KeyValue* converted = (KeyValue*)(pair);
+    printf("%d %s\n", *(int*)converted->data, (char*)converted->key);
+    return;
+}
 // example usage of the linked list library
 
 int main(void)
@@ -34,8 +41,11 @@ int main(void)
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
+    LibLinkedList.insert_str(list1, "Wagwan", -1);
 
-    LibLinkedList.print(list1, print_str);
+    LibLinkedList.search_str(list1, "Hello World");
+
+    printf("%d\n", LibLinkedList.print(list1, print_str));
     LibLinkedList.free(list1, default_free);
 
     // testing linked list of user defined structs
@@ -60,6 +70,8 @@ int main(void)
 
         free(pair);
     }
+
+    LibLinkedList.print(list, print_pair);
     
     // LibLinkedList.insert(list, (void*)pair, -1);
     // LibLinkedList.insert(list, (void*)pair, -1);

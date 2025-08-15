@@ -76,6 +76,24 @@ int compare_str(const void* a, const void* b)
     return EXIT_SUCCESS;
 }
 
+int bigger_int(const void* a, const void* b)
+{
+    int c = *(int*)a;
+    int d = *(int*)b;
+
+    int ret = 0;
+    ret = c > d ? 1 : -1;
+    return ret;
+}
+
+int bigger_str(const void* a, const void* b)
+{
+    char* s1 = (char*)a;
+    char* s2 = (char*)b;
+    return strcmp(s1, s2);
+}
+
+
 void** array_to_void_array(void* arr, const size_t n, const size_t typeSize)
 {
     void** array = (void**)malloc(sizeof(void*) * n);

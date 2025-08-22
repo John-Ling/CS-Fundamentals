@@ -73,6 +73,7 @@ LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
 
     list->dataSize = typeSize;
     list->itemCount = 0;
+    list->head = NULL;
 
     for (size_t i = 0; i < n; i++)
     {
@@ -111,18 +112,19 @@ ListNode* _ll_create_node(void* data, const size_t size)
 
     node->value = (void**)malloc(sizeof(void*));
 
-    if (node->value == NULL)
+    if ((*node).value == NULL)
     {
         free(node);
         return NULL;
     }
 
-    memcpy(node->value, data, size);
+    memcpy((*node).value, data, size);
     return node;
 }
 
- int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
+int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
+    node->next = NULL;
     // insert node into correct position
     if (list->head == NULL)
     {
@@ -146,7 +148,7 @@ ListNode* _ll_create_node(void* data, const size_t size)
         {
             current = current->next;
         }
-        current->next = node;
+        current->next = node;    
     }
     else
     {
@@ -338,7 +340,7 @@ int ll_search_chr(LinkedList* list, char search)
 }
 
 // performs free_item() on each item in the linked list
-// ifO free_item is NULL will default to basic free function
+// if free_item is NULL will default to basic free function
 int ll_free(LinkedList* list, void (*free_item)(void*))
 {
     // allow override of default free function with user's own
@@ -348,26 +350,47 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
         free_item = free;
     }
 
-    if (list->head == NULL)
+    if (list == NULL)
     {
         free(list);
         list = NULL;
         return EXIT_SUCCESS;
     }
 
+    if (list->head == NULL)
+    {
+        puts("Free head");
+        free(list);
+        list = NULL;
+        return EXIT_SUCCESS;
+    }
+
     ListNode* previous = list->head;
-    list->head = list->head->next;
+
+    if (list->head->next != NULL)
+    {
+        list->head = list->head->next;
+    }
+    else 
+    {
+        puts("Freeing");
+        free_item(previous->value);
+        free(previous);
+        free(list);
+        previous = NULL;
+        list = NULL;
+        return EXIT_SUCCESS;
+    }
+    
 
     while (list->head != NULL)
     {
-        puts("Freeing item");
         free_item(previous->value);
         free(previous);
         previous = list->head;
         list->head = list->head->next;
     }
 
-    puts("Freeing final");
     free_item(previous->value);
     free(previous);
     free(list);

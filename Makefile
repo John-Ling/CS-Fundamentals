@@ -6,8 +6,12 @@ OBJ := $(SRC:.c=.o)
 BIN := bin/program
 
 
-linkedlist: linked_list_example.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+linkedlist: 
+	$(CC) $(CFLAGS) $(LDFLAGS) -llinkedlist -lutils -o bin/linked_list linked_lists_example.c
+
+skiplist:
+	$(CC) $(CFLAGS) $(LDFLAGS)  -llinkedlist -lutils -lskiplist -o bin/skip_list skip_list_example.c
+
 
 libutils:
 	$(CC) $(CFLAGS) -fPIC -c LibUtils/*.c -o LibUtils/utils.o
@@ -28,8 +32,7 @@ libskiplist:
 	cp LibSkipList/*.h include/
 	rm LibSkipList/skip_list.o
 
-skiplist:
-	$(CC) $(CFLAGS) $(LDFLAGS)  -llinkedlist -lutils -lskiplist -o bin/skip_list skip_list_example.c
+
 
 .PHONY: clean
 clean:

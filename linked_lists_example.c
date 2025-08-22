@@ -37,48 +37,53 @@ int main(void)
     LinkedList* list1 = LibLinkedList.create(NULL, 0, sizeof(char*));
 
     LibLinkedList.insert_str(list1, "Hello World", -1);
+    // LibLinkedList.insert_int(list1, 30, 0);
+    // LibLinkedList.insert_int(list1, 30, -1);
+    // LibLinkedList.insert_int(list1, 30, -1);
+    // LibLinkedList.insert_int(list1, 30, -1);
+    // LibLinkedList.insert_int(list1, 30, -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
-    LibLinkedList.insert_str(list1, "Wagwan", -1);
+    // LibLinkedList.insert_str(list1, "Wagwan", -1);
 
-    LibLinkedList.search_str(list1, "Hello World");
+    // LibLinkedList.search_str(list1, "Hello World");
 
     printf("%d\n", LibLinkedList.print(list1, print_str));
-    LibLinkedList.free(list1, default_free);
+    LibLinkedList.free(list1, free);
 
-    // testing linked list of user defined structs
-    // in this context these structs will be used as part of a hash table
-    LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
+    // // testing linked list of user defined structs
+    // // in this context these structs will be used as part of a hash table
+    // LinkedList* list = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
     
-    for (int i = 0; i < 10; i++)
-    {
-        KeyValue* pair = (KeyValue*)malloc(sizeof(KeyValue));
-        pair->data = (void**)malloc(sizeof(void*));
-        pair->key = (void**)malloc(sizeof(void*));
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     KeyValue* pair = (KeyValue*)malloc(sizeof(KeyValue));
+    //     pair->data = (void**)malloc(sizeof(void*));
+    //     pair->key = (void**)malloc(sizeof(void*));
 
-        char* key = "Hello";
-        int value = 5;
+    //     char* key = "Hello";
+    //     int value = 5;
 
-        memcpy(pair->key, (void*)key, sizeof(char*));
-        memcpy(pair->data, &value, sizeof(int));
+    //     memcpy(pair->key, (void*)key, sizeof(char*));
+    //     memcpy(pair->data, &value, sizeof(int));
 
-        printf("%s\n", (char*)pair->key);
-        printf("%d\n", *(int*)pair->data);
-        LibLinkedList.insert(list, (void*)pair, -1);
+    //     printf("%s\n", (char*)pair->key);
+    //     printf("%d\n", *(int*)pair->data);
+    //     LibLinkedList.insert(list, (void*)pair, -1);
 
-        free(pair);
-    }
+    //     free(pair);
+    // }
 
-    LibLinkedList.print(list, print_pair);
+    // LibLinkedList.print(list, print_pair);
     
     // LibLinkedList.insert(list, (void*)pair, -1);
     // LibLinkedList.insert(list, (void*)pair, -1);
     // LibLinkedList.insert(list, (void*)pair, -1);
     // LibLinkedList.insert(list, (void*)pair, -1);
     // LibLinkedList.insert(list, (void*)pair, -1);
-    LibLinkedList.free(list, free_pair);
+    // LibLinkedList.free(list, free_pair);
     
     return EXIT_SUCCESS;
 }

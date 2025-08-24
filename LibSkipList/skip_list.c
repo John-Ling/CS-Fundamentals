@@ -1,57 +1,58 @@
 #include "skip_list.h"
 
-SkipList* sl_create(void* values[], size_t n, size_t dataSize)
+SkipList *sl_create(void *values[], size_t n, size_t dataSize)
 {
-    if (values == NULL && n != 0) 
+    if (values == NULL && n != 0)
     {
         return NULL;
     }
 
     srand(time(NULL));
-    
-    SkipList* list = (SkipList*)malloc(sizeof(SkipList));
+
+    SkipList *list = (SkipList *)malloc(sizeof(SkipList));
     if (list == NULL)
     {
         return NULL;
     }
 
     list->dataSize = dataSize;
-    list->layerCount = 1;
+    list->layerCount = 0;
 
-    for (int i = 0; i < _MAX_SKIP_LIST_LAYERS; i++)
-    {
-        list->layers[i] = LibLinkedList.create(NULL, 0, sizeof(SkipListNode));
-    }
+    // for (int i = 0; i < _MAX_SKIP_LIST_LAYERS; i++)
+    // {
+    //     list->layers[i] = LibLinkedList.create(NULL, 0, sizeof(SkipListNode));
+    // }
 
     return list;
 }
 
-int sl_insert(SkipList* list, const void* value, int bigger(const void*, const void*))
+int sl_insert(SkipList *list, const void *value, int bigger(const void *, const void *))
 {
-    // puts("Inserting value");
-    SkipListNode* createdNodes[_MAX_SKIP_LIST_LAYERS];
+    SkipListNode *createdNodes[_MAX_SKIP_LIST_LAYERS];
     int nodeCount = 0;
 
     int layerCount = 1;
     int promote = rand() % 2;
 
-
     // Flip a "coin" to determine whether to promote or the insert the node
     // Keep "coin flipping" to determine which layer the new node will exist on
-    while (promote == 1 && layerCount <= _MAX_SKIP_LIST_LAYERS) 
+    while (promote == 1 && layerCount <= _MAX_SKIP_LIST_LAYERS)
     {
         layerCount++;
         promote = rand() % 2;
     }
-    
+
     // insert node into N layers starting from the bottom
     for (int i = 0; i < layerCount; i++)
     {
-        // perform sorted insert into linked list
+        int layerIndex = layerCount - i - 1;
+        // index for list layers
+        
         if (list->layers[i] == NULL)
         {
             // create layer if one does not yet exist
             list->layers[i] = LibLinkedList.create(NULL, 0, sizeof(SkipListNode));
+            list->layerCount++;
         }
 
         int insertPosition = -1;
@@ -60,9 +61,9 @@ int sl_insert(SkipList* list, const void* value, int bigger(const void*, const v
         ListNode* next = layer->head;
 
         while (next != NULL)
-        {   
+        {
             // go through layer until bigger value is reached
-            int isBigger = bigger(((SkipListNode*)next->value)->value, value );
+            int isBigger = bigger(((SkipListNode *)next->value)->value, value);
             if (isBigger == 1 || isBigger == 0)
             {
                 // printf("Inserting into %d\n", currentPosition);
@@ -73,22 +74,22 @@ int sl_insert(SkipList* list, const void* value, int bigger(const void*, const v
             next = next->next;
         }
 
-        // create skip list node 
-        SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
+        // create skip list node
+        SkipListNode *node = (SkipListNode *)malloc(sizeof(SkipListNode));
         if (node == NULL)
         {
             return EXIT_FAILURE;
         }
-        
-        node->value = (void**)malloc(sizeof(void*));
-        if (node->value == NULL) 
+
+        node->value = (void **)malloc(sizeof(void *));
+        if (node->value == NULL)
         {
             return EXIT_FAILURE;
         }
 
         memcpy(node->value, value, list->dataSize);
 
-        ListNode* insertNode = _ll_create_node((void*)node, sizeof(SkipListNode));
+        ListNode *insertNode = _ll_create_node((void *)node, sizeof(SkipListNode));
         if (insertNode == NULL)
         {
             // add memory freeing code here
@@ -100,7 +101,10 @@ int sl_insert(SkipList* list, const void* value, int bigger(const void*, const v
         // keep track of address of inserted node for connection later
         createdNodes[nodeCount] = node;
         nodeCount++;
+        layerIndex++;
     }
+
+    
     // connect nodes together
     for (int i = layerCount - 1; i >= 0; i--)
     {
@@ -115,13 +119,13 @@ int sl_insert(SkipList* list, const void* value, int bigger(const void*, const v
     return EXIT_SUCCESS;
 }
 
-int sl_insert_int(SkipList* list, int value)
+int sl_insert_int(SkipList *list, int value)
 {
     return sl_insert(list, &value, bigger_int);
 }
 
-// int sl_search(SkipList* list, void* value, int compare(const void*, const void*)) 
+// int sl_search(SkipList* list, void* value, int compare(const void*, const void*))
 // {
-//     // iterate through skip list top layer 
-//     // check if 
+//     // iterate through skip list top layer
+//     // check if
 // }

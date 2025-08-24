@@ -6,7 +6,7 @@
 void print_skip_list_node(const void* value) 
 {
     SkipListNode* node = (SkipListNode*)value;
-    printf("%d\n", *(int*)node->value);
+    printf("%d ", *(int*)node->value);
     return;
 }
 
@@ -19,8 +19,11 @@ int main(void)
         sl_insert_int(list, i);
     }
 
-    ll_print(list->layers[0], print_skip_list_node);
+    // check if layers are connected
+    printf("%p\n", ((SkipListNode*)((ListNode*)list->layers[list->layerCount - 1]->head->value)->value)->below);
     
+    // 
+    printf("%p\n",   ((SkipListNode*)((ListNode*)list->layers[0]->head->value)->value)->below);
 
     return EXIT_SUCCESS;
 }

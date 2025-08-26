@@ -16,7 +16,7 @@ SkipList *sl_create(void *values[], size_t n, size_t dataSize)
     }
 
     list->dataSize = dataSize;
-    list->layerCount = 0;
+    list->height = 0;
 
     // for (int i = 0; i < _MAX_SKIP_LIST_LAYERS; i++)
     // {
@@ -26,10 +26,16 @@ SkipList *sl_create(void *values[], size_t n, size_t dataSize)
     return list;
 }
 
+void print_skip_list_node(const void* value) 
+{
+    SkipListNode* node = (SkipListNode*)value;
+    printf("%d ", *(int*)node->value);
+    return;
+}
+
 int sl_insert(SkipList *list, const void *value, int bigger(const void *, const void *))
 {
-    SkipListNode *createdNodes[_MAX_SKIP_LIST_LAYERS];
-    int nodeCount = 0;
+    SkipListNode** createdNodes[_MAX_SKIP_LIST_LAYERS];
 
     int layerCount = 1;
     int promote = rand() % 2;
@@ -42,17 +48,16 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
         promote = rand() % 2;
     }
 
+    // layerCount = 3;
+
     // insert node into N layers starting from the bottom
     for (int i = 0; i < layerCount; i++)
-    {
-        int layerIndex = layerCount - i - 1;
-        // index for list layers
-        
+    {   
         if (list->layers[i] == NULL)
         {
             // create layer if one does not yet exist
             list->layers[i] = LibLinkedList.create(NULL, 0, sizeof(SkipListNode));
-            list->layerCount++;
+            list->height++;
         }
 
         int insertPosition = -1;
@@ -75,49 +80,84 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
         }
 
         // create skip list node
-        SkipListNode *node = (SkipListNode *)malloc(sizeof(SkipListNode));
-        if (node == NULL)
-        {
-            return EXIT_FAILURE;
-        }
+        // ListNode* insertNode = _create_skip_list_node(value, list->dataSize);
+        // SkipListNode* createdNode = (SkipListNode*)insertNode->value;
 
-        node->value = (void **)malloc(sizeof(void *));
-        if (node->value == NULL)
-        {
-            return EXIT_FAILURE;
-        }
+        SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
+
+        node->value = (void**)malloc(sizeof(void*));
+        node->below = NULL;
 
         memcpy(node->value, value, list->dataSize);
 
-        ListNode *insertNode = _ll_create_node((void *)node, sizeof(SkipListNode));
-        if (insertNode == NULL)
-        {
-            // add memory freeing code here
-            return EXIT_FAILURE;
-        }
+        ListNode* insertNode = _ll_create_node((void*)node, sizeof(SkipListNode));
 
         _ll_insert_node(list->layers[i], insertNode, insertPosition);
-
         // keep track of address of inserted node for connection later
-        createdNodes[nodeCount] = node;
-        nodeCount++;
-        layerIndex++;
+        createdNodes[i] = &node;
     }
 
     
-    // connect nodes together
-    for (int i = layerCount - 1; i >= 0; i--)
+    // connect nodes together starting from top
+
+    if (layerCount == 1) 
     {
-        if (i == 0)
+        return EXIT_SUCCESS;
+    }
+
+    // printf("Printing current list\n");
+    // printf("Layer count %d\n", layerCount);
+    // printf("Insert nodes %d\n", nodeCount);
+
+    for (int i = 0; i < layerCount; i++) 
+    {
+        ll_print(list->layers[i], print_skip_list_node);
+    }
+
+    // puts("Connecting");
+    for (int i = layerCount - 1; i >= 1; i--) 
+    {
+        // printf("Connecting node %d with %d\n", i, i-1);
+        if (createdNodes[i] == NULL || createdNodes[i - 1] == NULL) 
         {
-            createdNodes[i]->below = NULL;
-            continue;
+            puts("NULL");
         }
 
-        createdNodes[i]->below = createdNodes[i - 1];
+        (*createdNodes[i])->below = (*createdNodes[i - 1]);
     }
+
+    // puts("Done");
+
     return EXIT_SUCCESS;
 }
+
+
+
+ListNode* _create_skip_list_node(const void* value, size_t dataSize) 
+{
+    SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
+    if (node == NULL)
+    {
+        return NULL;
+    }
+
+    node->value = (void**)malloc(sizeof(void*));
+    node->below = NULL;
+    if (node->value == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(node->value, value, dataSize);
+
+    ListNode* insertNode = _ll_create_node((void*)node, sizeof(SkipListNode));
+    if (insertNode == NULL)
+    {
+        return NULL;
+    }
+    return insertNode;
+}
+
 
 int sl_insert_int(SkipList *list, int value)
 {

@@ -20,10 +20,17 @@ int main(void)
     }
 
     // check if layers are connected
-    printf("%p\n", ((SkipListNode*)((ListNode*)list->layers[list->layerCount - 1]->head->value)->value)->below);
+    LinkedList* firstLayer = list->layers[0];
+    LinkedList* secondLayer = list->layers[1];
+
+    // ll_print(firstLayer, print_skip_list_node);
+    // ll_print(secondLayer, print_skip_list_node);
+    SkipListNode* firstHead = (SkipListNode*)firstLayer->head->value;
+    SkipListNode* secondHead = (SkipListNode*)secondLayer->head->value;
     
-    // 
-    printf("%p\n",   ((SkipListNode*)((ListNode*)list->layers[0]->head->value)->value)->below);
+
+    printf("%p\n", (void*)firstHead->below );
+    printf("%p\n", (void*)secondHead->below);
 
     return EXIT_SUCCESS;
 }

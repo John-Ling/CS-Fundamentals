@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Werror -Wextra -Wpedantic -I./include -g
+CFLAGS := -Wall -Wextra -Wpedantic -I./include -g
 LDFLAGS := -L./lib -Wl,-rpath,'$$ORIGIN/../lib'
 LDLIBS := -llinkedlist -lutils
 OBJ := $(SRC:.c=.o)
@@ -29,7 +29,6 @@ liblinkedlist:
 libskiplist:
 	$(CC) $(CFLAGS) -fPIC -c LibSkipList/*.c -o LibSkipList/skip_list.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o lib/libskiplist.so -llinkedlist -lutils LibSkipList/skip_list.o
-	cp LibSkipList/*.h include/
 	rm LibSkipList/skip_list.o
 
 

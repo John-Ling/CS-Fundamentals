@@ -19,18 +19,27 @@ int main(void)
         sl_insert_int(list, i);
     }
 
+    for (int i = list->height - 1; i >= 0 ; i--) 
+    {
+        ll_print(list->layers[i], print_skip_list_node);
+    }
+
     // check if layers are connected
     LinkedList* firstLayer = list->layers[0];
     LinkedList* secondLayer = list->layers[1];
+    LinkedList* thirdLayer = list->layers[2];
 
     // ll_print(firstLayer, print_skip_list_node);
     // ll_print(secondLayer, print_skip_list_node);
     SkipListNode* firstHead = (SkipListNode*)firstLayer->head->value;
     SkipListNode* secondHead = (SkipListNode*)secondLayer->head->value;
+    SkipListNode* thirdHead = (SkipListNode*)thirdLayer->head->value;
     
 
-    printf("%p\n", (void*)firstHead->below );
-    printf("%p\n", (void*)secondHead->below);
+    printf("Below 1st layer%p\n", (void*)firstHead->below );
+    printf("below 2nd layer %p\n", (void*)secondHead->below);
+    printf("Below 3rd layer %p\n", (void*)thirdHead->below);
+    printf("Two layers below third %p\n", (void*)thirdHead->below->below->below);
 
     return EXIT_SUCCESS;
 }

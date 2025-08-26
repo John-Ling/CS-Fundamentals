@@ -35,8 +35,7 @@ void print_skip_list_node(const void* value)
 
 int sl_insert(SkipList *list, const void *value, int bigger(const void *, const void *))
 {
-    SkipListNode** createdNodes[_MAX_SKIP_LIST_LAYERS];
-
+    SkipListNode* createdNodes[_MAX_SKIP_LIST_LAYERS] = {NULL};
     int layerCount = 1;
     int promote = rand() % 2;
 
@@ -51,6 +50,7 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
     // layerCount = 3;
 
     // insert node into N layers starting from the bottom
+    SkipListNode* previous = NULL;
     for (int i = 0; i < layerCount; i++)
     {   
         if (list->layers[i] == NULL)
@@ -85,46 +85,38 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
 
         SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
 
-        node->value = (void**)malloc(sizeof(void*));
-        node->below = NULL;
+        node->value = (void*)malloc(list->dataSize);
+        node->below = previous;
 
         memcpy(node->value, value, list->dataSize);
 
         ListNode* insertNode = _ll_create_node((void*)node, sizeof(SkipListNode));
 
         _ll_insert_node(list->layers[i], insertNode, insertPosition);
+
+        previous = node;
         // keep track of address of inserted node for connection later
-        createdNodes[i] = &node;
+        // createdNodes[i] = node;
     }
 
     
     // connect nodes together starting from top
 
-    if (layerCount == 1) 
-    {
-        return EXIT_SUCCESS;
-    }
+    // if (layerCount == 1) 
+    // {
+    //     return EXIT_SUCCESS;
+    // }
 
     // printf("Printing current list\n");
     // printf("Layer count %d\n", layerCount);
     // printf("Insert nodes %d\n", nodeCount);
 
-    for (int i = 0; i < layerCount; i++) 
-    {
-        ll_print(list->layers[i], print_skip_list_node);
-    }
 
     // puts("Connecting");
-    for (int i = layerCount - 1; i >= 1; i--) 
-    {
-        // printf("Connecting node %d with %d\n", i, i-1);
-        if (createdNodes[i] == NULL || createdNodes[i - 1] == NULL) 
-        {
-            puts("NULL");
-        }
-
-        (*createdNodes[i])->below = (*createdNodes[i - 1]);
-    }
+    // for (int i = layerCount - 1; i >= 1; i--) 
+    // {
+    //     createdNodes[i]->below = createdNodes[i - 1];
+    // }
 
     // puts("Done");
 
@@ -141,14 +133,17 @@ ListNode* _create_skip_list_node(const void* value, size_t dataSize)
         return NULL;
     }
 
-    node->value = (void**)malloc(sizeof(void*));
+    node->value = (void*)malloc(dataSize);
     node->below = NULL;
     if (node->value == NULL)
     {
         return NULL;
     }
 
-    memcpy(node->value, value, dataSize);
+    if (value != NULL) 
+    {
+        memcpy(node->value, value, dataSize);
+    }
 
     ListNode* insertNode = _ll_create_node((void*)node, sizeof(SkipListNode));
     if (insertNode == NULL)

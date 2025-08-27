@@ -1,5 +1,7 @@
 #include "skip_list.h"
 
+// library for a skip list of any type created for learning purposes
+
 SkipList *sl_create(void *values[], size_t n, size_t dataSize)
 {
     if (values == NULL && n != 0)
@@ -33,9 +35,8 @@ void print_skip_list_node(const void* value)
     return;
 }
 
-int sl_insert(SkipList *list, const void *value, int bigger(const void *, const void *))
+int sl_insert(SkipList *list, const void *value, int bigger(const void*, const void*))
 {
-    SkipListNode* createdNodes[_MAX_SKIP_LIST_LAYERS] = {NULL};
     int layerCount = 1;
     int promote = rand() % 2;
 
@@ -47,10 +48,9 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
         promote = rand() % 2;
     }
 
-    // layerCount = 3;
 
+    ListNode* below = NULL;
     // insert node into N layers starting from the bottom
-    SkipListNode* previous = NULL;
     for (int i = 0; i < layerCount; i++)
     {   
         if (list->layers[i] == NULL)
@@ -69,9 +69,10 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
         {
             // go through layer until bigger value is reached
             int isBigger = bigger(((SkipListNode *)next->value)->value, value);
+            
+            // is bigger or equal
             if (isBigger == 1 || isBigger == 0)
             {
-                // printf("Inserting into %d\n", currentPosition);
                 insertPosition = currentPosition;
                 break;
             }
@@ -79,14 +80,9 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
             next = next->next;
         }
 
-        // create skip list node
-        // ListNode* insertNode = _create_skip_list_node(value, list->dataSize);
-        // SkipListNode* createdNode = (SkipListNode*)insertNode->value;
-
         SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
-
         node->value = (void*)malloc(list->dataSize);
-        node->below = previous;
+        node->below = below; // connect current node to the node in the layer below it
 
         memcpy(node->value, value, list->dataSize);
 
@@ -94,36 +90,10 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void *, const 
 
         _ll_insert_node(list->layers[i], insertNode, insertPosition);
 
-        previous = node;
-        // keep track of address of inserted node for connection later
-        // createdNodes[i] = node;
+        below = insertNode;
     }
-
-    
-    // connect nodes together starting from top
-
-    // if (layerCount == 1) 
-    // {
-    //     return EXIT_SUCCESS;
-    // }
-
-    // printf("Printing current list\n");
-    // printf("Layer count %d\n", layerCount);
-    // printf("Insert nodes %d\n", nodeCount);
-
-
-    // puts("Connecting");
-    // for (int i = layerCount - 1; i >= 1; i--) 
-    // {
-    //     createdNodes[i]->below = createdNodes[i - 1];
-    // }
-
-    // puts("Done");
-
     return EXIT_SUCCESS;
 }
-
-
 
 ListNode* _create_skip_list_node(const void* value, size_t dataSize) 
 {
@@ -159,8 +129,106 @@ int sl_insert_int(SkipList *list, int value)
     return sl_insert(list, &value, bigger_int);
 }
 
-// int sl_search(SkipList* list, void* value, int compare(const void*, const void*))
-// {
-//     // iterate through skip list top layer
-//     // check if
-// }
+int sl_search(SkipList* list, void* value, int compare(const void*, const void*), 
+            int bigger(const void*, const void*))
+{
+    // iterate through skip list top layer
+    // for each layer
+
+    // check if value is bvalue 
+    // if k < next key move down a layer
+    // if k > next key move right 
+
+    
+
+    // start at head of top layer
+    // perform check
+    // value is bigger then move to head
+    // then check next
+    // if value is bigger keep moving forward until null
+    // otherwise move down
+    // keep repeating until item is found or list is fully traversed
+
+    // find initial starting layer 
+
+    // from outside of skip list
+    // check is if the value is bigger than head
+    // if it is then set current to head
+    // and next to current->next
+    // then start search code
+    // otherwise move down a layer and keep moving down until everything is done 
+
+    int currentLayer = list->height - 1;
+    LinkedList* layer = list->layers[currentLayer];
+    ListNode* current = NULL;
+    ListNode* next = layer->head;
+
+    int isBigger = bigger(value, ((SkipListNode*)next->value)->value);
+
+    while ((isBigger == 1 || isBigger == 0) && currentLayer > 0)
+    {
+
+    }
+
+    if (isBigger == 0)
+    {
+        // found 
+        return EXIT_SUCCESS;
+    }
+
+    if (isBigger == 1)
+    {
+        // move right and start at the head
+        current = layer->head;
+        next = next->next;
+    }
+
+    // otherwise start outside of skip list
+
+    // bug fix here
+    // from outside of skip lst 
+
+    // begin search 
+    while (currentLayer >= 0)
+    {
+        // assume null to be the biggest value
+        if (next == NULL || bigger(((SkipListNode*)next->value)->value, value) == 1)
+        {
+            // move down a layer
+            if (current == NULL)  // handle edge case
+            {
+                current = layer->head;
+            }
+            current = ((SkipListNode*)current->value)->below;
+
+            if (current == NULL)
+            {
+                // we have run out of levels to traverse to
+                return EXIT_FAILURE;
+            }
+            
+            next = current->next;
+            currentLayer--;
+            continue;
+        }
+
+        // value is assumed to be either matching or bigger
+        if (compare(value, ((SkipListNode*)next->value)->value) == EXIT_SUCCESS)
+        {
+            // found
+            return EXIT_SUCCESS;
+        }        
+
+        // value is bigger than current next
+        // move forward
+        current = next;
+        next = next->next;
+    }
+
+    return EXIT_FAILURE;
+}
+
+int sl_search_int(SkipList* list, int value) 
+{
+    return sl_search(list, &value, compare_int, bigger_int);
+}

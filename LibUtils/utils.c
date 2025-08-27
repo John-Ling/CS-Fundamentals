@@ -76,6 +76,7 @@ int compare_str(const void* a, const void* b)
     return EXIT_SUCCESS;
 }
 
+// is integer a bigger than b?
 int bigger_int(const void* a, const void* b)
 {
     int c = *(int*)a;

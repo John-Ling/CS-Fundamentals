@@ -49,6 +49,7 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void*, const v
     }
 
 
+
     ListNode* below = NULL;
     // insert node into N layers starting from the bottom
     for (int i = 0; i < layerCount; i++)
@@ -164,11 +165,22 @@ int sl_search(SkipList* list, void* value, int compare(const void*, const void*)
     ListNode* next = layer->head;
 
     int isBigger = bigger(value, ((SkipListNode*)next->value)->value);
-
-    while ((isBigger == 1 || isBigger == 0) && currentLayer > 0)
+    while ((isBigger == -1 || isBigger == 0) && currentLayer > 0)
     {
+        if (isBigger == 0) 
+        {
+            // found
+            return EXIT_SUCCESS;
+        }
 
+        // assume that the head is bigger 
+        // move down a layer 
+        currentLayer--;
+        layer= list->layers[currentLayer];
+        next = layer->head;
+        isBigger = bigger(value, ((SkipListNode*)next->value)->value);
     }
+
 
     if (isBigger == 0)
     {
@@ -199,6 +211,8 @@ int sl_search(SkipList* list, void* value, int compare(const void*, const void*)
             {
                 current = layer->head;
             }
+
+            // move down
             current = ((SkipListNode*)current->value)->below;
 
             if (current == NULL)

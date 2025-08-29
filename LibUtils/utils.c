@@ -28,7 +28,9 @@ void print_str(const void* s)
     printf("%s ", (char*)s);
     return;
 }
-
+{
+    
+}
 void* to_void(void* x, const size_t typeSize)
 {
     void* converted = (void*)malloc(typeSize);

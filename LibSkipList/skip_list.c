@@ -48,8 +48,6 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void*, const v
         promote = rand() % 2;
     }
 
-
-
     ListNode* below = NULL;
     // insert node into N layers starting from the bottom
     for (int i = 0; i < layerCount; i++)
@@ -81,13 +79,17 @@ int sl_insert(SkipList *list, const void *value, int bigger(const void*, const v
             next = next->next;
         }
 
-        SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
-        node->value = (void*)malloc(list->dataSize);
-        node->below = below; // connect current node to the node in the layer below it
+        SkipListNode node;
+        // SkipListNode* node = (SkipListNode*)malloc(sizeof(SkipListNode));
+        // node->value = (void*)malloc(list->dataSize);
+        // node->below = below; // connect current node to the node in the layer below it
 
-        memcpy(node->value, value, list->dataSize);
+        node.value = (void*)malloc(list->dataSize);
+        node.below = below;
 
-        ListNode* insertNode = _ll_create_node((void*)node, sizeof(SkipListNode));
+        memcpy(node.value, value, list->dataSize);
+
+        ListNode* insertNode = _ll_create_node(&node, sizeof(SkipListNode));
 
         _ll_insert_node(list->layers[i], insertNode, insertPosition);
 
@@ -133,32 +135,6 @@ int sl_insert_int(SkipList *list, int value)
 int sl_search(SkipList* list, void* value, int compare(const void*, const void*), 
             int bigger(const void*, const void*))
 {
-    // iterate through skip list top layer
-    // for each layer
-
-    // check if value is bvalue 
-    // if k < next key move down a layer
-    // if k > next key move right 
-
-    
-
-    // start at head of top layer
-    // perform check
-    // value is bigger then move to head
-    // then check next
-    // if value is bigger keep moving forward until null
-    // otherwise move down
-    // keep repeating until item is found or list is fully traversed
-
-    // find initial starting layer 
-
-    // from outside of skip list
-    // check is if the value is bigger than head
-    // if it is then set current to head
-    // and next to current->next
-    // then start search code
-    // otherwise move down a layer and keep moving down until everything is done 
-
     int currentLayer = list->height - 1;
     LinkedList* layer = list->layers[currentLayer];
     ListNode* current = NULL;
@@ -181,7 +157,6 @@ int sl_search(SkipList* list, void* value, int compare(const void*, const void*)
         isBigger = bigger(value, ((SkipListNode*)next->value)->value);
     }
 
-
     if (isBigger == 0)
     {
         // found 
@@ -194,11 +169,6 @@ int sl_search(SkipList* list, void* value, int compare(const void*, const void*)
         current = layer->head;
         next = next->next;
     }
-
-    // otherwise start outside of skip list
-
-    // bug fix here
-    // from outside of skip lst 
 
     // begin search 
     while (currentLayer >= 0)
@@ -245,4 +215,16 @@ int sl_search(SkipList* list, void* value, int compare(const void*, const void*)
 int sl_search_int(SkipList* list, int value) 
 {
     return sl_search(list, &value, compare_int, bigger_int);
+}
+
+int sl_free(SkipList* list, void free_item(void*))
+{
+    for (int i = 0; i < list->height; i++)
+    {
+        ll_free(list->layers[i], free_item);
+    }
+
+    free(list);
+    list = NULL;
+    return EXIT_SUCCESS;
 }

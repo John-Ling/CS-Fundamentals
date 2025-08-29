@@ -359,7 +359,6 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
 
     if (list->head == NULL)
     {
-        puts("Free head");
         free(list);
         list = NULL;
         return EXIT_SUCCESS;
@@ -373,7 +372,6 @@ int ll_free(LinkedList* list, void (*free_item)(void*))
     }
     else 
     {
-        puts("Freeing");
         free_item(previous->value);
         free(previous);
         free(list);

@@ -19,12 +19,6 @@ SkipList *sl_create(void *values[], size_t n, size_t dataSize)
 
     list->dataSize = dataSize;
     list->height = 0;
-
-    // for (int i = 0; i < _MAX_SKIP_LIST_LAYERS; i++)
-    // {
-    //     list->layers[i] = LibLinkedList.create(NULL, 0, sizeof(SkipListNode));
-    // }
-
     return list;
 }
 
@@ -221,7 +215,7 @@ int sl_free(SkipList* list, void free_item(void*))
 {
     for (int i = 0; i < list->height; i++)
     {
-        ll_free(list->layers[i], free_item);
+        LibLinkedList.free(list->layers[i], free_item);
     }
 
     free(list);

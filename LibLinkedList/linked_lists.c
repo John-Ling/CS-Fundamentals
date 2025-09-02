@@ -100,7 +100,6 @@ int ll_print(LinkedList* list, void print(const void*))
     return EXIT_SUCCESS;
 }
 
-
 // Creates a list node and returns its address
 ListNode* _ll_create_node(void* data, const size_t size)
 {
@@ -110,7 +109,7 @@ ListNode* _ll_create_node(void* data, const size_t size)
         return NULL;
     }
 
-    node->value = (void**)malloc(sizeof(void*));
+    node->value = (void*)malloc(size);
 
     if ((*node).value == NULL)
     {
@@ -118,7 +117,7 @@ ListNode* _ll_create_node(void* data, const size_t size)
         return NULL;
     }
 
-    memcpy((*node).value, data, size);
+    memcpy(node->value, data, size);
     return node;
 }
 

@@ -31,7 +31,6 @@ void print_pair(const void* pair)
 
 int main(void)
 {
-
     // testing linked list of strings
 
     LinkedList* list1 = LibLinkedList.create(NULL, 0, sizeof(char*));
@@ -52,6 +51,17 @@ int main(void)
 
     printf("%d\n", LibLinkedList.print(list1, print_str));
     LibLinkedList.free(list1, free);
+
+    // LinkedList* myList = LibLinkedList.create(NULL, 0, sizeof(int));
+
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     LibLinkedList.insert_int(myList, i, -1);
+    // }
+
+    // LibLinkedList.print(myList, print_int);
+    // LibLinkedList.free(myList, free);
+
 
     // // testing linked list of user defined structs
     // // in this context these structs will be used as part of a hash table

@@ -33,6 +33,7 @@ int sl_print(SkipList* list, void print(const void*));
 int sl_search(SkipList* list, void* value, int compare(const void*, const void*), 
             int bigger(const void*, const void*));
 int sl_search_int(SkipList* list, int value);
+
 int sl_free(SkipList* list, void free_item(void*));
 
 #endif

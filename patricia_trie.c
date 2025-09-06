@@ -3,144 +3,154 @@
 PatriciaNode* pt_create(char* value)
 {
     PatriciaNode* root = _pt_create_node();
-    root->value = strdup(value);
-    root->prefix = strdup(value);
+    root->value = value;
+    root->prefix = value;
+    root->mismatchIndex = -1;
     root->prefixBitCount = strlen(value) * BITS_PER_BYTE + BITS_PER_BYTE;
+    root->left = root;
+    root->right = root;
     return root;
 }
 
-PatriciaNode* _pt_create_node(void)
+PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount)
 {
-    PatriciaNode* root = (PatriciaNode*)malloc(sizeof(PatriciaNode));
-    root->left = NULL;
-    root->right = NULL;
-    root->value = NULL;
-    root->prefix = NULL;
-    root->prefixBitCount = 0;
-    root->instances = 1;
-    return root;
-}
-
-PatriciaNode* pt_insert(PatriciaNode* root, char* value, int valueBitCount)
-{
-    // check if trie is empty 
-    // if it is then assign a new terminal / root node
-    // then return
-
-    // otherwise
-    // iterate through the of prefix until a mismatch is found or prefix runs out of bits
-
-    // if prefix runs out of bits
-    // get bit after it and travel left and right respectively
-    // then perform the function again using the suffix
-    // if no mismatch is found binary matches exactly
-    // duplicate node: increase instances by 1
-    // check if mismatched bit is 0 or 1 to check left or right child
-    // create a new internal node as parent to both inserted value and child
-
     if (root == NULL) 
     {
-        // create node with a full prefix
-        PatriciaNode* leaf = _pt_create_node();
-        leaf->value = strdup(value);
-        leaf->prefix = strdup(value);
-        // add extra for null terminator
-        leaf->prefixBitCount = strlen(value) * BITS_PER_BYTE + BITS_PER_BYTE; 
-        root = leaf;
+        PatriciaNode* node = _pt_create_node();
+        node->value = strdup(value);
+        node->prefixBitCount = valueBitCount;
+        node->mismatchIndex = -1; // leaf sentinel
+        node->left = node->right = node; // points to self (Patricia leaf convention)
+        return node;
+    }
+
+    PatriciaNode* foundParent = NULL;
+    // search for existing key
+    PatriciaNode* found = pt_search(root, &foundParent, value);
+
+    if (found && strcmp(found->value, value) == 0) 
+    {
+        puts("Found duplicate node");
+        return root; 
+    }
+
+    // find mismatching index
+    int mismatchIndex = _find_bit_mismatch(found->value, value, found->prefixBitCount, valueBitCount);    
+    if (mismatchIndex == -1)
+    {
+        // mismatch index shouldn't be -1
+        puts("Walao sum ting wong");
+        return NULL;
+    }
+
+    // create leaf node
+    PatriciaNode* leaf = _pt_create_node();
+    leaf->value = strdup(value);
+    leaf->prefixBitCount = valueBitCount;
+
+    // create internal node 
+    PatriciaNode* internal = _pt_create_node();
+    internal->mismatchIndex = mismatchIndex;
+
+    int mismatchedBit = _get_bit(value, mismatchIndex);
+
+    if (foundParent == NULL ||  mismatchIndex < foundParent->mismatchIndex)
+    {
+        // if the found parent is null then we must only possess a single node
+        // in the trie
+        // make the internal node as our new root
+        switch(mismatchedBit)
+        {
+            case 0:
+                internal->left = leaf;
+                internal->right = foundParent;
+                break;
+            case 1:
+                internal->left = foundParent;
+                internal->right = leaf;
+                break;
+        }
+
+        return internal;
+    }
+
+    // mismatch index is longer than the parent's 
+    // attach the internal node to the parent's left or right
+    switch(mismatchedBit)
+    {
+        case 0:
+            internal->left = leaf;
+            internal->right = found;
+            foundParent->left = internal;
+            break;
+        case 1:
+            internal->left = found;
+            internal->right = leaf;
+            foundParent->right = internal;
+            break;
+    }
+
+    return root;
+}
+
+PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, const char* value)
+{
+    // if root is a leaf node check immediately 
+    if (root->mismatchIndex == -1 && strcmp(root->value, value) == EXIT_SUCCESS) 
+    {
+        (*parent) = NULL;
         return root;
     }
 
 
-    int mismatchedPosition = -1;
-    char* operand = NULL;
-    int operandBitCount = 0;
-    if (root->prefixBitCount == valueBitCount) 
+    PatriciaNode* current = root;
+
+    // this statement checks if we have reached a leaf node
+    // try changing to check if mismatch index == -1 since we 
+    // assume this is a leaf node
+    while (current->mismatchIndex > current->left->mismatchIndex) 
     {
-        mismatchedPosition = _find_bit_mismatch(root->prefix, value, root->prefixBitCount, valueBitCount);
-        operand = root->prefix;
-        operandBitCount = root->prefixBitCount;
+        (*parent) = current;
+
+        int bit;
+        if (current->mismatchIndex == -1)
+        {
+            int index = strlen(current->prefix + 1) * BITS_PER_BYTE;
+            bit = _get_bit(value, index);
+        }
+        else
+        {
+            bit = _get_bit(value, current->mismatchIndex);
+        }
+
+        switch(bit)
+        {
+            case 0:
+                current = current->left;
+                break;
+            case 1:
+                current = current->right;
+                break;
+        }
     }
-    else
-    {
-        // if the number of bits don't match the prefix length
-        // obivously there is a mismatch
-        mismatchedPosition = root->prefixBitCount > valueBitCount ? valueBitCount : root->prefixBitCount;
-
-        // select the shorter length prefix 
-        operand = root->prefixBitCount > valueBitCount ? value : root->prefix;
-        operandBitCount = root->prefixBitCount > valueBitCount ? valueBitCount : root->prefixBitCount;
-    }
-
-    if (mismatchedPosition == -1)
-    {
-        // no mismatch
-        
-        // take suffix of search value and travel down either left or right
-        // depending on the first bit
-
-        char* suffix = _createStem(value, root->prefixBitCount - 1, 
-                            (size_t)(valueBitCount - root->prefixBitCount) / 8);
-        
-        
-        return NULL;
-    }
-
-    // mismatch 
-
-    
-    // the bit that had a mismatch in the original node
-    int mismatchedBit = _getBit(operand, mismatchedPosition);
-
-    int newPrefixBitCount = mismatchedPosition;
-    
-    // perform splitting operation
-    // the current node we are splitting record the prefix and suffix based on the position
-    // 
-
-    char* prefix = _createStem(operand, 0, newPrefixBitCount);
-    char* suffix = _createStem(operand, mismatchedPosition, operandBitCount - newPrefixBitCount);
-
-    // create an internal node with the binary prefix
-    PatriciaNode* internalNode = _pt_create_node();
-    internalNode->prefix = prefix;
-    internalNode->prefixBitCount = newPrefixBitCount;
-
-    // now create new children
-
-    PatriciaNode* childA = _pt_create_node();
-    childA->prefix = suffix;
-    childA->prefixBitCount = operandBitCount - newPrefixBitCount;
-    childA->value = operand;
-
-    PatriciaNode* childB = _pt_create_node();
-
-    // create prefix for childB
-    char* childBSuffix = _createStem(value, mismatchedPosition, operandBitCount - newPrefixBitCount);
-    childB->prefix = childBSuffix;
-    childB->prefixBitCount = operandBitCount - newPrefixBitCount;
-    childB->value = value;
-
-    // attach children
-    if (mismatchedBit == 0)
-    {
-        internalNode->left = childA;
-        internalNode->right = childB;
-    }
-    else
-    {
-        internalNode->left = childB;
-        internalNode->right = childA;
-    }
-    
-    // mismatched bit determine to check left or right child
-    // if node has no children
-
-    
-    // return the internal node as the root of the subtree 
-    return internalNode;
+    return current;
 }
 
-int _find_bit_mismatch(char* a, char* b, int bitCountA, int bitCountB)
+
+PatriciaNode* _pt_create_node(void)
+{
+    PatriciaNode* root = (PatriciaNode*)malloc(sizeof(PatriciaNode));
+    root->value = NULL;
+    root->prefix = NULL;
+    root->prefixBitCount = 0;
+    root->mismatchIndex = -1;
+    root->instances = 1;
+    root->left = root;
+    root->right = root;
+    return root;
+}
+
+int _find_bit_mismatch(const char* a, const char* b, int bitCountA, int bitCountB)
 {
     // takes in two strings
     // it's not guaranteed that these strings will
@@ -160,7 +170,7 @@ int _find_bit_mismatch(char* a, char* b, int bitCountA, int bitCountB)
 
     for (int i = 0; i < bitCountA; i++)
     {
-        if (_getBit(a, i) != _getBit(b, i)) 
+        if (_get_bit(a, i) != _get_bit(b, i)) 
         {
             return i;    
         }
@@ -176,17 +186,17 @@ int _bitwiseStrcmp(char* a, char*  b, int* totalComparisons)
     // counts number of bitwise comparisons
     // assumes a and b are null terminated strings
 
-    int isEqual = 1;
+    _Bool isEqual = 1;
     while (isEqual)
     {
-        int nullFlagA = 0;
-        int nullFlagB = 0;
+        _Bool nullFlagA = 0;
+        _Bool nullFlagB = 0;
         for (int i = 0; i < BITS_PER_BYTE; i++)
         {
             // compare bits
             (*totalComparisons)++;
-            int bitA = _getBit(a, i);
-            int bitB = _getBit(b, i);
+            _Bool bitA = _get_bit(a, i);
+            _Bool bitB = _get_bit(b, i);
             nullFlagA |= bitA;
             nullFlagB |= bitB;
 
@@ -198,7 +208,7 @@ int _bitwiseStrcmp(char* a, char*  b, int* totalComparisons)
         }
 
         // check if both strings have terminated 
-        if ((nullFlagA | nullFlagB))
+        if (nullFlagA | nullFlagB)
         {
             break;
         }
@@ -206,7 +216,7 @@ int _bitwiseStrcmp(char* a, char*  b, int* totalComparisons)
         // if only one flag is 0 then one of 
         // our strings terminated early
         // therefore they cannot be the same
-        if ((nullFlagA ^ nullFlagB) == 1)
+        if (nullFlagA ^ nullFlagB)
         {
             isEqual = 0;
             break;
@@ -281,8 +291,9 @@ int _editDistance(char *str1, char *str2, int n, int m){
     return dp[n][m];
 }
 
-int _getBit(char *s, unsigned int bitIndex){
-    assert(s && bitIndex >= 0);
+int _get_bit(const char *s, unsigned int bitIndex)
+{
+    assert(s && (int)bitIndex >= 0);
     unsigned int byte = bitIndex / BITS_PER_BYTE;
     unsigned int indexFromLeft = bitIndex % BITS_PER_BYTE;
     /* 
@@ -305,13 +316,13 @@ int _getBit(char *s, unsigned int bitIndex){
 /* Allocates new memory to hold the numBits specified and fills the allocated
     memory with the numBits specified starting from the startBit of the oldKey
     array of bytes. */
-char* _createStem(char *oldKey, unsigned int startBit, unsigned int numBits){
-    assert(numBits > 0 && startBit >= 0 && oldKey);
+char* _createStem(const char *oldKey, unsigned int startBit, unsigned int numBits){
+    assert((int)numBits > 0 && (int)startBit >= 0 && oldKey);
     int extraBytes = 0;
     if((numBits % BITS_PER_BYTE) > 0){
         extraBytes = 1;
     }
-    int totalBytes = (numBits / BITS_PER_BYTE) + extraBytes;
+    unsigned int totalBytes = (numBits / BITS_PER_BYTE) + extraBytes;
     char *newStem = malloc(sizeof(char) * totalBytes);
     assert(newStem);
     for(unsigned int i = 0; i < totalBytes; i++){
@@ -321,7 +332,7 @@ char* _createStem(char *oldKey, unsigned int startBit, unsigned int numBits){
         unsigned int indexFromLeft = i % BITS_PER_BYTE;
         unsigned int offset = (BITS_PER_BYTE - indexFromLeft - 1) % BITS_PER_BYTE;
         unsigned int bitMaskForPosition = 1 << offset;
-        unsigned int bitValueAtPosition = _getBit(oldKey, startBit + i);
+        unsigned int bitValueAtPosition = _get_bit(oldKey, startBit + i);
         unsigned int byteInNewStem = i / BITS_PER_BYTE;
         newStem[byteInNewStem] |= bitMaskForPosition * bitValueAtPosition;
     }

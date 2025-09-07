@@ -101,7 +101,7 @@ int ll_print(LinkedList* list, void print(const void*))
 }
 
 // Creates a list node and returns its address
-ListNode* _ll_create_node(void* data, const size_t size)
+ListNode* _ll_create_node(const void* data, const size_t size)
 {
     ListNode* node = (ListNode*)malloc(sizeof(ListNode));
     if (node == NULL)
@@ -171,7 +171,7 @@ int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 
 // inserts a value at index in a linked list
 // inserting at index -1 inserts at the end of the list
-int ll_insert(LinkedList* list, void* value, const int index)
+int ll_insert(LinkedList* list, const void* value, const int index)
 {
     if (index > list->itemCount || index < -1 || list == NULL)
     {

@@ -15,8 +15,6 @@ void default_free(void* value)
     return;
 }
 
-
-
 void print_int(const void* i)
 {
     printf("%d ", *(int*)i);
@@ -28,9 +26,7 @@ void print_str(const void* s)
     printf("%s ", (char*)s);
     return;
 }
-{
-    
-}
+
 void* to_void(void* x, const size_t typeSize)
 {
     void* converted = (void*)malloc(typeSize);

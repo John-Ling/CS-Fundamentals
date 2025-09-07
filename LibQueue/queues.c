@@ -65,7 +65,7 @@ int q_dequeue(Queue* queue, void* out)
     }
 
     // delete element at head
-    return LibLinkedList.delete(queue->items, 0);
+    return LibLinkedList.delete(queue->items, 0, free);
 }
 
 int q_peek(Queue* queue, void* out)

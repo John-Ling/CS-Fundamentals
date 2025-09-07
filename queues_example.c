@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "queues.h"
-#include "utils.h"
+#include "include/utils.h"
 
 int main(int argc, char* argv[])
 {
@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
     Queue* queue = LibQueue.create(CONVERT_ARRAY(arr, n), n, sizeof(int));
 
     LibQueue.print(queue, print_int);
-
 
     LibQueue.dequeue(queue, NULL);
     LibQueue.dequeue(queue, NULL);

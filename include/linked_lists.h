@@ -19,9 +19,9 @@ typedef struct
 } LinkedList;
 
 LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize);
-ListNode* _ll_create_node(void* data, const size_t size);
+ListNode* _ll_create_node(const void* data, const size_t size);
 int _ll_insert_node(LinkedList* list, ListNode* node, const int index);
-int ll_insert(LinkedList* list, void* value, const int index);
+int ll_insert(LinkedList* list, const void* value, const int index);
 int ll_insert_int(LinkedList* list, int value, const int index);
 int ll_insert_str(LinkedList* list, char* value, const int index);
 int ll_insert_flt(LinkedList* list, float value, const int index);
@@ -45,7 +45,7 @@ struct LibLinkedList_l {
 
     // inserts a value at index in a linked list
     // inserting at index -1 inserts at the end of the list
-    int (*insert)(LinkedList* list, void* value, const int index);
+    int (*insert)(LinkedList* list, const void* value, const int index);
     int (*insert_int)(LinkedList* list, int value, const int index);
     int (*insert_str)(LinkedList* list, char* value, const int index);
     int (*insert_flt)(LinkedList* list, float value, const int index);

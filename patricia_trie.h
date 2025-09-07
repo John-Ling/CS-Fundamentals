@@ -17,7 +17,6 @@ typedef struct PatriciaNode_t
     struct PatriciaNode_t* right; // next bit is 1
     int prefixBitCount; // maybe include 
     int mismatchIndex; // bit index where a node's key differs from its parent
-    char* prefix; // binary prefix will not always be a printable string due to potential missing null terminator watch out!
     int instances; // handle duplicate by storing the number of times they occur
     char* value; // actual stored value present if node is a terminal/leaf node 
 } PatriciaNode;
@@ -29,7 +28,9 @@ PatriciaNode* pt_create(char* value);
 PatriciaNode* _pt_create_node(void);
 PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount);
 PatriciaNode* _pt_split_node(PatriciaNode* root, const char* value, unsigned int position);
-PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, const char* value);
+PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, PatriciaNode** grandparent, 
+                    const char* value);
+void pt_free(PatriciaNode* root);
 
 int bitwiseStrcmp(char* a, char*  b, int* totalComparisons);
 int _find_bit_mismatch(const char* a, const char* b, int bitCountA, int bitCountB);

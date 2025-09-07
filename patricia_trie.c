@@ -3,8 +3,7 @@
 PatriciaNode* pt_create(char* value)
 {
     PatriciaNode* root = _pt_create_node();
-    root->value = value;
-    root->prefix = value;
+    root->value = strdup(value);
     root->mismatchIndex = -1;
     root->prefixBitCount = strlen(value) * BITS_PER_BYTE + BITS_PER_BYTE;
     root->left = root;
@@ -24,9 +23,10 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
         return node;
     }
 
+    PatriciaNode* foundGrandparent = NULL;
     PatriciaNode* foundParent = NULL;
     // search for existing key
-    PatriciaNode* found = pt_search(root, &foundParent, value);
+    PatriciaNode* found = pt_search(root, &foundParent, &foundGrandparent, value);
 
     if (found && strcmp(found->value, value) == 0) 
     {
@@ -54,18 +54,30 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
 
     int mismatchedBit = _get_bit(value, mismatchIndex);
 
-    if (foundParent == NULL ||  mismatchIndex < foundParent->mismatchIndex)
+
+    if (foundParent == NULL)
+    {
+        switch (mismatchedBit)
+        {
+            case 0:
+                internal->left = leaf;
+                internal->right = found;
+                break;
+            case 1:
+                internal->left = found;
+                internal->right = leaf;
+                break;
+        }
+        return internal;
+    }
+
+    if (mismatchIndex < foundParent->mismatchIndex)
     {
         // if the found parent is null then we must only possess a single node
         // in the trie
         // make the internal node as our new root
-
-        if (foundParent == NULL)
-        {
-            foundParent = found;
-        }
-
-        switch(mismatchedBit)
+        
+        switch (mismatchedBit)
         {
             case 0:
                 internal->left = leaf;
@@ -77,12 +89,25 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
                 break;
         }
 
-        return internal;
+        if (foundGrandparent == NULL)
+        {
+            root = internal;
+        }
+        else if (foundGrandparent->left == foundParent)
+        {
+            foundGrandparent->left = internal;
+        }
+        else
+        {
+            foundGrandparent->right = internal;
+        }
+
+        return root;
     }
 
     // mismatch index is longer than the parent's
     // attach the internal node to the parent's left or right
-    switch(mismatchedBit)
+    switch (mismatchedBit)
     {
         case 0:
             internal->left = leaf;
@@ -99,8 +124,10 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
     return root;
 }
 
-PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, const char* value)
+PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, PatriciaNode** grandparent, 
+                        const char* value)
 {
+    (*grandparent) = NULL;
     // if root is a leaf node check immediately 
     if (root->mismatchIndex == -1 && strcmp(root->value, value) == EXIT_SUCCESS) 
     {
@@ -109,13 +136,14 @@ PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, const char* v
     }
 
 
-    PatriciaNode* current = root;
 
+    PatriciaNode* current = root;
     // this statement checks if we have reached a leaf node
     // try changing to check if mismatch index == -1 since we 
     // assume this is a leaf node
     while (current->mismatchIndex != -1) 
     {
+        (*grandparent) = (*parent);
         (*parent) = current;
         switch(_get_bit(value, current->mismatchIndex))
         {
@@ -130,12 +158,31 @@ PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, const char* v
     return current;
 }
 
+void pt_free(PatriciaNode* root)
+{
+    if (root->mismatchIndex == -1)
+    {
+        // free root node
+        free(root->value);
+        root->value = NULL;
+        free(root);
+        root = NULL;
+        return;
+    }
+
+    pt_free(root->left);
+    pt_free(root->right);
+
+    // free internal node
+    free(root);
+    return;
+}
+
 
 PatriciaNode* _pt_create_node(void)
 {
     PatriciaNode* root = (PatriciaNode*)malloc(sizeof(PatriciaNode));
     root->value = NULL;
-    root->prefix = NULL;
     root->prefixBitCount = 0;
     root->mismatchIndex = -1;
     root->instances = 1;
@@ -173,118 +220,6 @@ int _find_bit_mismatch(const char* a, const char* b, int bitCountA, int bitCount
     return -1;
 }
 
-int _bitwiseStrcmp(char* a, char*  b, int* totalComparisons)
-{
-    // Return 1 if two strings are equal
-    // Returns 0 otherwise
-    // counts number of bitwise comparisons
-    // assumes a and b are null terminated strings
-
-    _Bool isEqual = 1;
-    while (isEqual)
-    {
-        _Bool nullFlagA = 0;
-        _Bool nullFlagB = 0;
-        for (int i = 0; i < BITS_PER_BYTE; i++)
-        {
-            // compare bits
-            (*totalComparisons)++;
-            _Bool bitA = _get_bit(a, i);
-            _Bool bitB = _get_bit(b, i);
-            nullFlagA |= bitA;
-            nullFlagB |= bitB;
-
-            if (bitA != bitB)
-            {
-                isEqual = 0;
-                break;
-            }
-        }
-
-        // check if both strings have terminated 
-        if (nullFlagA | nullFlagB)
-        {
-            break;
-        }
-
-        // if only one flag is 0 then one of 
-        // our strings terminated early
-        // therefore they cannot be the same
-        if (nullFlagA ^ nullFlagB)
-        {
-            isEqual = 0;
-            break;
-        }
-
-        a++;
-        b++;
-    }
-
-    return isEqual;
-}
-
-
-/* Returns min of 3 integers 
-    reference: https://www.geeksforgeeks.org/edit-distance-in-c/ */
-int _min(int a, int b, int c) {
-    if (a < b) {
-        if(a < c) {
-            return a;
-        } else {
-            return c;
-        }
-    } else {
-        if(b < c) {
-            return b;
-        } else {
-            return c;
-        }
-    }
-}
-
-/* Returns the edit distance of two strings
-    reference: https://www.geeksforgeeks.org/edit-distance-in-c/ */
-int _editDistance(char *str1, char *str2, int n, int m){
-    assert(m >= 0 && n >= 0 && (str1 || m == 0) && (str2 || n == 0));
-    // Declare a 2D array to store the dynamic programming
-    // table
-    int dp[n + 1][m + 1];
-
-    // Initialize the dp table
-    for (int i = 0; i <= n; i++) {
-        for (int j = 0; j <= m; j++) {
-            // If the first string is empty, the only option
-            // is to insert all characters of the second
-            // string
-            if (i == 0) {
-                dp[i][j] = j;
-            }
-            // If the second string is empty, the only
-            // option is to remove all characters of the
-            // first string
-            else if (j == 0) {
-                dp[i][j] = i;
-            }
-            // If the last characters are the same, no
-            // modification is necessary to the string.
-            else if (str1[i - 1] == str2[j - 1]) {
-                dp[i][j] = _min(1 + dp[i - 1][j], 1 + dp[i][j - 1],
-                    dp[i - 1][j - 1]);
-            }
-            else {
-                // If the last characters are different,
-                // consider all three operations and find the
-                // minimum
-                dp[i][j] = 1 + _min(dp[i - 1][j], dp[i][j - 1],
-                    dp[i - 1][j - 1]);
-            }
-        }
-    }
-
-    // Return the result from the dynamic programming table
-    return dp[n][m];
-}
-
 int _get_bit(const char *s, unsigned int bitIndex)
 {
     assert(s && (int)bitIndex >= 0);
@@ -305,30 +240,4 @@ int _get_bit(const char *s, unsigned int bitIndex)
     */
     unsigned int bitOnly = maskedByte >> offset;
     return bitOnly;
-}
-
-/* Allocates new memory to hold the numBits specified and fills the allocated
-    memory with the numBits specified starting from the startBit of the oldKey
-    array of bytes. */
-char* _createStem(const char *oldKey, unsigned int startBit, unsigned int numBits){
-    assert((int)numBits > 0 && (int)startBit >= 0 && oldKey);
-    int extraBytes = 0;
-    if((numBits % BITS_PER_BYTE) > 0){
-        extraBytes = 1;
-    }
-    unsigned int totalBytes = (numBits / BITS_PER_BYTE) + extraBytes;
-    char *newStem = malloc(sizeof(char) * totalBytes);
-    assert(newStem);
-    for(unsigned int i = 0; i < totalBytes; i++){
-        newStem[i] = 0;
-    }
-    for(unsigned int i = 0; i < numBits; i++){
-        unsigned int indexFromLeft = i % BITS_PER_BYTE;
-        unsigned int offset = (BITS_PER_BYTE - indexFromLeft - 1) % BITS_PER_BYTE;
-        unsigned int bitMaskForPosition = 1 << offset;
-        unsigned int bitValueAtPosition = _get_bit(oldKey, startBit + i);
-        unsigned int byteInNewStem = i / BITS_PER_BYTE;
-        newStem[byteInNewStem] |= bitMaskForPosition * bitValueAtPosition;
-    }
-    return newStem;
 }

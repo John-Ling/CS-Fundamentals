@@ -6,11 +6,16 @@
 int main(void)
 {
     PatriciaNode* root = pt_create("a");
+    char* c = (char*)malloc(sizeof(char));
     for (char i = 'a'; i <= 'z'; i++)
     {
-        char* c = &i;
+        c[0] = i;
         root = pt_insert(root, c, 8 + 8);
     }
+    free(c);
+    c = NULL;
+
+    
 
     pt_free(root);
 

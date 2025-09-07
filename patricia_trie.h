@@ -24,7 +24,7 @@ typedef struct PatriciaNode_t
 /* Number of bits in a single character. */
 #define BITS_PER_BYTE 8
 
-PatriciaNode* pt_create(char* value);
+PatriciaNode* pt_create(const char* value);
 PatriciaNode* _pt_create_node(void);
 PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount);
 PatriciaNode* _pt_split_node(PatriciaNode* root, const char* value, unsigned int position);

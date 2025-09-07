@@ -1,6 +1,6 @@
 #include "patricia_trie.h"
 
-PatriciaNode* pt_create(char* value)
+PatriciaNode* pt_create(const char* value)
 {
     PatriciaNode* root = _pt_create_node();
     root->value = strdup(value);
@@ -28,8 +28,9 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
     // search for existing key
     PatriciaNode* found = pt_search(root, &foundParent, &foundGrandparent, value);
 
-    if (found && strcmp(found->value, value) == 0) 
+    if (found && strcmp(found->value, value) == EXIT_SUCCESS) 
     {
+        // duplicate handling 
         puts("Found duplicate node");
         return root; 
     }

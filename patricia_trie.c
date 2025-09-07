@@ -59,6 +59,12 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
         // if the found parent is null then we must only possess a single node
         // in the trie
         // make the internal node as our new root
+
+        if (foundParent == NULL)
+        {
+            foundParent = found;
+        }
+
         switch(mismatchedBit)
         {
             case 0:
@@ -74,7 +80,7 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
         return internal;
     }
 
-    // mismatch index is longer than the parent's 
+    // mismatch index is longer than the parent's
     // attach the internal node to the parent's left or right
     switch(mismatchedBit)
     {
@@ -108,22 +114,10 @@ PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, const char* v
     // this statement checks if we have reached a leaf node
     // try changing to check if mismatch index == -1 since we 
     // assume this is a leaf node
-    while (current->mismatchIndex > current->left->mismatchIndex) 
+    while (current->mismatchIndex != -1) 
     {
         (*parent) = current;
-
-        int bit;
-        if (current->mismatchIndex == -1)
-        {
-            int index = strlen(current->prefix + 1) * BITS_PER_BYTE;
-            bit = _get_bit(value, index);
-        }
-        else
-        {
-            bit = _get_bit(value, current->mismatchIndex);
-        }
-
-        switch(bit)
+        switch(_get_bit(value, current->mismatchIndex))
         {
             case 0:
                 current = current->left;

@@ -37,7 +37,6 @@ typedef struct KeyValue_t
 {
 	void* data;
 	void* key;
-	int count;
 } KeyValue;
 
 

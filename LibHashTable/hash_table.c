@@ -70,9 +70,7 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 	KeyValue* _exist = ht_get_str(table, key);
 	if (_exist != NULL)
 	{
-		// add code to update data value
 		_exist->data = memcpy(_exist->data, value, table->dataSize);
-		_exist->count++;
 		return EXIT_SUCCESS;
 	}
 
@@ -88,9 +86,16 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 int ht_insert_int(HashTable* table, int key, const void* value)
 {
 	int bucketIndex = _ht_hash_int(key) % table->bucketCount;
+
+	KeyValue* _exist = ht_get_int(table, key);
+	if (_exist != NULL)
+	{
+		_exist->data = memcpy(_exist->data, value, table->dataSize);
+		return EXIT_SUCCESS;
+	}
+
 	KeyValue* pair = _ht_create_pair(&key, value, sizeof(int), table->dataSize);
 
-	
 
 	_ht_insert(table, bucketIndex, pair);
 	free(pair);
@@ -101,28 +106,20 @@ int ht_insert_int(HashTable* table, int key, const void* value)
 int ht_insert_chr(HashTable* table, char key, const void* value)
 {
 	int bucketIndex = _ht_hash_int((int)key) % table->bucketCount;
+
+	KeyValue* _exist = ht_get_int(table, (int)key);
+	if (_exist != NULL)
+	{
+		_exist->data = memcpy(_exist->data, value, table->dataSize);
+		return EXIT_SUCCESS;
+	}
+
 	KeyValue* pair = _ht_create_pair(&key, value, sizeof(char), table->dataSize);
 	
 	_ht_insert(table, bucketIndex, pair);
 	free(pair);
 	pair = NULL;
 	return EXIT_SUCCESS;
-}
-
-int ht_insert(HashTable* table, int index, void* key, void* value)
-{
-	// create key value pair
-	KeyValue* keyValuePair = _ht_create_pair(key, value, table->keySize, table->dataSize);
-	int ret = LibLinkedList.insert(table->buckets[index], (void* )keyValuePair, -1);
-
-	// linked list insert will create a new node and copy over
-	// the data via memcpy it has its own record of keyValuePair 
-	// however the members key and data
-	// are still in memory and still need to be used
-	// the keyValuePair struct we initialised is not needed though so we free it
-	free(keyValuePair);
-	keyValuePair = NULL;
-	return ret;
 }
 
 static int _ht_insert(HashTable* table, const int index, KeyValue* pair)
@@ -377,7 +374,6 @@ static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keyS
 
 	pair->data = (void**)malloc(sizeof(void*));
 	pair->key = (void**)malloc(sizeof(void*));
-	pair->count = 1;
 
 	if (pair->data == NULL || pair->key == NULL)
 	{

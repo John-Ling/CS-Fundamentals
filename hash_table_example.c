@@ -137,7 +137,6 @@ int string_test(void)
     else
     {
         printf("%d\n", *(int*)c->data);
-        printf("%d\n", c->count);
     }
 
     puts("Retrieving Hello sorld");
@@ -151,7 +150,6 @@ int string_test(void)
     else
     {
         printf("%d\n", *(int*)c->data);
-        printf("%d\n", c->count);
     }
 
     puts("Deleting Hello World");
@@ -190,7 +188,6 @@ int string_test(void)
     else
     {
         printf("%d\n", *(int*)c->data);
-        printf("%d\n", c->count);
     }
     
     puts("Final");

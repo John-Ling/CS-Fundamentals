@@ -1,5 +1,19 @@
 #include "markov_text_generation.h"
 
+void print_key_str(const void* data)
+{
+    if (data == NULL)
+    {
+        puts("Data is NULL");
+        return;
+    }
+    KeyValue* pair = (KeyValue*)data;
+
+    printf("%s ", (char*)pair->key);
+    return;
+}
+
+
 int main(int argc, char* argv[]) 
 {
     
@@ -17,10 +31,10 @@ HashTable* create_transition_matrix(char* filename, int order)
     fseek(src, 0, SEEK_END);
     long size = ftell(src);
     rewind(src);
-    char buffer[size + 1];
+    char* buffer = malloc(sizeof(char) * (size + 1));
     buffer[size] = '\0';
 
-    size_t bytesRead = fread(buffer, 1, size, src);
+    long bytesRead = fread(buffer, 1, size, src);
     if (bytesRead != size) 
     {
         fclose(src);
@@ -33,55 +47,86 @@ HashTable* create_transition_matrix(char* filename, int order)
     char** tokens = (char**)malloc(sizeof(char*) * 50);
     int allocated = 50;
     int tokenCount = 0;
-    int i = 0; 
 
-    const char *delimiters = " \t\n";
+    const char *delimiters = " \t\n()";
     char* token = strtok(buffer, delimiters);
     while (token != NULL) 
     {
-        tokens[i] = strdup(token);
-        i++;
-        tokenCount++;
-        token = strtok(NULL, delimiters);
-
-        if (token != NULL)
+        if (tokenCount >= allocated)
         {
             allocated += 50;
             tokens = (char**)realloc(tokens, sizeof(char*)  * allocated);
         }
+
+        tokens[tokenCount] = strdup(token);
+        tokenCount++;
+        token = strtok(NULL, delimiters);
     }
 
-    printf("%d\n", tokenCount);
-    printf("%s\n", tokens[0]);
 
     HashTable* table = LibHashTable.create(STRING, 15, sizeof(double)) ;
 
-    // go through and collect bigrams via sliding window 
-    int front = 2;
-    int back = 0;
-    int center = 1;
-
-    // collect bigrams
-    while (front < tokenCount) 
+    int ngramCount = 0;
+    // collect ngrams
+    for (int i = 0; i < tokenCount; i++)
     {
-        char* current = tokens[center];
-        char* previous = tokens[back];
-        char* next = tokens[front];
+        if (i - order < 0)
+        {
+            continue; 
+        }
 
+        char* ngram = NULL;
+        char* current = tokens[i];
+        size_t ngramLength = strlen(current) + 1; // add 1 for null terminator
 
-        char* bigram = strcat(previous, current);
+        for (int j = order; j >= 1; j--)
+        {
+            char* previous = tokens[i - j];
+            ngramLength += strlen(previous) + 1; // add 1 for the space
+        }
 
-        LibHashTable.insert_str(table, bigram, 1);
-        front++;
-        back++;
-        center++;
+        ngram = (char*)malloc(sizeof(char) * ngramLength);
+        ngram[0] = '\0';
+
+        for (int j = order; j >= 1; j--)
+        {
+            strcat(ngram, tokens[i - j]);
+            strcat(ngram, " ");
+        }
+
+        strcat(ngram, current);
+        printf("%s\n", ngram);
+
+        puts("Searching");
+        KeyValue* pair = LibHashTable.get_str(table, ngram);
+
+        puts("Search  complete");
+        if (pair == NULL)
+        {
+            double a = 1;
+            LibHashTable.insert_str(table, ngram, &a);
+        }
+        else
+        {
+            double newValue = *(double*)pair->data + 1;
+            LibHashTable.insert_str(table, ngram, &newValue);
+        }    
     }
 
+    LibHashTable.print_keys(table, print_key_str);
 
-
+    KeyValue* pair = LibHashTable.get_str(table, "Mister DJ");
+    if (pair == NULL)
+    {
+        printf("Null\n");
+    }
+    else
+    {
+        printf("%f\n", *(double*)pair->data);
+    }
     
 
-    
+    free(tokens);
+    tokens = NULL;
     return table;
-
 }

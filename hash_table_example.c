@@ -34,11 +34,26 @@ void print_key_int(const void* data)
 
 int main(void)
 {
-    puts("RUNNING STRING TEST");
-    string_test();
+    HashTable* table = LibHashTable.create(STRING, 10, sizeof(int));
+    // int a = 5;
+    // LibHashTable.insert_str(table, "test", &a);
+    // LibHashTable.insert_str(table, "tes", &a);
+    // LibHashTable.insert_str(table, "fasdfas", &a);
+    // LibHashTable.insert_str(table, "tasfaf", &a);
+    // LibHashTable.print_keys(table, print_key_int);
+
+    int a = 5;
+    // int b = 5;
+    LibHashTable.insert_str(table, "Hello World", &a);
+    // LibHashTable.insert_str(table, "Hello", &a);
+    LibHashTable.insert_str(table, "Hello World", &a);
+
+    // puts("RUNNING STRING TEST");
+    // string_test();
     // puts("RUNNING INT TEST");
     // int_test();    
 
+    LibHashTable.free(table, free);
     return EXIT_SUCCESS;
 }
 
@@ -136,7 +151,7 @@ int string_test(void)
     }
     else
     {
-        printf("%d\n", *(int*)c->data);
+    printf("%d\n", *(int*)c->data);
     }
 
     puts("Retrieving Hello sorld");
@@ -177,7 +192,8 @@ int string_test(void)
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
-    LibHashTable.insert_str(table, "Hello world", &a);
+
+    
 
     c = LibHashTable.get_str(table, "Hello World");
 

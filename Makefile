@@ -7,6 +7,7 @@ BIN := bin/*
 
 linkedlist: 
 	$(CC) $(CFLAGS) $(LDFLAGS) -llinkedlist -lutils -o bin/linked_list linked_lists_example.c
+	
 
 skiplist:
 	$(CC) $(CFLAGS) $(LDFLAGS)  -llinkedlist -lutils -lskiplist -o bin/skip_list skip_list_example.c

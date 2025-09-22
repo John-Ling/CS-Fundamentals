@@ -59,7 +59,7 @@ ListNode* _ll_create_node(const void* data, const size_t size)
 
     node->value = (void*)malloc(size);
 
-    if ((*node).value == NULL)
+    if (node->value == NULL)
     {
         free(node);
         return NULL;
@@ -137,16 +137,7 @@ int ll_insert_str(LinkedList* list, char* value, const int index)
     // since string can have variable length
     // we need to create a node of appropriate size
     // then insert
-
-    char* s = value;
-    int length = 0;
-    while (*s)
-    {
-        s++;
-        length++;
-    }
-
-    ListNode* node = _ll_create_node((void*)value, sizeof(char) * length);
+    ListNode* node = _ll_create_node(value, strlen(value) + 1);
 
     // use internal insert_node function to directly insert node
     return _ll_insert_node(list, node, index);
@@ -262,6 +253,7 @@ void* ll_search(LinkedList* list, void* search, int compare(const void*, const v
     {
         if (compare(current->value, search) == EXIT_SUCCESS)
         {
+            puts("Match");
             return current->value;
         }
         position++;

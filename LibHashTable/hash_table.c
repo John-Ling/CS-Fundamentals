@@ -57,13 +57,6 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 {
 	// get length of string
 	const char* s = key;
-	int length = 0;
-	while (*s)
-	{
-		s++;
-		length++;
-	}
-
 	const int index = _ht_hash_string(key) % table->bucketCount;
 
 	// check if already exists update it 
@@ -74,7 +67,7 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 		return EXIT_SUCCESS;
 	}
 
-	KeyValue* pair = _ht_create_pair(key, value, sizeof(char) * length, table->dataSize);
+	KeyValue* pair = _ht_create_pair(key, value, sizeof(char*), table->dataSize);
 
 	// use hidden method to directly insert pair
 	_ht_insert(table, index, pair);
@@ -366,14 +359,14 @@ int ht_print_keys(HashTable* table, void print(const void*))
 static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keySize, 
 								size_t valueSize)
 {
-	KeyValue* pair = (KeyValue* )malloc(sizeof(KeyValue));
+	KeyValue* pair = (KeyValue*)malloc(sizeof(KeyValue));
 	if (pair == NULL)
 	{
 		return NULL;
 	}
 
-	pair->data = (void**)malloc(sizeof(void*));
-	pair->key = (void**)malloc(sizeof(void*));
+	pair->data = (void*)malloc(valueSize);
+	pair->key = (void*)malloc(keySize);
 
 	if (pair->data == NULL || pair->key == NULL)
 	{

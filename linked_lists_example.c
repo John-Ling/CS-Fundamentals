@@ -41,12 +41,12 @@ int main(void)
     // LibLinkedList.insert_int(list1, 30, -1);
     // LibLinkedList.insert_int(list1, 30, -1);
     // LibLinkedList.insert_int(list1, 30, -1);
+    // LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
-    LibLinkedList.insert_str(list1, "Hello World", -1);
-    LibLinkedList.insert_str(list1, "Hello World", -1);
-    LibLinkedList.insert_str(list1, "Hello World", -1);
+    // LibLinkedList.insert_str(list1, "Hello World", -1);
+    // LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Jimbob", -1);
-    // LibLinkedList.insert_str(list1, "Wagwan", -1);
+    LibLinkedList.insert_str(list1, "Wagwan", -1);
 
     // LibLinkedList.search_str(list1, "Hello World");
 

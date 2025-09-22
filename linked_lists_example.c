@@ -45,11 +45,17 @@ int main(void)
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
     LibLinkedList.insert_str(list1, "Hello World", -1);
+    LibLinkedList.insert_str(list1, "Jimbob", -1);
     // LibLinkedList.insert_str(list1, "Wagwan", -1);
 
     // LibLinkedList.search_str(list1, "Hello World");
 
-    printf("%d\n", LibLinkedList.print(list1, print_str));
+    LibLinkedList.print(list1, print_str);
+    char* res = LibLinkedList.search_str(list1, "Jimbob");
+    if (res != NULL)
+    {
+        printf("%s\n", res);
+    }
     LibLinkedList.free(list1, free);
 
     // LinkedList* myList = LibLinkedList.create(NULL, 0, sizeof(int));

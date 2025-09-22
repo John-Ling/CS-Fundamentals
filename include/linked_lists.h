@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./utils.h"
 
 typedef struct ListNode_t
 {
@@ -15,6 +16,7 @@ typedef struct
 {
     int itemCount;
     ListNode* head; // front of list
+    ListNode* tail;
     size_t dataSize; // size of elements stored
 } LinkedList;
 
@@ -30,10 +32,10 @@ int ll_insert_chr(LinkedList* list, char value, const int index);
 int ll_print(LinkedList* list, void print(const void*));
 int ll_delete(LinkedList* list, const int index, void free_item(void*));
 int ll_reverse(LinkedList* list);
-int ll_search(LinkedList* list, void* search, int compare(const void*, const void*));
+void* ll_search(LinkedList* list, void* search, int compare(const void*, const void*));
 int ll_search_int(LinkedList* list, int search);
-int ll_search_str(LinkedList* list, char* search);
-int ll_search_chr(LinkedList* list, char search);
+char* ll_search_str(LinkedList* list, char* search);
+char ll_search_chr(LinkedList* list, char search);
 int ll_free(LinkedList* list, void free_item(void*));
 
 struct LibLinkedList_l {
@@ -66,12 +68,12 @@ struct LibLinkedList_l {
 
     // check if a specific value in the linked list exists
     // matching is done by a user provided comparison function
-    // return an integer referring to the 0-indexed position of the first matching value
-    // returns -1 if unable to find
-    int (*search)(LinkedList* list, void* search, int compare(const void*, const void*));
+    // returns the list node data as a void* if found 
+    // otherwise returns NULL
+    void* (*search)(LinkedList* list, void* search, int compare(const void*, const void*));
     int (*search_int)(LinkedList* list, int search);
-    int (*search_str)(LinkedList* list, char* search);
-    int (*search_chr)(LinkedList* list, char search);
+    char* (*search_str)(LinkedList* list, char* search);
+    char (*search_chr)(LinkedList* list, char search);
 
 
     // performs free_item() on each item in the linked list

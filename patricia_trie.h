@@ -31,6 +31,7 @@ PatriciaNode* _pt_split_node(PatriciaNode* root, const char* value, unsigned int
 PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, PatriciaNode** grandparent, 
                     const char* value);
 void pt_free(PatriciaNode* root);
+PatriciaNode* pt_search_by_key(PatriciaNode* root, const char* key);
 
 int bitwiseStrcmp(char* a, char*  b, int* totalComparisons);
 int _find_bit_mismatch(const char* a, const char* b, int bitCountA, int bitCountB);

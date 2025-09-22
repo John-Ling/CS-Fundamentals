@@ -37,6 +37,7 @@ typedef struct KeyValue_t
 {
 	void* data;
 	void* key;
+	int count;
 } KeyValue;
 
 
@@ -46,9 +47,9 @@ int ht_insert_chr(HashTable* table, char key, const void* value);
 int ht_insert_int(HashTable* table, int key, const void* value);
 
 int ht_free(HashTable* table, void free_item(void*));
-void* ht_get_str(HashTable* table, const char* key);
-void* ht_get_chr(HashTable* table, char key);
-void* ht_get_int(HashTable* table, int key);
+KeyValue* ht_get_str(HashTable* table, const char* key);
+KeyValue* ht_get_chr(HashTable* table, char key);
+KeyValue* ht_get_int(HashTable* table, int key);
 
 int ht_delete_str(HashTable* table, const char* key, void free_item(void*));
 int ht_delete_int(HashTable* table, int key, void free_item(void*));
@@ -57,6 +58,7 @@ int ht_delete_chr(HashTable* table, char key, void free_item(void*));
 int ht_print_keys(HashTable* table, void print(const void*));
 
 void ht_free_key_value_pair(void* pair);
+
 // static unsigned int hash_num(unsigned int x);
 
 struct LibHashTable_l {
@@ -68,9 +70,9 @@ struct LibHashTable_l {
 	int (*insert_int)(HashTable* table, int key, const void* value);
 	int (*insert_chr)(HashTable* table, char key, const void* value);
 
-	void* (*get_str)(HashTable* table, const char* key);
-	void* (*get_chr)(HashTable* table, char key);
-	void* (*get_int)(HashTable* table, int key);
+	KeyValue* (*get_str)(HashTable* table, const char* key);
+	KeyValue* (*get_chr)(HashTable* table, char key);
+	KeyValue* (*get_int)(HashTable* table, int key);
 	
 	int (*delete_str)(HashTable* table, const char* key, void free_item(void*));
 	int (*delete_int)(HashTable* table, int key, void free_item(void*));

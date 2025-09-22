@@ -1,5 +1,7 @@
 #include "hash_table.h"
 
+// implementation of a basic hash table with separate chaining for learning purposes
+
 static int _ht_free_bucket(LinkedList* list, void free_item(void*));
 static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keySize, size_t valueSize);
 
@@ -11,8 +13,11 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 size_t _set_type(HashType type);
 static unsigned int _ht_hash_string(const char* s);
 static unsigned int _ht_hash_int(int x);
+static int _compare_pair_int(const void* _pair, const void* _key);
+static int _compare_pair_str(const void* _pair, const void* _key);
+static KeyValue* _ht_get(LinkedList* bucket, const void* key, int (*compare)(const void *, const void *));
 
-// implementation of a basic hash table with separate chaining for learning purposes
+
 // creates a hash table
 HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataSize)
 {
@@ -60,6 +65,17 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 	}
 
 	const int index = _ht_hash_string(key) % table->bucketCount;
+
+	// check if already exists update it 
+	KeyValue* _exist = ht_get_str(table, key);
+	if (_exist != NULL)
+	{
+		// add code to update data value
+		_exist->data = memcpy(_exist->data, value, table->dataSize);
+		_exist->count++;
+		return EXIT_SUCCESS;
+	}
+
 	KeyValue* pair = _ht_create_pair(key, value, sizeof(char) * length, table->dataSize);
 
 	// use hidden method to directly insert pair
@@ -73,6 +89,8 @@ int ht_insert_int(HashTable* table, int key, const void* value)
 {
 	int bucketIndex = _ht_hash_int(key) % table->bucketCount;
 	KeyValue* pair = _ht_create_pair(&key, value, sizeof(int), table->dataSize);
+
+	
 
 	_ht_insert(table, bucketIndex, pair);
 	free(pair);
@@ -112,12 +130,22 @@ static int _ht_insert(HashTable* table, const int index, KeyValue* pair)
 	return LibLinkedList.insert(table->buckets[index], (void*)pair, -1);
 }
 
-void* ht_get_str(HashTable* table, const char* key)
+static int _compare_pair_str(const void* _pair, const void* _key)
+{
+	KeyValue* pair = (KeyValue*)_pair;
+	return compare_str(pair->key, _key);
+}
+
+static int _compare_pair_int(const void* _pair, const void* _key)
+{
+	KeyValue* pair = (KeyValue*)_pair;
+	int* key =  (int*)_key; 
+	return compare_int(pair->key, key);
+}
+
+KeyValue* ht_get_str(HashTable* table, const char* key)
 {
 	// hash string to get index
-	// check if index is not null
-	// if not then traverse linked list until key is found
-	// return 0 if found 1 if not
 	const int index = _ht_hash_string(key) % table->bucketCount;
 
 	if (table->buckets[index] == NULL)
@@ -125,50 +153,31 @@ void* ht_get_str(HashTable* table, const char* key)
 		return NULL;
 	}
 
-	ListNode* current = table->buckets[index]->head;
-
-	// go through
-	// linked list until
-	while (current != NULL)
-	{
-		KeyValue* pair = (KeyValue*)current->value;
-		if (compare_str(pair->key, (void*)key) == EXIT_SUCCESS)
-		{
-			return pair->data;
-		}
-		current = current->next;
-	}
-
-	return NULL;
+	LinkedList* bucket = table->buckets[index];
+	return _ht_get(bucket, key, _compare_pair_str);
 }
 
-void* ht_get_int(HashTable* table, int key)
+KeyValue* ht_get_int(HashTable* table, int key)
 {
-	int bucketIndex = _ht_hash_int(key) % table->bucketCount;
+	int index = _ht_hash_int(key) % table->bucketCount;
 
-	if (table->buckets[bucketIndex] == NULL)
+	if (table->buckets[index] == NULL)
 	{
 		return NULL;
 	}
-
-	ListNode* current = table->buckets[bucketIndex]->head;
-
-	while (current != NULL)
-	{
-		KeyValue* pair = (KeyValue*)current->value;
-		if (compare_int(pair->key, &key) == EXIT_SUCCESS)
-		{
-			return pair->data;
-		}
-		current = current->next;
-	}
-
-	return NULL;
+	LinkedList* bucket = table->buckets[index];
+	return _ht_get(bucket, &key, _compare_pair_int);
 }
 
-void* ht_get_chr(HashTable* table, char key)
+KeyValue* ht_get_chr(HashTable* table, char key)
 {
 	return ht_get_int(table, (int)key);
+}
+
+static KeyValue* _ht_get(LinkedList* bucket, const void* key, int (*compare)(const void *, const void *))
+{
+	KeyValue* ret = (KeyValue*)LibLinkedList.search(bucket, key, compare);
+	return ret;
 }
 
 static int _ht_delete(HashTable* table, const void* key, int index, void free_item(void*),
@@ -368,6 +377,7 @@ static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keyS
 
 	pair->data = (void**)malloc(sizeof(void*));
 	pair->key = (void**)malloc(sizeof(void*));
+	pair->count = 1;
 
 	if (pair->data == NULL || pair->key == NULL)
 	{

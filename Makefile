@@ -2,7 +2,7 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Wpedantic -I./include -g
 LDFLAGS := -L./lib -Wl,-rpath,'$$ORIGIN/../lib'
 OBJ := $(SRC:.c=.o)
-BIN := bin/program
+BIN := bin/*
 
 
 linkedlist: 
@@ -13,6 +13,15 @@ skiplist:
 
 queue:
 	$(CC) $(CFLAGS) $(LDFLAGS)  -llinkedlist -lutils -lqueue -o bin/queues queues_example.c
+
+quicksort:
+	$(CC) $(CFLAGS) $(LDFLAGS)-lutils -o bin/quicksort quicksort.c
+
+hashtable:
+	$(CC) $(CFLAGS) $(LDFLAGS)  -llinkedlist -lutils  -lhashtable -o bin/hash_table hash_table_example.c
+
+markov:
+	$(CC) $(CFLAGS) $(LDFLAGS) -lhashtable -llinkedlist  -lutils -o bin/markov_text_generation markov_text_generation.c
 
 libutils:
 	$(CC) $(CFLAGS) -fPIC -c LibUtils/*.c -o LibUtils/utils.o
@@ -33,6 +42,11 @@ libqueue:
 	$(CC) $(CFLAGS) -fPIC -c LibQueue/*.c -o LibQueue/queue.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o lib/libqueue.so -llinkedlist -lutils LibQueue/queue.o
 	rm LibQueue/queue.o
+
+libhashtable:
+	$(CC) $(CFLAGS) -fPIC -c LibHashTable/*.c -o LibHashTable/hash_table.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o lib/libhashtable.so -llinkedlist -lutils LibHashTable/hash_table.o
+	rm LibHashTable/hash_table.o
 
 .PHONY: clean
 clean:

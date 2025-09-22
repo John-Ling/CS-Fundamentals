@@ -36,8 +36,8 @@ int main(void)
 {
     puts("RUNNING STRING TEST");
     string_test();
-    puts("RUNNING INT TEST");
-    int_test();    
+    // puts("RUNNING INT TEST");
+    // int_test();    
 
     return EXIT_SUCCESS;
 }
@@ -125,18 +125,24 @@ int string_test(void)
 
     LibHashTable.print_keys(table, print_key_str);
 
-    void* c = LibHashTable.get_str(table, "Hello World");
-
+    puts("Retrieving Hello World");
+    // KeyValue* c = LibHashTable.get_str(table, "Hello World");
+    KeyValue* c = ht_get_str(table, "Hello World");
+    puts("Retrieval Success");
+    
     if (c == NULL)
     {
         puts("error");
     }
     else
     {
-        printf("%d\n", *(int*)c);
+        printf("%d\n", *(int*)c->data);
+        printf("%d\n", c->count);
     }
 
+    puts("Retrieving Hello sorld");
     c = LibHashTable.get_str(table, "Hello sorld");
+    puts("Retrieval Success");
 
     if (c == NULL)
     {
@@ -144,7 +150,8 @@ int string_test(void)
     }
     else
     {
-        printf("%d\n", *(int*)c);
+        printf("%d\n", *(int*)c->data);
+        printf("%d\n", c->count);
     }
 
     puts("Deleting Hello World");
@@ -173,8 +180,21 @@ int string_test(void)
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
+
+    c = LibHashTable.get_str(table, "Hello World");
+
+    if (c == NULL)
+    {
+        puts("error");
+    }
+    else
+    {
+        printf("%d\n", *(int*)c->data);
+        printf("%d\n", c->count);
+    }
     
     puts("Final");
+
 
     LibHashTable.print_keys(table, print_key_str);
 

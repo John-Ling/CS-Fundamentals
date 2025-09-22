@@ -23,103 +23,42 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
         return node;
     }
 
-    PatriciaNode* foundGrandparent = NULL;
-    PatriciaNode* foundParent = NULL;
-    // search for existing key
-    PatriciaNode* found = pt_search(root, &foundParent, &foundGrandparent, value);
+    PatriciaNode *parent = NULL, *grandparent = NULL;
+    PatriciaNode* leaf = pt_search(root, &parent, &grandparent, value);
 
-    if (found && strcmp(found->value, value) == EXIT_SUCCESS) 
-    {
-        // duplicate handling 
-        puts("Found duplicate node");
-        return root; 
-    }
-
-    // find mismatching index
-    int mismatchIndex = _find_bit_mismatch(found->value, value, found->prefixBitCount, valueBitCount);    
-    if (mismatchIndex == -1)
-    {
-        // mismatch index shouldn't be -1
-        puts("Walao sum ting wong");
-        return NULL;
-    }
-
-    // create leaf node
-    PatriciaNode* leaf = _pt_create_node();
-    leaf->value = strdup(value);
-    leaf->prefixBitCount = valueBitCount;
-
-    // create internal node 
-    PatriciaNode* internal = _pt_create_node();
-    internal->mismatchIndex = mismatchIndex;
-
-    int mismatchedBit = _get_bit(value, mismatchIndex);
-
-
-    if (foundParent == NULL)
-    {
-        switch (mismatchedBit)
-        {
-            case 0:
-                internal->left = leaf;
-                internal->right = found;
-                break;
-            case 1:
-                internal->left = found;
-                internal->right = leaf;
-                break;
-        }
-        return internal;
-    }
-
-    if (mismatchIndex < foundParent->mismatchIndex)
-    {
-        // if the found parent is null then we must only possess a single node
-        // in the trie
-        // make the internal node as our new root
-        
-        switch (mismatchedBit)
-        {
-            case 0:
-                internal->left = leaf;
-                internal->right = foundParent;
-                break;
-            case 1:
-                internal->left = foundParent;
-                internal->right = leaf;
-                break;
-        }
-
-        if (foundGrandparent == NULL)
-        {
-            root = internal;
-        }
-        else if (foundGrandparent->left == foundParent)
-        {
-            foundGrandparent->left = internal;
-        }
-        else
-        {
-            foundGrandparent->right = internal;
-        }
-
+    if (strcmp(leaf->value, value) == 0) {
+        // duplicate
         return root;
     }
 
-    // mismatch index is longer than the parent's
-    // attach the internal node to the parent's left or right
-    switch (mismatchedBit)
-    {
-        case 0:
-            internal->left = leaf;
-            internal->right = found;
-            foundParent->left = internal;
-            break;
-        case 1:
-            internal->left = found;
-            internal->right = leaf;
-            foundParent->right = internal;
-            break;
+    int mismatch = _find_bit_mismatch(leaf->value, value, leaf->prefixBitCount, valueBitCount);
+    PatriciaNode* newLeaf = pt_create(value);
+    PatriciaNode* internal = malloc(sizeof(PatriciaNode));
+    internal->mismatchIndex = mismatch;
+    internal->value = NULL;
+    internal->prefixBitCount = 0;
+
+    
+
+    // attach leaves based on mismatched bit
+    if (_get_bit(value, mismatch) == 0) {
+        internal->left = newLeaf;
+        internal->right = leaf;
+    } else {
+        internal->left = leaf;
+        internal->right = newLeaf;
+    }
+
+    // find parent to attach internal node
+    if (!parent) {
+        // new internal becomes root
+        return internal;
+    }
+
+    if (_get_bit(value, parent->mismatchIndex) == 0) {
+        parent->left = internal;
+    } else {
+        parent->right = internal;
     }
 
     return root;
@@ -128,15 +67,15 @@ PatriciaNode* pt_insert(PatriciaNode* root, const char* value, int valueBitCount
 PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, PatriciaNode** grandparent, 
                         const char* value)
 {
+    printf("Searching for %s\n", value);
     (*grandparent) = NULL;
     // if root is a leaf node check immediately 
-    if (root->mismatchIndex == -1 && strcmp(root->value, value) == EXIT_SUCCESS) 
+
+    if (root->mismatchIndex == -1 && strcmp(root->value, value) == 0) 
     {
         (*parent) = NULL;
         return root;
     }
-
-
 
     PatriciaNode* current = root;
     // this statement checks if we have reached a leaf node
@@ -146,6 +85,7 @@ PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, PatriciaNode*
     {
         (*grandparent) = (*parent);
         (*parent) = current;
+        printf("Got bit %d at %d\n ", _get_bit(value, current->mismatchIndex), current->mismatchIndex);
         switch(_get_bit(value, current->mismatchIndex))
         {
             case 0:
@@ -157,6 +97,13 @@ PatriciaNode* pt_search(PatriciaNode* root, PatriciaNode** parent, PatriciaNode*
         }
     }
     return current;
+}
+
+PatriciaNode* pt_search_by_key(PatriciaNode* root, const char* key) 
+{
+    PatriciaNode* parent;
+    PatriciaNode* grandparent;
+    return pt_search(root, &parent, &grandparent, key);
 }
 
 void pt_free(PatriciaNode* root)
@@ -202,23 +149,20 @@ int _find_bit_mismatch(const char* a, const char* b, int bitCountA, int bitCount
     // returns a 0-indexed value for the mismatching bit
     // returns -1 if no mismatch was found
 
-    if (bitCountA != bitCountB)
-    {
-        // if bit counts mismatch we assume the mismatching bit to the bit index
-        // immediately after the truncated string
-        // aka the shorter string's length
-        return bitCountA > bitCountB ? bitCountB : bitCountA;
-    }
+    int minBits = bitCountA < bitCountB ? bitCountA : bitCountB;
 
-    for (int i = 0; i < bitCountA; i++)
-    {
-        if (_get_bit(a, i) != _get_bit(b, i)) 
-        {
-            return i;    
+    for (int i = 0; i < minBits; i++) {
+        if (_get_bit(a, i) != _get_bit(b, i)) {
+            return i; // first mismatching bit
         }
     }
 
-    return -1;
+    // all overlapping bits match, but lengths differ
+    if (bitCountA != bitCountB) {
+        return minBits;
+    }
+
+    return -1; // identical
 }
 
 int _get_bit(const char *s, unsigned int bitIndex)

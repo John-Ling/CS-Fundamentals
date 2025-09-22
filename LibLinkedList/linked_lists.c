@@ -2,58 +2,6 @@
 
 // library that allows for a linked list of any type to be created for learning purposes
 
-static int _ht_compare_int(const void* a, const void* b)
-{
-    return *(int*)a == *(int*)b ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-static int _ht_compare_chr(const void* a, const void*b)
-{
-    return _ht_compare_int(a, b);
-}
-
-static int _ht_compare_str(const void* a, const void* b)
-{
-    char* s1 = (char*)a;
-    char* s2 = (char*)b;
-
-    while (1)
-    {
-        if (!*s1 && !*s2)
-        {
-            // both strings have finished at the same time
-            break;
-        }
-
-        if ((!*s1 && *s2) || (*s1 && !*s2))
-        {
-            return EXIT_FAILURE;
-        }
-
-        if (*s1 != *s2)
-        {
-            return EXIT_FAILURE;
-        }
-        s1++;
-        s2++;
-    }
-
-    // success
-    return EXIT_SUCCESS;
-}
-
-static int _ht_free_void_array(void* arr[], int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        free(arr[i]);
-        arr[i] = NULL;
-    }
-    free(arr);
-    arr = NULL;
-    return EXIT_SUCCESS;
-}
-
 // create an empty linked list by passing NULL
 // or convert any array into a linked list by converting it into void pointers
 // using array_to_void_array() and passing it
@@ -82,7 +30,7 @@ LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
 
     if (values != NULL)
     {
-        _ht_free_void_array(values, n);
+        free_void_array(values, n);
     }
     
     return list;
@@ -125,10 +73,11 @@ int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
     node->next = NULL;
     // insert node into correct position
-    if (list->head == NULL)
+    if (list->head == NULL || list->tail == NULL)
     {
         // list is empty
         list->head = node;
+        list->tail = node;
         return EXIT_SUCCESS;
     }
 
@@ -140,14 +89,8 @@ int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
     }
     else if (index == -1) // insert at tail
     {
-        ListNode* current = list->head;
-
-        // travel to end of list
-        while (current->next != NULL)
-        {
-            current = current->next;
-        }
-        current->next = node;    
+        list->tail->next = node;
+        list->tail = node;  
     }
     else
     {
@@ -236,7 +179,17 @@ int ll_delete(LinkedList* list, const int index, void free_item(void*))
         free_item = free;
     }
 
-    if (index == 0 || list->itemCount == 0)
+    if (list->itemCount == 1)
+    {
+        free_item(list->tail->value);
+        list->tail->value = NULL;
+        free(list->tail);
+        list->tail = NULL;
+        list->head = NULL;
+        return EXIT_SUCCESS;
+    }
+
+    if (index == 0 || list->itemCount == 1)
     {
         ListNode* temp = list->head;
         list->head = list->head->next;
@@ -247,16 +200,10 @@ int ll_delete(LinkedList* list, const int index, void free_item(void*))
     }
     else if (index == -1)
     {
-        ListNode* current = list->head;
-        while (current->next->next != NULL) // travel to penultimate node
-        {
-            current = current->next;
-        }
-         // delete final node
-        free_item(current->next->value);
-        current->next->value = NULL;
-        free(current->next);
-        current->next = NULL;
+        free_item(list->tail->value);
+        list->tail->value = NULL;
+        free(list->tail);
+        list->tail = NULL;
     }
     else 
     {
@@ -307,7 +254,7 @@ int ll_reverse(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
-int ll_search(LinkedList* list, void* search, int compare(const void*, const void*))
+void* ll_search(LinkedList* list, void* search, int compare(const void*, const void*))
 {
     ListNode* current = list->head;
     int position = 0;
@@ -315,27 +262,27 @@ int ll_search(LinkedList* list, void* search, int compare(const void*, const voi
     {
         if (compare(current->value, search) == EXIT_SUCCESS)
         {
-            return position;
+            return current->value;
         }
         position++;
         current = current->next;
     }
-    return -1;
+    return NULL;
 }
 
 int ll_search_int(LinkedList* list, int search)
 {
-    return ll_search(list, &search, _ht_compare_int);
+    return *(int*)ll_search(list, &search, compare_int);
 }
 
-int ll_search_str(LinkedList* list, char* search)
+char* ll_search_str(LinkedList* list, char* search)
 {
-    return ll_search(list, (void*)search, _ht_compare_str);
+    return (char*)ll_search(list, (void*)search, compare_str);
 }
 
-int ll_search_chr(LinkedList* list, char search)
+char ll_search_chr(LinkedList* list, char search)
 {
-    return ll_search(list, &search, _ht_compare_chr);
+    return *(char*)ll_search(list, &search, compare_int);
 }
 
 // performs free_item() on each item in the linked list

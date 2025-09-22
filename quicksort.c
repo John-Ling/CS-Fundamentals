@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "quicksort.h"
-#include "utils.h"
 
 // (very naive) implementation of the quicksort algorithm for learning purposes
 
@@ -55,13 +51,23 @@ int quicksort(int arr[], const int n)
 // implementation of quicksort for use with quicksort()
 static int sort(int arr[], const int lowerIndex, const int upperIndex)
 {
-    int pivotIndex = lomuto_partition(arr, lowerIndex, upperIndex);
+    // int pivotIndex = lomuto_partition(arr, lowerIndex, upperIndex);
+    int leftPartitionLength = hoare_partition(arr, lowerIndex, upperIndex);
+
+    // for (int i = 0; i <= upperIndex; i++) 
+    // {
+    //     printf("%d ", arr[i]);
+    // }
+    // printf("\n");
+    // return 0;
+    // int pivotIndex = lowerIndex;
 
     // run quicksort on left subarray
-    quicksort(arr, pivotIndex);
+    quicksort(arr, leftPartitionLength);
 
+    
     // run quicksort on right subarray
-    quicksort(arr, upperIndex - pivotIndex);
+    quicksort(arr, upperIndex - leftPartitionLength);
     return EXIT_SUCCESS;
 }
 
@@ -92,6 +98,37 @@ static int lomuto_partition(int arr[], const int lowerIndex, const int upperInde
     swap(&arr[pivot], &arr[i]);
     return i; // return index of the pivot
 }
+
+static int hoare_partition(int arr[], const int lowerIndex, const int upperIndex)
+{
+    // hoare partitioning assumes the first index will be the pivot
+    const int pivot = lowerIndex;
+    const int pivotValue = arr[pivot];
+
+    int i = lowerIndex - 1;
+    int j = upperIndex + 1;
+
+    while (1) 
+    {
+        // find next element bigger than pivot 
+        // from the left
+        do i++; while (arr[i] < pivotValue);
+        
+        
+        // find next element smaller than pivot 
+        // from the right
+        do  j--; while (arr[j] > pivotValue);
+
+        // if left and right crosses each other
+        // no swapping required
+        if (i > j) break;
+    
+        swap(&arr[i], &arr[j]);
+    }
+
+    return i - lowerIndex + 1;
+}
+
 
 // pivot functions
 static int first_item_pivot(const int n)
@@ -132,4 +169,12 @@ static int median_of_three(int arr[], const int n)
     }
 
     return last;
+}
+
+void swap(int* a, int* b)
+{
+    int c = *b;
+    *b = *a;
+    *a = c;
+    return;
 }

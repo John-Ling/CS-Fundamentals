@@ -65,7 +65,7 @@ ListNode* _ll_create_node(const void* data, const size_t size)
         return NULL;
     }
 
-    memcpy(node->value, data, size);
+    memmove(node->value, data, size);
     return node;
 }
 
@@ -245,7 +245,7 @@ int ll_reverse(LinkedList* list)
     return EXIT_SUCCESS;
 }
 
-void* ll_search(LinkedList* list, void* search, int compare(const void*, const void*))
+void* ll_search(LinkedList* list, const void* search, int compare(const void*, const void*))
 {
     ListNode* current = list->head;
     int position = 0;

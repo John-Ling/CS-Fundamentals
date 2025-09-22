@@ -67,7 +67,7 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 		return EXIT_SUCCESS;
 	}
 
-	KeyValue* pair = _ht_create_pair(key, value, sizeof(char*), table->dataSize);
+	KeyValue* pair = _ht_create_pair(key, value, strlen(key) + 1, table->dataSize);
 
 	// use hidden method to directly insert pair
 	_ht_insert(table, index, pair);
@@ -375,8 +375,8 @@ static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keyS
 		return NULL;
 	}
 
-	memcpy(pair->data, value, valueSize);
-	memcpy(pair->key, key, keySize);
+	memmove(pair->data, value, valueSize);
+	memmove(pair->key, key, keySize);
 
 	return pair;
 }

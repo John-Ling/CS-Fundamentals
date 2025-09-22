@@ -32,7 +32,7 @@ int ll_insert_chr(LinkedList* list, char value, const int index);
 int ll_print(LinkedList* list, void print(const void*));
 int ll_delete(LinkedList* list, const int index, void free_item(void*));
 int ll_reverse(LinkedList* list);
-void* ll_search(LinkedList* list, void* search, int compare(const void*, const void*));
+void* ll_search(LinkedList* list, const void* search, int compare(const void*, const void*));
 int ll_search_int(LinkedList* list, int search);
 char* ll_search_str(LinkedList* list, char* search);
 char ll_search_chr(LinkedList* list, char search);
@@ -70,7 +70,7 @@ struct LibLinkedList_l {
     // matching is done by a user provided comparison function
     // returns the list node data as a void* if found 
     // otherwise returns NULL
-    void* (*search)(LinkedList* list, void* search, int compare(const void*, const void*));
+    void* (*search)(LinkedList* list, const void* search, int compare(const void*, const void*));
     int (*search_int)(LinkedList* list, int search);
     char* (*search_str)(LinkedList* list, char* search);
     char (*search_chr)(LinkedList* list, char search);

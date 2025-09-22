@@ -48,8 +48,8 @@ int main(void)
     // LibHashTable.insert_str(table, "Hello", &a);
     LibHashTable.insert_str(table, "Hello World", &a);
 
-    // puts("RUNNING STRING TEST");
-    // string_test();
+    puts("RUNNING STRING TEST");
+    string_test();
     // puts("RUNNING INT TEST");
     // int_test();    
 
@@ -192,8 +192,6 @@ int string_test(void)
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
     LibHashTable.insert_str(table, "Hello world", &a);
-
-    
 
     c = LibHashTable.get_str(table, "Hello World");
 

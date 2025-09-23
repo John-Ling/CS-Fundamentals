@@ -138,6 +138,8 @@ int string_test(void)
     a = 43;
     LibHashTable.insert_str(table, "Hello sorld", &a);
 
+    LibHashTable.insert_str(table, "Jimbob", &a);
+
     LibHashTable.print_keys(table, print_key_str);
 
     puts("Retrieving Hello World");
@@ -180,6 +182,9 @@ int string_test(void)
     {
         puts("Correct");
     }
+
+    puts("Deleting Jimbob");
+    printf("%d\n", LibHashTable.delete_str(table, "Jimbob", free));
 
     LibHashTable.print_keys(table, print_key_str);
 

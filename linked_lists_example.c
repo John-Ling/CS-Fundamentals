@@ -50,13 +50,36 @@ int main(void)
 
     // LibLinkedList.search_str(list1, "Hello World");
 
+
+    printf("%d\n", list1->itemCount);
+
     LibLinkedList.print(list1, print_str);
     char* res = LibLinkedList.search_str(list1, "Jimbob");
     if (res != NULL)
     {
         printf("%s\n", res);
     }
+
+    res = LibLinkedList.search_str(list1, "does not exist");
+    if (res == NULL)
+    {
+        printf("Test case passed\n");
+    }
+
+    // Hello World Hello World Jimbob Wagwan
+    // Hello World Wagwan
+
+
+    LibLinkedList.delete(list1, 0, free);
+    LibLinkedList.delete(list1, 1, free);
+    LibLinkedList.delete(list1, 2, free); // invalid test
+    LibLinkedList.delete(list1, 0, free);
+    LibLinkedList.print(list1, print_str);
+
     LibLinkedList.free(list1, free);
+
+
+
 
     // LinkedList* myList = LibLinkedList.create(NULL, 0, sizeof(int));
 
@@ -103,3 +126,4 @@ int main(void)
     
     return EXIT_SUCCESS;
 }
+

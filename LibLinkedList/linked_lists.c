@@ -72,6 +72,8 @@ ListNode* _ll_create_node(const void* data, const size_t size)
 int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 {
     node->next = NULL;
+    list->itemCount++;
+
     // insert node into correct position
     if (list->head == NULL || list->tail == NULL)
     {
@@ -107,8 +109,12 @@ int _ll_insert_node(LinkedList* list, ListNode* node, const int index)
 
         node->next = current->next;
         current->next = node;
+        if (node->next == NULL) 
+        {
+            list->tail = node;
+        }
     }
-
+    
     return EXIT_SUCCESS;
 }
 
@@ -120,8 +126,6 @@ int ll_insert(LinkedList* list, const void* value, const int index)
     {
         return EXIT_FAILURE;
     }
-    
-    list->itemCount++;
 
     ListNode* node = _ll_create_node(value, list->dataSize);
     return _ll_insert_node(list, node, index);
@@ -160,7 +164,7 @@ int ll_insert_chr(LinkedList* list, char value, const int index)
 
 int ll_delete(LinkedList* list, const int index, void free_item(void*))
 {
-    if (list->itemCount - 1 < 0 || index >= list->itemCount || index < -1)
+    if (list->itemCount == 0 || index >= list->itemCount || index < -1)
     {
         return EXIT_FAILURE;
     }
@@ -177,24 +181,36 @@ int ll_delete(LinkedList* list, const int index, void free_item(void*))
         free(list->tail);
         list->tail = NULL;
         list->head = NULL;
+        list->itemCount = 0;
         return EXIT_SUCCESS;
     }
 
     if (index == 0 || list->itemCount == 1)
     {
         ListNode* temp = list->head;
-        list->head = list->head->next;
+        list->head = temp->next;
+        if (list->head == NULL) 
+        {
+            list->tail = NULL;
+        }
+        
         free_item(temp->value);
         temp->value = NULL;
         free(temp);
         temp = NULL;
     }
     else if (index == -1)
-    {
+    {   
+        ListNode* current = list->head;
+        // get node before tail
+        while (current->next != list->tail) 
+        {
+            current = current->next;
+        }
         free_item(list->tail->value);
-        list->tail->value = NULL;
         free(list->tail);
-        list->tail = NULL;
+        list->tail = current;
+        list->tail->next = NULL;
     }
     else 
     {
@@ -221,6 +237,8 @@ int ll_delete(LinkedList* list, const int index, void free_item(void*))
         free(temp);
         temp = NULL;
     }
+
+    list->itemCount--;
     return EXIT_SUCCESS;
 }
 
@@ -253,7 +271,6 @@ void* ll_search(LinkedList* list, const void* search, int compare(const void*, c
     {
         if (compare(current->value, search) == EXIT_SUCCESS)
         {
-            puts("Match");
             return current->value;
         }
         position++;

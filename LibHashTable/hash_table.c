@@ -56,7 +56,6 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 int ht_insert_str(HashTable* table, const char* key, const void* value)
 {
 	// get length of string
-	const char* s = key;
 	const int index = _ht_hash_string(key) % table->bucketCount;
 
 	// check if already exists update it 
@@ -88,8 +87,6 @@ int ht_insert_int(HashTable* table, int key, const void* value)
 	}
 
 	KeyValue* pair = _ht_create_pair(&key, value, sizeof(int), table->dataSize);
-
-
 	_ht_insert(table, bucketIndex, pair);
 	free(pair);
 	pair = NULL;
@@ -117,6 +114,9 @@ int ht_insert_chr(HashTable* table, char key, const void* value)
 
 static int _ht_insert(HashTable* table, const int index, KeyValue* pair)
 {
+	assert(pair != NULL);
+	assert(pair->data != NULL);
+	puts("Calling _ht_insert");
 	return LibLinkedList.insert(table->buckets[index], (void*)pair, -1);
 }
 
@@ -170,6 +170,7 @@ static KeyValue* _ht_get(LinkedList* bucket, const void* key, int (*compare)(con
 	return ret;
 }
 
+// possible implement new method in linked list for deleting by key
 static int _ht_delete(HashTable* table, const void* key, int index, void free_item(void*),
 					int compare_key(const void* a, const void* b))
 {
@@ -183,79 +184,23 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 		return EXIT_FAILURE;
 	}
 
-	LinkedList* list = table->buckets[index];
-	ListNode* current = list->head;
+	LinkedList* bucket = table->buckets[index];
+	ListNode* current = bucket->head;
 	ListNode* previous = current;
 
-	if (list->head == NULL)
-	{
-		return EXIT_FAILURE;
-	}
-
-	// handle case where only 1 item is in list
-	if (list->itemCount == 1) 
-	{
-		KeyValue* pair = (KeyValue*)current->value;
-		// check 
-		if (compare_key(pair->key, key) == EXIT_FAILURE)
-		{
-			return EXIT_FAILURE;
-		}
-
-		list->itemCount = list->itemCount - 1;
-
-		
-		free_item(pair->data);
-		pair->data = NULL;
-		free(pair->key);
-		pair->key = NULL;
-
-		free(current->value);
-		current->value = NULL;
-		free(current);
-		current = NULL;
-		list->head = NULL;
-		return EXIT_SUCCESS;
-	}
-
-	int found = 0;
-	current = current->next;
+	int position = 0;
 	while (current != NULL)
 	{
-		// go through linked list until either end is reached
-		// or key match is found
 		KeyValue* pair = (KeyValue*)current->value;
-
 		if (compare_key(pair->key, key) == EXIT_SUCCESS)
 		{
-			found = 1;
-			break;
+			return LibLinkedList.delete(bucket, position, free_item);
 		}
-		previous = current;
+		position++;
 		current = current->next;
 	}
 
-	if (found == 0)
-	{
-		return EXIT_FAILURE;
-	}
-
-	list->itemCount = list->itemCount - 1;
-	// attach pointer
-	previous->next = current->next;
-
-
-	KeyValue* pair = (KeyValue*)current->value;
-	free_item(pair->data);
-	pair->data = NULL;
-	free(pair->key);
-	pair->key = NULL;
-	free(current->value);
-	current->value = NULL;
-	free(current);
-	current = NULL;
-
-    return EXIT_SUCCESS;
+	return EXIT_FAILURE;
 }
 
 int ht_delete_str(HashTable* table, const char* key, void free_item(void*))

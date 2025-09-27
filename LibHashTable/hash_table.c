@@ -114,9 +114,6 @@ int ht_insert_chr(HashTable* table, char key, const void* value)
 
 static int _ht_insert(HashTable* table, const int index, KeyValue* pair)
 {
-	assert(pair != NULL);
-	assert(pair->data != NULL);
-	puts("Calling _ht_insert");
 	return LibLinkedList.insert(table->buckets[index], (void*)pair, -1);
 }
 
@@ -291,6 +288,10 @@ int ht_print_keys(HashTable* table, void print(const void*))
 {
 	for (int i = 0; i < table->bucketCount; i++)
     {
+		if (table->buckets[i] == NULL)
+		{
+			continue;
+		}
         if (table->buckets[i]->head == NULL)
         {
             puts("NOTHING HERE");

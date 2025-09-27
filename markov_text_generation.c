@@ -5,34 +5,11 @@
 
 // functionality 
 // select a random (valid) starting word
-// from there look at the possible candidates for the next one
+// from there look at the possible nextWords for the next one
 // generate a value randomly from 0 and 1 and pick the candidate with the closest probability
 // 
 
 // todo reimplement with potentially more efficient radix/patricia trie
-
-void print_key_str(const void* data)
-{
-    KeyValue* pair = (KeyValue*)data;
-    printf("%s %f ", (char*)pair->key, *(double*)pair->data);
-    return;
-}
-
-void print_markov_state(const void* data)
-{
-    if (data == NULL)
-    {
-        puts("Data is NULL");
-        return;
-    }
-
-    KeyValue* pair = (KeyValue*)data;
-    MarkovState* state = (MarkovState*)pair->data;
-
-    printf("NGRAM: %s\n", pair->key);
-    LibHashTable.print_keys(state->possibles, print_key_str);
-    return;
-}
 
 int main(int argc, char* argv[]) 
 {
@@ -101,7 +78,6 @@ HashTable* create_markov_model(char* filename, int order)
 int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, int order)
 {
     double ngramCount = 0;
-
     // collect ngrams
     for (int i = 0; i < tokenCount - 1; i++)
     {
@@ -134,45 +110,115 @@ int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, i
         printf("%s\n", ngram);
         ngramCount++;
 
+        // ether update or insert ngram
         KeyValue* pair = LibHashTable.get_str(model, ngram);
         
         if (pair == NULL)
         {
+            puts("Inserting new");
             // ngram does not exist in the table
             MarkovState* state = _create_markov_state();
             double a = 1;
-            LibHashTable.insert_str(state->possibles, next, &a);
+
+            state->ngram = strdup(ngram);
+            if (state->ngram == NULL)
+            {
+                puts("MEMORY ERROR");
+            }
+
+            NextWord* nextWord = (NextWord*)malloc(sizeof(NextWord));
+            nextWord->word = strdup(next);
+            nextWord->frequency = 1; 
+
+            printf("%s %lf\n", nextWord->word, nextWord->frequency);
+
+            // state->nextWords 
+            LibLinkedList.insert(state->nextWords, (void*)nextWord, -1);
+            LibLinkedList.print(state->nextWords, _print_next_word_struct);
             LibHashTable.insert_str(model, ngram, (void*)state);
-            assert(state->possibles->buckets != NULL);
+            pair = LibHashTable.get_str(model, ngram);
+            
+            puts("Retriving");
+            if (pair != NULL)
+            {
+                puts("Found");
+                MarkovState* s = (MarkovState*)pair->data;
+                
+                LibLinkedList.print(s->nextWords, _print_next_word_struct);
+                printf("%s\n", s->ngram);
+            }
         }
         else
         {
             MarkovState* state = (MarkovState*)pair->data;
-            KeyValue* _pair = LibHashTable.get_str(state->possibles, next);
-            double newValue = 1;
-            if (_pair != NULL)
+            NextWord* nextWord = (NextWord*)malloc(sizeof(NextWord));
+            nextWord->word = strdup(next);
+            nextWord->frequency = 1; 
+            // check if next already exists in linked list 
+            NextWord* searchResult = (NextWord*)LibLinkedList.search(
+                                                state->nextWords, 
+                                                (void*)nextWord,
+                                                 _compare_next_word_structs);
+            if (searchResult != NULL)
             {
-                // word exists in the possibles so update probability
-                newValue = (*(double*)_pair->data + 1);
+                puts("UPdating");
+                // update search result
+                searchResult->frequency++;
             }
-            LibHashTable.insert_str(state->possibles, next, &newValue);
-            assert(state->possibles->buckets != NULL);
-        }    
+            else
+            {
+                puts("Not FOund");
+                LibLinkedList.insert(state->nextWords, (void*)nextWord, -1);
+            }
 
+            pair = LibHashTable.get_str(model, ngram);
+            
+            puts("Retriving");
+            if (pair != NULL)
+            {
+                puts("Found");
+                MarkovState* s = (MarkovState*)pair->data;
+                
+                LibLinkedList.print(s->nextWords, _print_next_word_struct);
+                printf("%s\n", s->ngram);
+            }
+        }   
+        
         free(ngram);
         ngram = NULL;
     }
 
-    // why is possibles becoming null fix this bug
-    for (int i = 0; i < model->bucketCount; i++)
-    {
-        assert(((MarkovState*)model->buckets[i]->head->value)->possibles->buckets != NULL);
-    }
+    // why does this work
+    // but not direct access
+
+    // index 4
+    // KeyValue* pair = LibHashTable.get_str(model, "nor his");
+    // puts("Retriving");
+    // if (pair != NULL)
+    // {
+    //     puts("Found");
+    //     MarkovState* s = (MarkovState*)pair->data;
+    //     ListNode* current = s->nextWords->head;
+    //     while (current != NULL)
+    //     {
+    //         NextWord* nextWord = (NextWord*)current->value;
+    //         printf("%s ", nextWord->word);
+    //         current = current->next;
+    //     }
+    // }
+
+
+    // printf("\n%s\n", ((MarkovState*)((KeyValue*)model->buckets[4]->head->value)->data)->ngram);
+    // try direct retrieval 
+    // NextWord* nextword = ((MarkovState*)model->buckets[0]->head)->nextWords->head->value;
+    // printf("\n%s\n", nextword->word);
+
     // normalise probabilities 
-    // puts("Running");
     _normalise_probabilities(model, ngramCount);
+    
+// 
+    LibHashTable.print_keys(model, _print_markov_state);
     // puts("Done");
-    LibHashTable.print_keys(model, print_markov_state);
     return ngramCount;
 }
 
@@ -182,32 +228,32 @@ int _normalise_probabilities(HashTable* model, int ngramCount)
 {
     for (int i = 0; i < model->bucketCount; i++)
     {
-        if (model->buckets[i]->head == NULL)
+        LinkedList* bucket = model->buckets[i];
+        if (bucket->head == NULL)
         {
             continue;
         }
 
-        // recall the model is a hash table mapping strings to MarkovStates
-        MarkovState* current = (MarkovState*)model->buckets[i]->head->value;
-        HashTable* candidates = current->possibles;
-        assert(candidates->buckets != NULL);
-        for (int j = 0; j < candidates->bucketCount; j++) 
+        ListNode* current = bucket->head;
+        while (current != NULL)
         {
-            if (candidates->buckets[j]->head == NULL) 
-            {
-                continue;
-            }
+            KeyValue* pair = (KeyValue*)current->value;
+            MarkovState* state = (MarkovState*)pair->data;
+            LinkedList* nextWords = state->nextWords;
 
-            // each Markov state contains a hash table mapping strings to doubles
-            // ListNode* currentNode = current->possibles->buckets[j]->head;
-            // while (currentNode != NULL) 
-            // {
-            //     KeyValue* pair = (KeyValue*)currentNode->value;
-            //     double newValue = *(double*)pair->data / ngramCount;
-            //     // pair->data = &newValue;
-            //     currentNode = currentNode->next;
-            // }
-        }       
+            // offending line has a random address
+            // not null but still problematic
+            ListNode* currentWord = nextWords->head;
+            while (currentWord != NULL)
+            {
+                // line that causes the segfault
+                // trying to access memory in a inproper location
+                NextWord* nextWord = (NextWord*)currentWord->value;
+                nextWord->frequency /= ngramCount;
+                currentWord = currentWord->next;
+            }
+            current = current->next;
+        }
     }
     return EXIT_SUCCESS;
 }
@@ -239,6 +285,35 @@ int generate_text(HashTable* model, int wordCount)
 MarkovState* _create_markov_state(void)
 {
     MarkovState* state = (MarkovState*)malloc(sizeof(MarkovState));
-    state->possibles = LibHashTable.create(STRING, 5, sizeof(double));
+    state->nextWords = LibLinkedList.create(NULL, 0, sizeof(NextWord));
+
     return state;
+}
+
+int _compare_next_word_structs(const void* a, const void* b)
+{
+    NextWord* c = (NextWord*)a;
+    NextWord* d = (NextWord*)b;
+    
+    if (strcmp(c->word, d->word) == 0)
+    {
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
+void _print_markov_state(const void* d)
+{
+    KeyValue* pair = (KeyValue*)d;
+    MarkovState* state = (MarkovState*)pair->data;
+    printf("%s ", state->ngram);
+    LibLinkedList.print(state->nextWords, _print_next_word_struct);
+    return;
+}
+
+void _print_next_word_struct(const void* d)
+{
+    NextWord* nextWord = (NextWord*)d;
+    printf("%s %lf ", nextWord->word, nextWord->frequency);
+    return;
 }

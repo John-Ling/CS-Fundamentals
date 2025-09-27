@@ -18,10 +18,10 @@ int main(int argc, char* argv[])
     int wordCount = atoi(argv[2]); // length to generate in words
     char* src = argv[3];
 
-    HashTable* model = create_markov_model(src, order);
+    HashTable* model = create_markov_model(src, order); 
+    // generate_text(model, wordCount);
 
-    // generate text using transition matrix
-
+    LibHashTable.free(model, _free_markov_state);
     return EXIT_SUCCESS;
 }
 
@@ -107,7 +107,6 @@ int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, i
         }
 
         strcat(ngram, current);
-        printf("%s\n", ngram);
         ngramCount++;
 
         // ether update or insert ngram
@@ -115,116 +114,60 @@ int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, i
         
         if (pair == NULL)
         {
-            puts("Inserting new");
             // ngram does not exist in the table
             MarkovState* state = _create_markov_state();
             double a = 1;
 
             state->ngram = strdup(ngram);
-            if (state->ngram == NULL)
-            {
-                puts("MEMORY ERROR");
-            }
-
             NextWord* nextWord = (NextWord*)malloc(sizeof(NextWord));
             nextWord->word = strdup(next);
-            nextWord->frequency = 1; 
-
-            printf("%s %lf\n", nextWord->word, nextWord->frequency);
-
-            // state->nextWords 
+            nextWord->probability = 1; 
             LibLinkedList.insert(state->nextWords, (void*)nextWord, -1);
-            LibLinkedList.print(state->nextWords, _print_next_word_struct);
             LibHashTable.insert_str(model, ngram, (void*)state);
-            pair = LibHashTable.get_str(model, ngram);
-            
-            puts("Retriving");
-            if (pair != NULL)
-            {
-                puts("Found");
-                MarkovState* s = (MarkovState*)pair->data;
-                
-                LibLinkedList.print(s->nextWords, _print_next_word_struct);
-                printf("%s\n", s->ngram);
-            }
         }
         else
         {
             MarkovState* state = (MarkovState*)pair->data;
             NextWord* nextWord = (NextWord*)malloc(sizeof(NextWord));
             nextWord->word = strdup(next);
-            nextWord->frequency = 1; 
+            nextWord->probability = 1; 
+
             // check if next already exists in linked list 
             NextWord* searchResult = (NextWord*)LibLinkedList.search(
                                                 state->nextWords, 
                                                 (void*)nextWord,
                                                  _compare_next_word_structs);
+
             if (searchResult != NULL)
             {
-                puts("UPdating");
-                // update search result
-                searchResult->frequency++;
+                state->nextWords->itemCount++;
+                searchResult->probability++;
             }
             else
             {
-                puts("Not FOund");
                 LibLinkedList.insert(state->nextWords, (void*)nextWord, -1);
             }
 
             pair = LibHashTable.get_str(model, ngram);
-            
-            puts("Retriving");
+        
             if (pair != NULL)
             {
-                puts("Found");
                 MarkovState* s = (MarkovState*)pair->data;
-                
-                LibLinkedList.print(s->nextWords, _print_next_word_struct);
-                printf("%s\n", s->ngram);
             }
         }   
         
         free(ngram);
         ngram = NULL;
     }
-
-    // why does this work
-    // but not direct access
-
-    // index 4
-    // KeyValue* pair = LibHashTable.get_str(model, "nor his");
-    // puts("Retriving");
-    // if (pair != NULL)
-    // {
-    //     puts("Found");
-    //     MarkovState* s = (MarkovState*)pair->data;
-    //     ListNode* current = s->nextWords->head;
-    //     while (current != NULL)
-    //     {
-    //         NextWord* nextWord = (NextWord*)current->value;
-    //         printf("%s ", nextWord->word);
-    //         current = current->next;
-    //     }
-    // }
-
-
-    // printf("\n%s\n", ((MarkovState*)((KeyValue*)model->buckets[4]->head->value)->data)->ngram);
-    // try direct retrieval 
-    // NextWord* nextword = ((MarkovState*)model->buckets[0]->head)->nextWords->head->value;
-    // printf("\n%s\n", nextword->word);
-
     // normalise probabilities 
-    _normalise_probabilities(model, ngramCount);
-    
-// 
+    // _normalise_probabilities(model);
     LibHashTable.print_keys(model, _print_markov_state);
-    // puts("Done");
     return ngramCount;
 }
 
 // go through model and normalise the probabilities by dividing
 // them by the ngramCount
-int _normalise_probabilities(HashTable* model, int ngramCount)
+int _normalise_probabilities(HashTable* model)
 {
     for (int i = 0; i < model->bucketCount; i++)
     {
@@ -249,7 +192,7 @@ int _normalise_probabilities(HashTable* model, int ngramCount)
                 // line that causes the segfault
                 // trying to access memory in a inproper location
                 NextWord* nextWord = (NextWord*)currentWord->value;
-                nextWord->frequency /= ngramCount;
+                nextWord->probability /= nextWords->itemCount;
                 currentWord = currentWord->next;
             }
             current = current->next;
@@ -263,16 +206,69 @@ int generate_text(HashTable* model, int wordCount)
     int generatedCount = 1;
 
     // for now use a fixed starting ngram
-    char* startNgram = "didn't think";
+    char* startNgram = "thou shalt";
+    char* currentNgram = startNgram;
+    while (1)
+    {
+        if (generatedCount > wordCount)
+        {
+            break;
+        }
+        
+        KeyValue* pair = LibHashTable.get_str(model, currentNgram);
+        if (pair == NULL)
+        {
+            puts("ERROR");
+            // find new starting ngram
+            // add code later 
 
-    // while (1)
-    // {
-    //     // 
-    //     // pick 
-    //     if (generatedCount > wordCount && )
-    // }
+            currentNgram = "thou shalt"; // for now use fixed ngram 
+        }
+        
+        char* next = _select_next_word(((MarkovState*)pair->data)->nextWords);
+        printf("%s ", next);
 
+
+        // form new ngram
+        // take last word in ngram
+        char* lastSpace = strrchr(currentNgram, ' ');
+        char* lastWord;
+        lastWord = lastSpace == NULL ? currentNgram : lastSpace + 1;
+
+        int newNgramLength  = strlen(lastWord) + strlen(next) + 1;
+        // form new ngram
+        char* newNgram = malloc(sizeof(char) * newNgramLength);
+        newNgram[0] = '\0';
+
+        newNgram = strcat(newNgram, lastWord);
+        newNgram = strcat(newNgram, " ");
+        newNgram = strcat(newNgram, next);
+        currentNgram = newNgram;
+        generatedCount++;
+    }
+    return EXIT_SUCCESS;
 }
+
+char* _select_next_word(LinkedList* possibleWords)
+{
+    double chance = (double)rand() / RAND_MAX;
+    double cumulative = 0;
+
+    ListNode* current = possibleWords->head; 
+    while (current != NULL)
+    {
+        NextWord* word = (NextWord*)current->value;
+        cumulative += word->probability;
+        if (cumulative >= chance)
+        {
+            return word->word;
+        }
+    }
+
+    // if we end up here somehow run again
+    return _select_next_word(possibleWords);
+}
+
 
 // returns a random ngram from the model
 // that begins with a capital letter
@@ -281,6 +277,27 @@ int generate_text(HashTable* model, int wordCount)
 //     // pick a random item from the 
 //     return 
 // }
+
+void _free_markov_state(void* d)
+{
+    MarkovState* state = (MarkovState*)d;
+    LibLinkedList.free(state->nextWords, _free_next_word_struct);
+    free(state->ngram);
+    state->ngram = NULL;
+    free(state);
+    state = NULL;
+    return;
+}
+
+void _free_next_word_struct(void* d)
+{
+    NextWord* nextWord = (NextWord*)d;
+    free(nextWord->word);
+    nextWord->word = NULL;
+    free(nextWord);
+    nextWord = NULL;
+    return;
+}
 
 MarkovState* _create_markov_state(void)
 {
@@ -306,7 +323,7 @@ void _print_markov_state(const void* d)
 {
     KeyValue* pair = (KeyValue*)d;
     MarkovState* state = (MarkovState*)pair->data;
-    printf("%s ", state->ngram);
+    printf("%s | ", state->ngram);
     LibLinkedList.print(state->nextWords, _print_next_word_struct);
     return;
 }
@@ -314,6 +331,6 @@ void _print_markov_state(const void* d)
 void _print_next_word_struct(const void* d)
 {
     NextWord* nextWord = (NextWord*)d;
-    printf("%s %lf ", nextWord->word, nextWord->frequency);
+    printf("%s %lf ", nextWord->word, nextWord->probability);
     return;
 }

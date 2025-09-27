@@ -6,6 +6,7 @@
 
 int string_test(void);
 int int_test(void);
+void _free_func(void* p);
 
 void print_key_str(const void* data)
 {
@@ -174,7 +175,7 @@ int string_test(void)
 
     
     puts("Deleting Hello world");
-    LibHashTable.delete_str(table, "Hello world", free);
+    // LibHashTable.delete_str(table, "Hello world", free);
 
 
     puts("Testing deletion of non existent item");
@@ -184,7 +185,7 @@ int string_test(void)
     }
 
     puts("Deleting Jimbob");
-    printf("%d\n", LibHashTable.delete_str(table, "Jimbob", free));
+    // printf("%d\n", LibHashTable.delete_str(table, "Jimbob", free));
 
     LibHashTable.print_keys(table, print_key_str);
 
@@ -216,4 +217,14 @@ int string_test(void)
 
     LibHashTable.free(table, free);
     return EXIT_SUCCESS;
+}
+
+void _free_func(void* p)
+{
+    KeyValue* pair = (KeyValue*)p;
+    free(pair->data);
+    pair->data = NULL;
+    free(pair->key);
+    pair->key = NULL;
+    return;
 }

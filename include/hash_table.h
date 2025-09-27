@@ -64,6 +64,10 @@ void ht_free_key_value_pair(void* pair);
 struct LibHashTable_l {
 	// create a hash table
     HashTable* (*create)(HashType keyType, const int bucketCount, const size_t dataSize);
+
+	// move through buckets in hash table and goes through each linked list of 
+	// key value pairs
+	// for each pair perform the free_item function on the data attribute
     int (*free)(HashTable* table, void free_item(void*));
 
 	int (*insert_str)(HashTable* table, const char* key, const void* value);

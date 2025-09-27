@@ -16,7 +16,7 @@
 typedef struct NextWord_t 
 {
     char* word;
-    double frequency;   
+    double probability;   
 } NextWord;
 
 typedef struct MarkovState_t
@@ -27,10 +27,14 @@ typedef struct MarkovState_t
 
 int main(int argc, char* argv[]);
 HashTable* create_markov_model(char* filename, int order);
+int generate_text(HashTable* model, int wordCount);
 int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, int order);
-int _normalise_probabilities(HashTable* model, int ngramCount);
+int _normalise_probabilities(HashTable* model);
+char* _select_next_word(LinkedList* possibleWords);
 MarkovState* _create_markov_state(void);
 int _compare_next_word_structs(const void* a, const void* b);
 void _print_next_word_struct(const void* d);
 void _print_markov_state(const void* d);
+void _free_next_word_struct(void* d);
+void _free_markov_state(void* d);
 #endif 

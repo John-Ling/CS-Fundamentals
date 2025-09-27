@@ -4,6 +4,8 @@
 
 static int _ht_free_bucket(LinkedList* list, void free_item(void*));
 static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keySize, size_t valueSize);
+static int _ht_delete_pair(void* p, void free_item(void*));
+static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_item(void*));
 
 // insert data into specific bucket (index) in hash table
 // performs separate chaining to resolve collisions
@@ -62,6 +64,7 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 	KeyValue* _exist = ht_get_str(table, key);
 	if (_exist != NULL)
 	{
+		table->buckets[index]->itemCount++;
 		_exist->data = memcpy(_exist->data, value, table->dataSize);
 		return EXIT_SUCCESS;
 	}
@@ -82,6 +85,7 @@ int ht_insert_int(HashTable* table, int key, const void* value)
 	KeyValue* _exist = ht_get_int(table, key);
 	if (_exist != NULL)
 	{
+		table->buckets[bucketIndex]->itemCount++;
 		_exist->data = memcpy(_exist->data, value, table->dataSize);
 		return EXIT_SUCCESS;
 	}
@@ -100,6 +104,7 @@ int ht_insert_chr(HashTable* table, char key, const void* value)
 	KeyValue* _exist = ht_get_int(table, (int)key);
 	if (_exist != NULL)
 	{
+		table->buckets[bucketIndex]->itemCount++;
 		_exist->data = memcpy(_exist->data, value, table->dataSize);
 		return EXIT_SUCCESS;
 	}
@@ -191,7 +196,8 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 		KeyValue* pair = (KeyValue*)current->value;
 		if (compare_key(pair->key, key) == EXIT_SUCCESS)
 		{
-			return LibLinkedList.delete(bucket, position, free_item);
+			// return LibLinkedList.delete(bucket, position, free_item);
+			return _ht_delete_from_bucket(bucket, position, free_item);
 		}
 		position++;
 		current = current->next;
@@ -199,6 +205,92 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 
 	return EXIT_FAILURE;
 }
+
+static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_item(void*))
+{
+    if (free_item == NULL)
+    {
+        free_item = free;
+    }
+
+    if (bucket->itemCount == 1)
+    {
+		_ht_delete_pair(bucket->tail->value, free_item);
+        free(bucket->tail);
+        bucket->tail = NULL;
+        bucket->head = NULL;
+        bucket->itemCount = 0;
+        return EXIT_SUCCESS;
+    }
+
+    if (position == 0 || bucket->itemCount == 1)
+    {
+        ListNode* temp = bucket->head;
+        bucket->head = temp->next;
+        if (bucket->head == NULL) 
+        {
+            bucket->tail = NULL;
+        }
+        
+		_ht_delete_pair(temp->value, free_item);
+        free(temp);
+        temp = NULL;
+    }
+    else if (position == -1)
+    {   
+        ListNode* current = bucket->head;
+        // get node before tail
+        while (current->next != bucket->tail) 
+        {
+            current = current->next;
+        }
+		_ht_delete_pair(bucket->tail->value, free_item);
+        free(bucket->tail);
+        bucket->tail = current;
+        bucket->tail->next = NULL;
+    }
+    else 
+    {
+        ListNode* current = bucket->head;
+        
+        // travel to node that comes before index
+        for (int i = 0; i < position - 1; i++)
+        {
+            if (current->next == NULL)
+            {
+                break;
+            }
+            current = current->next;
+        }
+
+        // store node after index
+        ListNode* temp = current->next;
+
+        // isolate node to be freed by connect node at index with node after node to be freed
+        current->next = current->next->next;
+
+        free_item(temp->value);
+        temp->value = NULL;
+        free(temp);
+        temp = NULL;
+    }
+
+    bucket->itemCount--;
+    return EXIT_SUCCESS;
+}
+
+static int _ht_delete_pair(void* p, void free_item(void*))
+{	
+	KeyValue* pair = (KeyValue*)p;
+	free_item(pair->data);
+	pair->data = NULL;
+	free(pair->key);
+	pair->key = NULL;
+	free(pair);
+	pair = NULL;
+	return EXIT_SUCCESS;
+}
+
 
 int ht_delete_str(HashTable* table, const char* key, void free_item(void*))
 {

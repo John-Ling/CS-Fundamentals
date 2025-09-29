@@ -18,8 +18,12 @@ int main(int argc, char* argv[])
     int wordCount = atoi(argv[2]); // length to generate in words
     char* src = argv[3];
 
+    printf("Creating Markov Model" "\n");
+    
     HashTable* model = create_markov_model(src, order); 
-    // generate_text(model, wordCount);
+    printf("Generating:""\n");
+    sleep(2);
+    generate_text(model, wordCount);
 
     LibHashTable.free(model, _free_markov_state);
     return EXIT_SUCCESS;
@@ -44,7 +48,6 @@ HashTable* create_markov_model(char* filename, int order)
     return model;
 }
 
-
 char** _generate_tokens(char* filename, size_t* _tokenCount) 
 {
     FILE* src = fopen(filename, "r");
@@ -68,7 +71,7 @@ char** _generate_tokens(char* filename, size_t* _tokenCount)
     int allocated = 50;
     size_t tokenCount = 0;
 
-    const char *delimiters = " \t\n";
+    const char *delimiters = " \t\n\"-";
     char* token = strtok(buffer, delimiters);
     while (token != NULL) 
     {
@@ -208,12 +211,12 @@ int _normalise_probabilities(HashTable* model)
 int generate_text(HashTable* model, int wordCount)
 {
     int generatedCount = 1;
-
-    // for now use a fixed starting ngram
-    char* startNgram = "thou shalt";
+    char* startNgram = _get_starter(model);
+    printf("%s ", startNgram);
     char* currentNgram = startNgram;
     while (1)
     {
+        // printf("Current ngram %s\n", currentNgram);
         if (generatedCount > wordCount)
         {
             break;
@@ -222,11 +225,10 @@ int generate_text(HashTable* model, int wordCount)
         KeyValue* pair = LibHashTable.get_str(model, currentNgram);
         if (pair == NULL)
         {
-            puts("ERROR");
             // find new starting ngram
             // add code later 
-
-            currentNgram = "thou shalt"; // for now use fixed ngram 
+            currentNgram = _get_starter(model); // for now use fixed ngram 
+            pair = LibHashTable.get_str(model, currentNgram);
         }
         
         char* next = _select_next_word(((MarkovState*)pair->data)->nextWords);
@@ -240,17 +242,18 @@ int generate_text(HashTable* model, int wordCount)
 
         int newNgramLength  = strlen(lastWord) + strlen(next) + 1;
         // form new ngram
-        char* newNgram = malloc(sizeof(char) * newNgramLength);
+        char newNgram[newNgramLength];
         newNgram[0] = '\0';
-
-        newNgram = strcat(newNgram, lastWord);
-        newNgram = strcat(newNgram, " ");
-        newNgram = strcat(newNgram, next);
-        currentNgram = strdup(newNgram);
-        free(newNgram);
+        strcat(newNgram, lastWord);
+        strcat(newNgram, " ");
+        strcat(newNgram, next);
+        currentNgram = newNgram;
         generatedCount++;
+
+        fflush(stdout); 
+        usleep(50000);
+        
     }
-    free(currentNgram);
     return EXIT_SUCCESS;
 }
 
@@ -268,6 +271,7 @@ char* _select_next_word(LinkedList* possibleWords)
         {
             return word->word;
         }
+        current = current->next;
     }
 
     // if we end up here somehow run again
@@ -276,11 +280,27 @@ char* _select_next_word(LinkedList* possibleWords)
 
 // returns a random ngram from the model
 // that begins with a capital letter
-// char* get_starter(HashTable* model)
-// {
-//     // pick a random item from the 
-//     return 
-// }
+char* _get_starter(HashTable* model)
+{
+    LinkedList* bucket = NULL;
+    do 
+    {
+        bucket = model->buckets[rand() % model->bucketCount];
+    }
+    while (bucket->head == NULL);
+    
+    int bucketPosition = rand() % bucket->itemCount;
+
+    ListNode* current = bucket->head;
+
+    for (int i = 0; i < bucketPosition; i++) 
+    {
+        current = current->next;
+    }
+
+    MarkovState* state = (MarkovState*)((KeyValue*)current->value)->data;
+    return state->ngram;
+}
 
 void _free_markov_state(void* d)
 {
@@ -335,6 +355,6 @@ void _print_markov_state(const void* d)
 void _print_next_word_struct(const void* d)
 {
     NextWord* nextWord = (NextWord*)d;
-    printf("%s %lf ", nextWord->word, nextWord->probability);
+    printf("%s %.2lf ", nextWord->word, nextWord->probability);
     return;
 }

@@ -29,6 +29,24 @@ int main(int argc, char* argv[])
 // markov model represented using a hash table
 HashTable* create_markov_model(char* filename, int order)
 {
+    HashTable* model = LibHashTable.create(STRING, 15, sizeof(MarkovState));
+    size_t tokenCount = 0;
+    char** tokens = _generate_tokens(filename, &tokenCount);
+    _generate_ngrams(model, (const char**)tokens, tokenCount, order);
+
+    for (int i = 0; i < tokenCount; i++)
+    {
+        free(tokens[i]);
+        tokens[i] = NULL;
+    }
+    free(tokens);
+    tokens = NULL;
+    return model;
+}
+
+
+char** _generate_tokens(char* filename, size_t* _tokenCount) 
+{
     FILE* src = fopen(filename, "r");
     fseek(src, 0, SEEK_END);
     long size = ftell(src);
@@ -64,21 +82,10 @@ HashTable* create_markov_model(char* filename, int order)
         tokenCount++;
         token = strtok(NULL, delimiters);
     }
-
-    HashTable* model = LibHashTable.create(STRING, 15, sizeof(MarkovState));
-
-    _generate_ngrams(model, (const char**)tokens, tokenCount, order);
-
-    for (int i = 0; i < tokenCount; i++)
-    {
-        free(tokens[i]);
-        tokens[i] = NULL;
-    }
-    free(tokens);
-    tokens = NULL;
+    (*_tokenCount) = tokenCount;
     free(buffer);
     buffer = NULL;
-    return model;
+    return tokens;
 }
 
 // populates the markov model with ngrams collected from tokens

@@ -38,12 +38,14 @@ typedef struct MarkovState_t
 
 int main(int argc, char* argv[]);
 HashTable* create_markov_model(char* filename, int order);
-int generate_text(HashTable* model, int wordCount);
+int generate_text(HashTable* model, int order, int wordCount);
 char** _generate_tokens(char* filename, size_t* _tokenCount);
 int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, int order);
 int _normalise_probabilities(HashTable* model);
 char* _select_next_word(LinkedList* possibleWords);
 char* _get_starter(HashTable* model);
+char* _get_random_ngram(HashTable* model);
+char* _create_next_ngram(const char* currentNgram, const char* next, int order);
 MarkovState* _create_markov_state(void);
 int _compare_next_word_structs(const void* a, const void* b);
 void _print_next_word_struct(const void* d);

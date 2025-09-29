@@ -68,8 +68,16 @@ HashTable* create_markov_model(char* filename, int order)
     HashTable* model = LibHashTable.create(STRING, 15, sizeof(MarkovState));
 
     _generate_ngrams(model, (const char**)tokens, tokenCount, order);
+
+    for (int i = 0; i < tokenCount; i++)
+    {
+        free(tokens[i]);
+        tokens[i] = NULL;
+    }
     free(tokens);
     tokens = NULL;
+    free(buffer);
+    buffer = NULL;
     return model;
 }
 
@@ -85,8 +93,7 @@ int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, i
         {
             continue; 
         }
-
-        char* ngram = NULL;
+        
         char* current = tokens[i];
         char* next = tokens[i + 1];
         size_t ngramLength = strlen(current) + 1; // add 1 for null terminator
@@ -97,7 +104,7 @@ int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, i
             ngramLength += strlen(previous) + 1; // add 1 for the space
         }
 
-        ngram = (char*)malloc(sizeof(char) * ngramLength);
+        char ngram[ngramLength];
         ngram[0] = '\0';
 
         for (int j = order; j >= 1; j--)
@@ -108,59 +115,49 @@ int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, i
 
         strcat(ngram, current);
         ngramCount++;
-
+        
         // ether update or insert ngram
         KeyValue* pair = LibHashTable.get_str(model, ngram);
         
         if (pair == NULL)
         {
-            // ngram does not exist in the table
-            MarkovState* state = _create_markov_state();
-            double a = 1;
-
-            state->ngram = strdup(ngram);
-            NextWord* nextWord = (NextWord*)malloc(sizeof(NextWord));
-            nextWord->word = strdup(next);
-            nextWord->probability = 1; 
-            LibLinkedList.insert(state->nextWords, (void*)nextWord, -1);
-            LibHashTable.insert_str(model, ngram, (void*)state);
+            MarkovState state;
+            state.ngram = strdup(ngram);
+            state.nextWords = LibLinkedList.create(NULL, 0, sizeof(NextWord));
+            NextWord nextWord;
+            nextWord.word = strdup(next);
+            nextWord.probability = 1; 
+            LibLinkedList.insert(state.nextWords, (void*)&nextWord, -1);
+            LibHashTable.insert_str(model, ngram, (void*)&state);
         }
         else
         {
             MarkovState* state = (MarkovState*)pair->data;
-            NextWord* nextWord = (NextWord*)malloc(sizeof(NextWord));
-            nextWord->word = strdup(next);
-            nextWord->probability = 1; 
+            NextWord nextWord;
+            nextWord.word = strdup(next);
+            nextWord.probability = 1; 
 
             // check if next already exists in linked list 
             NextWord* searchResult = (NextWord*)LibLinkedList.search(
                                                 state->nextWords, 
-                                                (void*)nextWord,
+                                                (void*)&nextWord,
                                                  _compare_next_word_structs);
 
             if (searchResult != NULL)
             {
                 state->nextWords->itemCount++;
                 searchResult->probability++;
+                free(nextWord.word);
+                nextWord.word = NULL;
             }
             else
             {
-                LibLinkedList.insert(state->nextWords, (void*)nextWord, -1);
-            }
-
-            pair = LibHashTable.get_str(model, ngram);
-        
-            if (pair != NULL)
-            {
-                MarkovState* s = (MarkovState*)pair->data;
+                LibLinkedList.insert(state->nextWords, (void*)&nextWord, -1);
             }
         }   
-        
-        free(ngram);
-        ngram = NULL;
     }
     // normalise probabilities 
-    // _normalise_probabilities(model);
+    _normalise_probabilities(model);
     LibHashTable.print_keys(model, _print_markov_state);
     return ngramCount;
 }
@@ -228,7 +225,6 @@ int generate_text(HashTable* model, int wordCount)
         char* next = _select_next_word(((MarkovState*)pair->data)->nextWords);
         printf("%s ", next);
 
-
         // form new ngram
         // take last word in ngram
         char* lastSpace = strrchr(currentNgram, ' ');
@@ -243,9 +239,11 @@ int generate_text(HashTable* model, int wordCount)
         newNgram = strcat(newNgram, lastWord);
         newNgram = strcat(newNgram, " ");
         newNgram = strcat(newNgram, next);
-        currentNgram = newNgram;
+        currentNgram = strdup(newNgram);
+        free(newNgram);
         generatedCount++;
     }
+    free(currentNgram);
     return EXIT_SUCCESS;
 }
 
@@ -268,7 +266,6 @@ char* _select_next_word(LinkedList* possibleWords)
     // if we end up here somehow run again
     return _select_next_word(possibleWords);
 }
-
 
 // returns a random ngram from the model
 // that begins with a capital letter

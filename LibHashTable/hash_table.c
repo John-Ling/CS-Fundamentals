@@ -4,7 +4,7 @@
 
 static int _ht_free_bucket(LinkedList* list, void free_item(void*));
 static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keySize, size_t valueSize);
-static int _ht_delete_pair(void* p, void free_item(void*));
+static int _ht_delete_pair(KeyValue* pair, void free_item(void*));
 static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_item(void*));
 
 // insert data into specific bucket (index) in hash table
@@ -18,7 +18,6 @@ static unsigned int _ht_hash_int(int x);
 static int _compare_pair_int(const void* _pair, const void* _key);
 static int _compare_pair_str(const void* _pair, const void* _key);
 static KeyValue* _ht_get(LinkedList* bucket, const void* key, int (*compare)(const void *, const void *));
-
 
 // creates a hash table
 HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataSize)
@@ -215,7 +214,7 @@ static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_it
 
     if (bucket->itemCount == 1)
     {
-		_ht_delete_pair(bucket->tail->value, free_item);
+		_ht_delete_pair((KeyValue*)bucket->tail->value, free_item);
         free(bucket->tail);
         bucket->tail = NULL;
         bucket->head = NULL;
@@ -232,7 +231,7 @@ static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_it
             bucket->tail = NULL;
         }
         
-		_ht_delete_pair(temp->value, free_item);
+		_ht_delete_pair((KeyValue*)temp->value, free_item);
         free(temp);
         temp = NULL;
     }
@@ -244,7 +243,7 @@ static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_it
         {
             current = current->next;
         }
-		_ht_delete_pair(bucket->tail->value, free_item);
+		_ht_delete_pair((KeyValue*)bucket->tail->value, free_item);
         free(bucket->tail);
         bucket->tail = current;
         bucket->tail->next = NULL;
@@ -265,12 +264,10 @@ static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_it
 
         // store node after index
         ListNode* temp = current->next;
-
         // isolate node to be freed by connect node at index with node after node to be freed
         current->next = current->next->next;
 
-        free_item(temp->value);
-        temp->value = NULL;
+		_ht_delete_pair((KeyValue*)temp->value, free_item);
         free(temp);
         temp = NULL;
     }
@@ -279,9 +276,8 @@ static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_it
     return EXIT_SUCCESS;
 }
 
-static int _ht_delete_pair(void* p, void free_item(void*))
+static int _ht_delete_pair(KeyValue* pair, void free_item(void*))
 {	
-	KeyValue* pair = (KeyValue*)p;
 	free_item(pair->data);
 	pair->data = NULL;
 	free(pair->key);
@@ -341,27 +337,21 @@ static int _ht_free_bucket(LinkedList* list, void free_item(void*))
 	}
 
 	ListNode* previous = list->head;
-	KeyValue* pair = (KeyValue* )previous->value;
+	KeyValue* pair = (KeyValue*)previous->value;
 
 	list->head = list->head->next;
 	while (list->head != NULL)
 	{
+		_ht_delete_pair(pair, free_item);
 		// free key value pair
-		free(pair->key);
-		pair->key = NULL;
-		free_item(pair->data);
-		pair->data = NULL;
-
-		free_item(previous->value);
-		previous->value = NULL;
-
 		free(previous);
 		previous = list->head;
+
 		pair = (KeyValue* )list->head->value;
 		list->head = list->head->next;
 	}
 
-	// free final
+	// free final just keep this the same idk why it break when changed
 	free(pair->key);
 	pair->key = NULL;
 	free_item(pair->data);
@@ -415,7 +405,6 @@ static KeyValue* _ht_create_pair(const void* key, const void* value, size_t keyS
 
 	memmove(pair->data, value, valueSize);
 	memmove(pair->key, key, keySize);
-
 	return pair;
 }
 

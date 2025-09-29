@@ -6,7 +6,6 @@
 
 int string_test(void);
 int int_test(void);
-void _free_func(void* p);
 
 void print_key_str(const void* data)
 {
@@ -127,104 +126,28 @@ int string_test(void)
     }
 
     int a = 5;
-    // int b = 5;
-    LibHashTable.insert_str(table, "Hello World", &a);
-    a = a + 4;
-    LibHashTable.insert_str(table, "Hello World", &a);
-    a = 234;
-    LibHashTable.insert_str(table, "Hello world", &a);
-    a = 11;
-    LibHashTable.insert_str(table, "Hello Wofeafwald", &a);
-    LibHashTable.insert_str(table, "Hello Worl3d", &a);
-    a = 43;
-    LibHashTable.insert_str(table, "Hello sorld", &a);
-
-    LibHashTable.insert_str(table, "Jimbob", &a);
+    for (char c = 'a'; c <= 'z'; c++)
+    {
+        LibHashTable.insert_chr(table, c, &a);
+    }
+    puts("Passed");
 
     LibHashTable.print_keys(table, print_key_str);
 
-    puts("Retrieving Hello World");
-    // KeyValue* c = LibHashTable.get_str(table, "Hello World");
-    KeyValue* c = ht_get_str(table, "Hello World");
-    puts("Retrieval Success");
-    
-    if (c == NULL)
+    for (char c = 'a'; c <= 'z'; c++)
     {
-        puts("error");
-    }
-    else
-    {
-    printf("%d\n", *(int*)c->data);
+        assert(LibHashTable.get_chr(table, c) != NULL);
     }
 
-    puts("Retrieving Hello sorld");
-    c = LibHashTable.get_str(table, "Hello sorld");
-    puts("Retrieval Success");
+    puts("Passed");
 
-    if (c == NULL)
+    for (char c = 'a'; c <= 'z'; c++)
     {
-        puts("error");
+        LibHashTable.delete_chr(table, c, free);
     }
-    else
-    {
-        printf("%d\n", *(int*)c->data);
-    }
-
-    puts("Deleting Hello World");
-    LibHashTable.delete_str(table, "Hello World", free);
-
-    
-    puts("Deleting Hello world");
-    // LibHashTable.delete_str(table, "Hello world", free);
-
-
-    puts("Testing deletion of non existent item");
-    if (LibHashTable.delete_str(table, "Hello world", free)  == EXIT_FAILURE)
-    {
-        puts("Correct");
-    }
-
-    puts("Deleting Jimbob");
-    // printf("%d\n", LibHashTable.delete_str(table, "Jimbob", free));
-
-    LibHashTable.print_keys(table, print_key_str);
-
-    puts("Deleting Hello sorld");
-    printf("%d\n", LibHashTable.delete_str(table, "Hello sorld", free));
-    
-    LibHashTable.print_keys(table, print_key_str);
-
-    LibHashTable.insert_str(table, "Hello world", &a);
-    LibHashTable.insert_str(table, "Hello world", &a);
-    LibHashTable.insert_str(table, "Hello world", &a);
-    LibHashTable.insert_str(table, "Hello world", &a);
-
-    c = LibHashTable.get_str(table, "Hello World");
-
-    if (c == NULL)
-    {
-        puts("error");
-    }
-    else
-    {
-        printf("%d\n", *(int*)c->data);
-    }
-    
-    puts("Final");
-
 
     LibHashTable.print_keys(table, print_key_str);
 
     LibHashTable.free(table, free);
     return EXIT_SUCCESS;
-}
-
-void _free_func(void* p)
-{
-    KeyValue* pair = (KeyValue*)p;
-    free(pair->data);
-    pair->data = NULL;
-    free(pair->key);
-    pair->key = NULL;
-    return;
 }

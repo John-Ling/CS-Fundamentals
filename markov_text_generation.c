@@ -18,10 +18,10 @@ int main(int argc, char* argv[])
     int wordCount = atoi(argv[2]); // length to generate in words
     char* src = argv[3];
 
-    printf("Creating Markov Model" "\n");
+    printf("Creating Markov Model of order %d\n", order);
     
     HashTable* model = create_markov_model(src, order); 
-    printf("Generating:""\n");
+    printf("Generating %d words:\n", wordCount);
     sleep(2);
     generate_text(model, wordCount);
 
@@ -222,17 +222,28 @@ int generate_text(HashTable* model, int wordCount)
             break;
         }
         
+        generatedCount++;
         KeyValue* pair = LibHashTable.get_str(model, currentNgram);
         if (pair == NULL)
         {
-            // find new starting ngram
-            // add code later 
-            currentNgram = _get_starter(model); // for now use fixed ngram 
+            currentNgram = _get_starter(model); 
             pair = LibHashTable.get_str(model, currentNgram);
         }
         
         char* next = _select_next_word(((MarkovState*)pair->data)->nextWords);
+
         printf("%s ", next);
+        fflush(stdout); 
+        usleep(60000);
+
+        // if next ends with a full stop generate a new starter
+        if (next[strlen(next) - 1] == '.')
+        {
+            // find a new starter
+            currentNgram = _get_starter(model);
+            printf("%s ", currentNgram);
+            continue;
+        }
 
         // form new ngram
         // take last word in ngram
@@ -248,11 +259,6 @@ int generate_text(HashTable* model, int wordCount)
         strcat(newNgram, " ");
         strcat(newNgram, next);
         currentNgram = newNgram;
-        generatedCount++;
-
-        fflush(stdout); 
-        usleep(50000);
-        
     }
     return EXIT_SUCCESS;
 }
@@ -282,24 +288,31 @@ char* _select_next_word(LinkedList* possibleWords)
 // that begins with a capital letter
 char* _get_starter(HashTable* model)
 {
-    LinkedList* bucket = NULL;
-    do 
+    while (1)
     {
-        bucket = model->buckets[rand() % model->bucketCount];
+        LinkedList* bucket = NULL;
+        do 
+        {
+            bucket = model->buckets[rand() % model->bucketCount];
+        }
+        while (bucket->head == NULL);
+        
+        int bucketPosition = rand() % bucket->itemCount;
+
+        ListNode* current = bucket->head;
+
+        for (int i = 0; i < bucketPosition; i++) 
+        {
+            current = current->next;
+        }
+
+        MarkovState* state = (MarkovState*)((KeyValue*)current->value)->data;
+        if (isupper(state->ngram[0]))
+        {
+            return state->ngram;
+        }
     }
-    while (bucket->head == NULL);
     
-    int bucketPosition = rand() % bucket->itemCount;
-
-    ListNode* current = bucket->head;
-
-    for (int i = 0; i < bucketPosition; i++) 
-    {
-        current = current->next;
-    }
-
-    MarkovState* state = (MarkovState*)((KeyValue*)current->value)->data;
-    return state->ngram;
 }
 
 void _free_markov_state(void* d)

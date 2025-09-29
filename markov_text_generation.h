@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <ctype.h> 
 #include <time.h>
 #include "hash_table.h"
 

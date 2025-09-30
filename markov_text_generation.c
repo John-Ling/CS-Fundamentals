@@ -15,15 +15,17 @@ int main(int argc, char* argv[])
 {
     srand(time(NULL));
     int order = atoi(argv[1]);
-    int wordCount = atoi(argv[2]); // length to generate in words
-    char* src = argv[3];
+    int isAscii = atoi(argv[2]);
+    int truncate = atoi(argv[3]);
+    int wordCount = atoi(argv[4]); // length to generate in words
+    char* src = argv[5];
 
     printf("Creating Markov Model of order %d\n", order);
     
     HashTable* model = create_markov_model(src, order); 
     printf("Generating %d words:\n", wordCount);
-    sleep(2);
-    generate_text(model, order, wordCount);
+    sleep(1);
+    generate_text(model, isAscii, order, wordCount, truncate);
 
     LibHashTable.free(model, _free_markov_state);
     return EXIT_SUCCESS;
@@ -71,7 +73,7 @@ char** _generate_tokens(char* filename, size_t* _tokenCount)
     int allocated = 50;
     size_t tokenCount = 0;
 
-    const char *delimiters = " \t\n\"-";
+    const char *delimiters = " \t\n\"-’*+-=/\\''^`";
     char* token = strtok(buffer, delimiters);
     while (token != NULL) 
     {
@@ -208,46 +210,87 @@ int _normalise_probabilities(HashTable* model)
     return EXIT_SUCCESS;
 }
 
-int generate_text(HashTable* model, int order, int wordCount)
+int generate_text(HashTable* model, int ascii, int order, int wordCount, int truncate)
 {
     int generatedCount = 1;
-    char* startNgram = _get_starter(model);
+    char* startNgram = ascii ? _get_starter(model) : _get_random_ngram(model);    
     printf("%s ", startNgram);
     char* currentNgram = startNgram;
+    int firstIteration = 1;  // track if we need to free currentNgram
+    
     while (1)
     {
-        // printf("Current ngram %s\n", currentNgram);
-        if (generatedCount > wordCount)
+        char c = currentNgram[strlen(currentNgram) - 1];
+        if (generatedCount >= wordCount && (truncate || ( c == '.' || c == '?' || c == "!")))
         {
             break;
         }
-        
         generatedCount++;
+        
         KeyValue* pair = LibHashTable.get_str(model, currentNgram);
         if (pair == NULL)
         {
-            currentNgram = _get_random_ngram(model); 
+            // free old currentNgram before replacing it
+            if (!firstIteration && currentNgram != startNgram)
+            {
+                free(currentNgram);
+            }
+            currentNgram = _get_random_ngram(model);
+            firstIteration = 1;  // this is from the model, don't free it
             pair = LibHashTable.get_str(model, currentNgram);
         }
         
         char* next = _select_next_word(((MarkovState*)pair->data)->nextWords);
-
         printf("%s ", next);
-        fflush(stdout); 
+        fflush(stdout);
         usleep(60000);
-
-        // if next ends with a full stop generate a new starter
+        
         if (next[strlen(next) - 1] == '.')
         {
-            // find a new starter
-            currentNgram = _get_starter(model);
+            // free old currentNgram before replacing it
+            if (!firstIteration && currentNgram != startNgram)
+            {
+                free(currentNgram);
+            }
+            
+            currentNgram = ascii ? _get_starter(model) : _get_random_ngram(model);
             printf("%s ", currentNgram);
+            firstIteration = 1;  // this is from the model, don't free it
             continue;
         }
-        // form new ngram
-        currentNgram = _create_next_ngram(currentNgram, next, order + 1);
+        
+        // Form new ngram
+        char* firstSpace = strchr(currentNgram, ' ');
+        char* substring = firstSpace == NULL ? currentNgram : firstSpace + 1;
+        int newNgramLength = strlen(substring) + strlen(next) + 2;  // +1 for space, +1 for null
+        
+        char* newNgram = malloc(newNgramLength);
+        if (newNgram == NULL)
+        {
+            fprintf(stderr, "Memory allocation failed\n");
+            return EXIT_FAILURE;
+        }
+        
+        newNgram[0] = '\0';
+        strcat(newNgram, substring);
+        strcat(newNgram, " ");
+        strcat(newNgram, next);
+        
+        // free the old currentNgram if it was dynamically allocated
+        if (!firstIteration && currentNgram != startNgram)
+        {
+            free(currentNgram);
+        }
+        
+        currentNgram = newNgram;
+        firstIteration = 0;  // From now on, currentNgram is dynamically allocated
     }
-    free(currentNgram);
+    
+    if (!firstIteration && currentNgram != startNgram)
+    {
+        free(currentNgram);
+    }
+    
     return EXIT_SUCCESS;
 }
 
@@ -305,52 +348,6 @@ char* _get_starter(HashTable* model)
             return ngram;
         }
     }
-}
-
-char* _create_next_ngram(const char* currentNgram, const char* next, int n)
-{
-    // Copy current ngram into buffer for tokenizing
-    char* temp = strdup(currentNgram);
-    if (!temp) return NULL;
-
-    // Tokenize words
-    char* words[n];
-    int count = 0;
-    char* token = strtok(temp, " ");
-    while (token && count < n) {
-        words[count++] = token;
-        token = strtok(NULL, " ");
-    }
-
-    // If fewer than n words, treat them as all the words we have
-    int start = count > 1 ? 1 : 0; // we drop the first word if count >=2
-    int keptWords = count - start;
-
-    // Calculate buffer size for new ngram
-    // Sum of kept words + next + spaces + null terminator
-    size_t newLen = strlen(next) + 1; // includes final '\0'
-    for (int i = start; i < count; i++) {
-        newLen += strlen(words[i]) + 1; // +1 for space
-    }
-
-    char* newNgram = malloc(newLen);
-    if (!newNgram) {
-        free(temp);
-        return NULL;
-    }
-    newNgram[0] = '\0';
-
-    // Copy the last n-1 words
-    for (int i = start; i < count; i++) {
-        strcat(newNgram, words[i]);
-        strcat(newNgram, " ");
-    }
-
-    // Append next word (overwrite trailing space if any)
-    strcat(newNgram, next);
-
-    free(temp);
-    return newNgram;
 }
 
 void _free_markov_state(void* d)

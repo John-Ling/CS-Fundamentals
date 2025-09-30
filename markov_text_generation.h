@@ -38,7 +38,7 @@ typedef struct MarkovState_t
 
 int main(int argc, char* argv[]);
 HashTable* create_markov_model(char* filename, int order);
-int generate_text(HashTable* model, int order, int wordCount);
+int generate_text(HashTable* model, int ascii, int order, int wordCount, int truncate);
 char** _generate_tokens(char* filename, size_t* _tokenCount);
 int _generate_ngrams(HashTable* model, const char** tokens, size_t tokenCount, int order);
 int _normalise_probabilities(HashTable* model);

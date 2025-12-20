@@ -20,7 +20,7 @@ hashtable:
 	$(CC) $(CFLAGS) $(LDFLAGS)  -llinkedlist -lutils  -lhashtable -o bin/hash_table hash_table_example.c
 
 bloomfilter:
-	$(CC) $(CFLAGS) $(LDFLAGS) -lbloomfilter -lm -o bin/bloom_filter bloom_filter_example.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -lbloomfilter -o bin/bloom_filter bloom_filter_example.c
 
 markov:
 	$(CC) $(CFLAGS) $(LDFLAGS) -lhashtable -llinkedlist  -lutils -o bin/markov_text_generation markov_text_generation.c

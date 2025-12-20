@@ -23,7 +23,7 @@ bool bf_get_int(BloomFilter* filter, int key);
 int bf_set_str(BloomFilter* filter, const char* key);
 int bf_set_chr(BloomFilter* filter, char key);
 int bf_set_int(BloomFilter* filter, int key);
-int bf_free(void);
+int bf_free(BloomFilter* filter);
 
 struct LibBloomFilter_l {
     /**
@@ -39,6 +39,8 @@ struct LibBloomFilter_l {
     bool (*get_str)(BloomFilter* filter, const char* key);
     bool (*get_chr)(BloomFilter* filter, char key);
     bool (*get_int)(BloomFilter* filter, int key);
+    int (*free)(BloomFilter* filter);
+    
 };
 
 extern const struct LibBloomFilter_l LibBloomFilter;

@@ -112,6 +112,15 @@ bool bf_get_int(BloomFilter* filter, int key)
     return _check_present(filter, indexes);    
 }
 
+int bf_free(BloomFilter* filter) 
+{
+    free(filter->buckets);
+    filter->buckets = NULL;
+    free(filter);
+    filter = NULL;
+    return EXIT_SUCCESS;
+}
+
 static bool _check_present(BloomFilter* filter, int indexes[filter->hashFunctionCount]) 
 {
     for (size_t i = 0; i < filter->hashFunctionCount; i++) 
@@ -208,5 +217,6 @@ const struct LibBloomFilter_l LibBloomFilter = {
     .set_chr = bf_set_chr,
     .get_chr = bf_get_chr,
     .set_int = bf_set_int,
-    .get_int = bf_get_int
+    .get_int = bf_get_int,
+    .free = bf_free
 };

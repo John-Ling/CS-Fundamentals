@@ -18,5 +18,7 @@ int main(void)
     printf("%d \n", LibBloomFilter.get_chr(filter, 'A'));
     printf("%d \n", LibBloomFilter.get_chr(filter, 'B'));
     printf("%d \n", LibBloomFilter.get_chr(filter, 'D'));
+
+    LibBloomFilter.free(filter);
     return EXIT_SUCCESS;
 }

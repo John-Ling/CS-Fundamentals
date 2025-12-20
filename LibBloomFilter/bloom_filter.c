@@ -4,8 +4,11 @@
 
 static void _set_bit(unsigned char* s, size_t sBitCount, size_t index, bool value);
 static unsigned char _get_bit(unsigned char* s, size_t sBitCount, size_t index);
+static bool _check_present(BloomFilter* filter, int indexes[filter->hashFunctionCount]);
 static int _hash_all_str(const char* key, size_t hashFunctionCount, size_t bitCount, int indexes[hashFunctionCount]);
+static int _hash_all_int(int key, size_t hashFunctionCount, size_t bitCount, int indexes[hashFunctionCount]);
 static unsigned int _hash_string(const char* s);
+static unsigned int _hash_int(int x);
 
 BloomFilter* bf_create_fixed(unsigned int expectedElementCount) 
 {
@@ -62,12 +65,55 @@ static int _hash_all_str(const char* key, size_t hashFunctionCount, size_t bitCo
     return EXIT_SUCCESS;
 }
 
-
 bool bf_get_str(BloomFilter* filter, const char* key) 
 {
     int indexes[filter->hashFunctionCount];
     _hash_all_str(key, filter->hashFunctionCount, filter->totalBitCount, indexes);
+    return _check_present(filter, indexes);
+}
 
+int bf_set_chr(BloomFilter* filter, char key) 
+{
+    int indexes[filter->hashFunctionCount];
+    _hash_all_int(key, filter->hashFunctionCount, filter->totalBitCount, indexes);
+
+    for (size_t i = 0; i < filter->hashFunctionCount; i++) 
+    {
+        _set_bit(filter->buckets, filter->totalBitCount, indexes[i], 1);
+    }
+    
+    return EXIT_SUCCESS;
+}
+
+bool bf_get_chr(BloomFilter* filter, char key) 
+{
+    int indexes[filter->hashFunctionCount];
+    _hash_all_int(key, filter->hashFunctionCount, filter->totalBitCount, indexes);    
+    return _check_present(filter, indexes);
+}
+
+int bf_set_int(BloomFilter* filter, int key) 
+{
+    int indexes[filter->hashFunctionCount];
+    _hash_all_int(key, filter->hashFunctionCount, filter->totalBitCount, indexes);
+
+    for (size_t i = 0; i < filter->hashFunctionCount; i++) 
+    {
+        _set_bit(filter->buckets, filter->totalBitCount, indexes[i], 1);
+    }
+    
+    return EXIT_SUCCESS;   
+}
+
+bool bf_get_int(BloomFilter* filter, int key) 
+{
+    int indexes[filter->hashFunctionCount];
+    _hash_all_int(key, filter->hashFunctionCount, filter->totalBitCount, indexes);    
+    return _check_present(filter, indexes);    
+}
+
+static bool _check_present(BloomFilter* filter, int indexes[filter->hashFunctionCount]) 
+{
     for (size_t i = 0; i < filter->hashFunctionCount; i++) 
     {
         unsigned int bit = _get_bit(filter->buckets, filter->totalBitCount, indexes[i]);
@@ -83,8 +129,17 @@ bool bf_get_str(BloomFilter* filter, const char* key)
             return false;
         }
     }
-
     return true;
+}
+
+static int _hash_all_int(int key, size_t hashFunctionCount, size_t bitCount, int indexes[hashFunctionCount]) 
+{
+    for (size_t i = 0; i  < hashFunctionCount; i++) 
+    {
+        indexes[i] = (_hash_int(key) + i * _hash_int(key + SALT)) % bitCount;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 static void _set_bit(unsigned char* s, size_t sBitCount, size_t index, bool value) 
@@ -123,7 +178,6 @@ static unsigned char _get_bit(unsigned char* s, size_t sBitCount, size_t index)
     return (s[_index] & (1 << offset)) != 0;
 }
 
-
 // djb2 hashing algorithm by Dan Bernstein
 static unsigned int _hash_string(const char* s)
 {
@@ -137,8 +191,22 @@ static unsigned int _hash_string(const char* s)
 	return hash;
 }
 
+
+static unsigned int _hash_int(int x)
+{
+	x = ((x >> 16) ^ x) * 0x45d9f3b;
+	x = ((x >> 16) ^ x) * 0x45d9f3b;
+	x = (x >> 16) ^ x;
+	return x;
+}
+
+
 const struct LibBloomFilter_l LibBloomFilter = {
 	.create = bf_create_fixed,
 	.set_str = bf_set_str,
-    .get_str = bf_get_str
+    .get_str = bf_get_str,
+    .set_chr = bf_set_chr,
+    .get_chr = bf_get_chr,
+    .set_int = bf_set_int,
+    .get_int = bf_get_int
 };

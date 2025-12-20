@@ -33,8 +33,12 @@ struct LibBloomFilter_l {
      */
     BloomFilter* (*create)(unsigned int expectedElementCount);
     int (*set_str)(BloomFilter* filter, const char* key);
+    int (*set_chr)(BloomFilter* filter, char key);
+    int (*set_int)(BloomFilter* filter, int key);   
 
     bool (*get_str)(BloomFilter* filter, const char* key);
+    bool (*get_chr)(BloomFilter* filter, char key);
+    bool (*get_int)(BloomFilter* filter, int key);
 };
 
 extern const struct LibBloomFilter_l LibBloomFilter;

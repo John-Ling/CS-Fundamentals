@@ -56,7 +56,6 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 
 int ht_insert_str(HashTable* table, const char* key, const void* value)
 {
-	// get length of string
 	const int index = _ht_hash_string(key) % table->bucketCount;
 
 	// check if already exists update it 

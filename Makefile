@@ -1,8 +1,17 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Wpedantic -I./include -g
+CFLAGS := -Wall -Wextra -Wpedantic -I./include
+DBG_CFLAGS := -g -O0 -DDEBUG
+PROD_CFLAGS := -O2 -flto 
 LDFLAGS := -L./lib -Wl,-rpath,'$$ORIGIN/../lib'
 OBJ := $(SRC:.c=.o)
 BIN := bin/*
+
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	CFLAGS += $(DBG_CFLAGS)
+else
+	CFLAGS += $(PROD_CFLAGS)
+endif
 
 linkedlist: 
 	$(CC) $(CFLAGS) $(LDFLAGS) -llinkedlist -lutils -o bin/linked_list linked_lists_example.c
@@ -21,9 +30,6 @@ hashtable:
 
 bloomfilter:
 	$(CC) $(CFLAGS) $(LDFLAGS) -lbloomfilter -o bin/bloom_filter bloom_filter_example.c
-
-markov:
-	$(CC) $(CFLAGS) $(LDFLAGS) -lhashtable -llinkedlist  -lutils -o bin/markov_text_generation markov_text_generation.c
 
 libutils:
 	$(CC) $(CFLAGS) -fPIC -c LibUtils/*.c -o LibUtils/utils.o

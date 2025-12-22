@@ -18,6 +18,12 @@ int main(void)
     printf("%d \n", LibBloomFilter.get_chr(filter, 'A'));
     printf("%d \n", LibBloomFilter.get_chr(filter, 'B'));
     printf("%d \n", LibBloomFilter.get_chr(filter, 'D'));
+    printf("%d \n", LibBloomFilter.get_chr(filter, 'E'));
+    printf("%d \n", LibBloomFilter.get_chr(filter, 'F'));
+    printf("%d \n", LibBloomFilter.get_chr(filter, 'G'));
+    printf("%d \n", LibBloomFilter.get_chr(filter, 'H'));
+    printf("%d \n", LibBloomFilter.get_chr(filter, 'I'));
+    printf("%d \n", LibBloomFilter.get_chr(filter, 'J'));
 
     LibBloomFilter.free(filter);
     return EXIT_SUCCESS;

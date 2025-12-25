@@ -31,4 +31,26 @@ int cf_remove_chr(CuckooFilter* filter, char key);
 int cf_remove_int(CuckooFilter* filter, int key);
 int cf_free(CuckooFilter* filter);
 
+struct LibCuckooFilter_l {
+    /**
+     * Instantiate a new cuckoo filter 
+     * @param expectedElementCount number of unique elements the filter expects to hold
+     */
+    CuckooFilter* (*create)(unsigned int expectedElementCount);
+    int (*set_str)(CuckooFilter* filter, const char* key);
+    int (*set_chr)(CuckooFilter* filter, char key);
+    int (*set_int)(CuckooFilter* filter, int key);   
+
+    bool (*get_str)(CuckooFilter* filter, const char* key);
+    bool (*get_chr)(CuckooFilter* filter, char key);
+    bool (*get_int)(CuckooFilter* filter, int key);
+    int (*remove_str)(CuckooFilter* filter, const char* key);
+    int (*remove_chr)(CuckooFilter* filter, char key);
+    int (*remove_int)(CuckooFilter* filter, int key);
+    int (*free)(CuckooFilter* filter);
+    
+};
+
+extern const struct LibCuckooFilter_l LibCuckooFilter;
+
 #endif

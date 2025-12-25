@@ -5,21 +5,18 @@
 
 int main(void) 
 {
-    CuckooFilter* filter = cf_create(10);
-    cf_set_str(filter, "A");
-    cf_set_str(filter, "BA");
-    cf_set_str(filter, "BC");
-    cf_set_str(filter, "DS");
-    cf_set_str(filter, "B");
-    cf_set_str(filter, "bananan smoothie");
-    cf_set_str(filter, "B");
-    cf_set_str(filter, "bananan smoothie");
-    cf_set_str(filter, "banana");
+    CuckooFilter* filter = LibCuckooFilter.create(10);
+    LibCuckooFilter.set_str(filter, "A");
+    LibCuckooFilter.set_str(filter, "Dog");
+    LibCuckooFilter.set_str(filter, "Orangutan");
+    LibCuckooFilter.set_str(filter, "Tide pods");
+    LibCuckooFilter.set_str(filter, "Malaysia boleh");
 
-    printf("%d\n", cf_get_str(filter, "B"));
-    printf("%d\n", cf_get_str(filter, "D"));
 
-    printf("%d\n", cf_get_str(filter, "apple"));
+    printf("%d\n", LibCuckooFilter.get_str(filter, "A"));
+    printf("%d\n", LibCuckooFilter.get_str(filter, "Malaysia"));
+    printf("%d\n", LibCuckooFilter.get_str(filter, "apple"));
+    printf("%d\n", LibCuckooFilter.get_str(filter, "Orangutan"));
 
     cf_free(filter);
     return EXIT_SUCCESS;

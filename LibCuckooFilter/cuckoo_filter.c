@@ -249,7 +249,8 @@ static int _find_fingerprint(uint32_t bucket, uint8_t fingerprint)
 {
 	for (int i = 0; i < 32; i += 8) 
 	{
-		if ((bucket & (0xFFu << i)) == fingerprint) return i;
+		uint8_t byte = (bucket >> i) & 0xFFu;
+		if (byte == fingerprint) return i;
 	}
 
 	return -1;
@@ -274,3 +275,17 @@ static uint32_t _hash_int(int x)
 	x = (x >> 16) ^ x;
 	return x;
 }
+
+const struct LibCuckooFilter_l LibCuckooFilter = {
+	.create = cf_create,
+	.set_str = cf_set_str,
+    .get_str = cf_get_str,
+    .set_chr = cf_set_chr,
+    .get_chr = cf_get_chr,
+    .set_int = cf_set_int,
+    .get_int = cf_get_int,
+    .remove_str = cf_remove_str,
+    .remove_chr = cf_remove_chr,
+    .remove_int = cf_remove_int,
+    .free = cf_free
+};

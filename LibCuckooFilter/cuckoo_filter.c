@@ -6,6 +6,8 @@ static uint32_t _hash_string(const char* s);
 static uint32_t _hash_int(int x);
 static uint8_t _fingerprint(uint32_t hash, size_t fingerprintBitCount);
 static int _find_open_bucket_slot(uint32_t bucket); 
+static int _find_fingerprint(uint32_t bucket, uint8_t fingerprint);
+static uint32_t _hash_fingerprint(uint8_t fingerprint);
 
 CuckooFilter* cf_create(unsigned int expectedElementCount) 
 {
@@ -21,17 +23,16 @@ CuckooFilter* cf_create(unsigned int expectedElementCount)
 
 int cf_set_str(CuckooFilter* filter, const char* key) 
 {
-	uint32_t bucket1 = _hash_string(key) ;
-	unsigned char fingerprint = _fingerprint(bucket1, filter->keySize);
-
-	// hash the fingerprint using murmurhash's constant to approximate the hash
-	uint32_t bucket2 = bucket1 ^ (fingerprint * 0x5bd1e995); // magic number derived from murmurhash
+	uint32_t bucket1 = _hash_string(key);
+	uint8_t fingerprint = _fingerprint(bucket1, filter->keySize);
+	uint32_t bucket2 = bucket1 ^ _hash_fingerprint(fingerprint);
 
 	bucket1 = bucket1 % filter->bucketCount;
 	bucket2 = bucket2 % filter->bucketCount;
 
 	int offset1 = _find_open_bucket_slot(filter->buckets[bucket1]);
 	int offset2 = _find_open_bucket_slot(filter->buckets[bucket2]);
+
 	if (offset1 != -1) 
 	{
 		filter->buckets[bucket1] |= (uint32_t)fingerprint << offset1;
@@ -87,7 +88,7 @@ int cf_set_str(CuckooFilter* filter, const char* key)
 		filter->buckets[evict] |= (uint32_t)fingerprint << offset;
 
 		// find a new space to place evicted fingerprint
-		uint32_t newBucket = evict ^ (fingerprint * 0x5bd1e995);
+		uint32_t newBucket = evict ^ _hash_fingerprint(fingerprint);
 		int newOffset = _find_open_bucket_slot(filter->buckets[newBucket]);
 		if (newOffset != -1) 
 		{
@@ -100,25 +101,87 @@ int cf_set_str(CuckooFilter* filter, const char* key)
 	return EXIT_FAILURE;
 }
 
+bool cf_get_str(CuckooFilter* filter, const char* key)
+{
+	uint32_t bucket1 = _hash_string(key);
+	uint8_t fingerprint = _fingerprint(bucket1, filter->keySize);
+	uint32_t bucket2 = bucket1 ^ _hash_fingerprint(fingerprint);
+
+	bucket1 = bucket1 % filter->bucketCount;
+	bucket2 = bucket2 % filter->bucketCount;	
+
+	if (_find_fingerprint(filter->buckets[bucket1], fingerprint) != -1) return true;
+	if (_find_fingerprint(filter->buckets[bucket2], fingerprint) != -1) return true;
+	return false;
+}
+
+int cf_remove_str(CuckooFilter* filter, const char* key)
+{
+	uint32_t bucket1 = _hash_string(key);
+	uint8_t fingerprint = _fingerprint(bucket1, filter->keySize);
+	uint32_t bucket2 = bucket1 ^ _hash_fingerprint(fingerprint);
+
+	bucket1 = bucket1 % filter->bucketCount;
+	bucket2 = bucket2 % filter->bucketCount;		
+
+	int offset1 = _find_fingerprint(filter->buckets[bucket1], fingerprint);
+	int offset2 = _find_fingerprint(filter->buckets[bucket2], fingerprint);
+
+	if (offset1 != -1) 
+	{
+		filter->buckets[bucket1] &= ~(0xFu << offset1);
+		return EXIT_SUCCESS;
+	}
+	else if (offset2 != -1)
+	{
+		filter->buckets[bucket2] &= ~(0xFu << offset2);
+		return EXIT_SUCCESS;
+	}
+	return EXIT_FAILURE;
+}
+
 static uint8_t _fingerprint(uint32_t hash, size_t fingerprintBitCount)
 {
-	uint8_t fingerprint = hash & ((1 << fingerprintBitCount) - 1);
-	fingerprint += (fingerprint == 0); // ensure fingerprint is never 0
+	uint8_t fingerprint = hash & (1 << fingerprintBitCount);
 	return fingerprint;
 }
 
 /**
- * Checks 4 bits within a bucket
+ * Magic number is derived from MurmurHash2
+ */
+static uint32_t _hash_fingerprint(uint8_t fingerprint)
+{
+	return fingerprint * 0x5bd1e995;
+}
+
+/**
+ * Checks 4 nibbles within a bucket
  * A 0 value represents an empty space
  * Return the offset to the empty space
  * Returns -1 if all buckets slots are full
  */
 static int _find_open_bucket_slot(uint32_t bucket) 
 {
-	if ((bucket & (0xFu << 0))  == 0) return 0;
-	if ((bucket & (0xFu << 4))  == 0) return 4;
-	if ((bucket & (0xFu << 8))  == 0) return 8;
-	if ((bucket & (0xFu << 12)) == 0) return 12;
+	for (int i = 0; i <= 12; i += 4) 
+	{
+		if ((bucket & (0xFu << i))  == 0) return i;
+	}
+	return -1;
+}
+
+/**
+ * Checks 4 nibbles within a bucket
+ * and checks if they match the fingerprint
+ * Returns ths offset to the nibble with the matching fingerprint
+ * Returns -1 if fingerprint is not found
+ */
+static int _find_fingerprint(uint32_t bucket, uint8_t fingerprint)
+{
+	for (int i = 0; i <= 12; i += 4) 
+	{
+		if ((bucket & (0xFu << i)) == fingerprint) return i;
+	}
+
 	return -1;
 }
 

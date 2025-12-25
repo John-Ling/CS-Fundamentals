@@ -26,6 +26,9 @@ bool cf_get_int(CuckooFilter* filter, int key);
 int cf_set_str(CuckooFilter* filter, const char* key);
 int cf_set_chr(CuckooFilter* filter, char key);
 int cf_set_int(CuckooFilter* filter, int key);
+int cf_remove_str(CuckooFilter* filter, const char* key);
+int cf_remove_chr(CuckooFilter* filter, char key);
+int cf_remove_int(CuckooFilter* filter, int key);
 int cf_free(CuckooFilter* filter);
 
 #endif

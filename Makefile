@@ -13,6 +13,7 @@ else
 	CFLAGS += $(PROD_CFLAGS)
 endif
 
+
 linkedlist: 
 	$(CC) $(CFLAGS) $(LDFLAGS) -llinkedlist -lutils -o bin/linked_list linked_lists_example.c
 
@@ -30,6 +31,9 @@ hashtable:
 
 bloomfilter:
 	$(CC) $(CFLAGS) $(LDFLAGS) -lbloomfilter -o bin/bloom_filter bloom_filter_example.c
+
+cuckoofilter:
+	$(CC) $(CFLAGS) $(LDFLAGS) -lcuckoofilter -o bin/cuckoo_filter cuckoo_filter_example.c
 
 libutils:
 	$(CC) $(CFLAGS) -fPIC -c LibUtils/*.c -o LibUtils/utils.o
@@ -60,6 +64,11 @@ libbloomfilter:
 	$(CC) $(CFLAGS) -fPIC -c LibBloomFilter/*.c -o LibBloomFilter/bloom_filter.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o lib/libbloomfilter.so -lm LibBloomFilter/bloom_filter.o
 	rm LibBloomFilter/bloom_filter.o
+
+libcuckoofilter:
+	$(CC) $(CFLAGS) -fPIC -c LibCuckooFilter/*.c -o LibCuckooFilter/cuckoo_filter.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o lib/libcuckoofilter.so -lm LibCuckooFilter/cuckoo_filter.o
+	rm LibCuckooFilter/cuckoo_filter.o
 
 .PHONY: clean
 clean:

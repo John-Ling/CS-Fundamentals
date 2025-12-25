@@ -17,6 +17,6 @@ int main(void)
 
     cf_remove_str(filter, "B");
     printf("%d\n", cf_get_str(filter, "B"));
-
+    cf_free(filter);
     return EXIT_SUCCESS;
 }

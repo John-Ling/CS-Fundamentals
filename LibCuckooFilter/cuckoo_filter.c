@@ -12,7 +12,7 @@ static uint32_t _hash_fingerprint(uint8_t fingerprint);
 CuckooFilter* cf_create(unsigned int expectedElementCount) 
 {
 	CuckooFilter* filter = malloc(sizeof(CuckooFilter));
-	filter->buckets = malloc(sizeof(uint32_t*) * expectedElementCount);
+	filter->buckets = calloc(expectedElementCount, sizeof(uint32_t*));
 	filter->bucketCount = expectedElementCount;
 	filter->bucketDepth = DEFAULT_BUCKET_DEPTH;
 	filter->keySize = DEFAULT_FINGERPRINT_BIT_COUNT;
@@ -138,6 +138,16 @@ int cf_remove_str(CuckooFilter* filter, const char* key)
 		return EXIT_SUCCESS;
 	}
 	return EXIT_FAILURE;
+}
+
+
+int cf_free(CuckooFilter* filter)
+{
+	free(filter->buckets);
+	filter->buckets = NULL;
+	free(filter);
+	filter = NULL;
+	return EXIT_SUCCESS;
 }
 
 static uint8_t _fingerprint(uint32_t hash, size_t fingerprintBitCount)

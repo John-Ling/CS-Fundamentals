@@ -149,7 +149,7 @@ int cf_free(CuckooFilter* filter)
 
 static uint8_t _fingerprint(uint32_t hash, size_t fingerprintBitCount)
 {
-	uint8_t fingerprint = hash & (1 << fingerprintBitCount);
+	uint8_t fingerprint = hash & ((1 << fingerprintBitCount) - 1);
 	fingerprint += (fingerprint == 0); // ensure fingerprint is not 0
 	return fingerprint;
 }
@@ -197,7 +197,6 @@ static int _find_fingerprint(uint32_t bucket, uint8_t fingerprint)
 // djb2 hashing algorithm by Dan Bernstein
 static uint32_t _hash_string(const char* s)
 {
-	// hash(i - 1) * 33 ^ str[i];
 	unsigned long hash = 5381;
 	while (*s)
 	{

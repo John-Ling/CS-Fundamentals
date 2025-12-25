@@ -45,8 +45,6 @@ int cf_set_str(CuckooFilter* filter, const char* key)
 	}
 
 	// Both slots are occupied
-	puts("Both slots are full");
-
 	uint32_t evict;
 	switch (rand() % 2)
 	{
@@ -68,13 +66,13 @@ int cf_set_str(CuckooFilter* filter, const char* key)
 				offset = 0;
 				break;
 			case 1: 
-				offset = 4;
-				break;
-			case 2: 
 				offset = 8;
 				break;
+			case 2: 
+				offset = 16;
+				break;
 			case 3: 
-				offset = 12;
+				offset = 24;
 				break;
 		}
 
@@ -84,7 +82,7 @@ int cf_set_str(CuckooFilter* filter, const char* key)
 		}
 
 		// Evict stored fingerprint and store the new one in its place
-		uint8_t evictedFingerprint = filter->buckets[evict] & (0xFu << offset);
+		uint8_t evictedFingerprint = filter->buckets[evict] & (0xFFu << offset);
 		filter->buckets[evict] |= (uint32_t)fingerprint << offset;
 
 		// find a new space to place evicted fingerprint
@@ -97,7 +95,6 @@ int cf_set_str(CuckooFilter* filter, const char* key)
 		}
 	}
 
-	puts("Failed to write");
 	return EXIT_FAILURE;
 }
 
@@ -129,12 +126,12 @@ int cf_remove_str(CuckooFilter* filter, const char* key)
 
 	if (offset1 != -1) 
 	{
-		filter->buckets[bucket1] &= ~(0xFu << offset1);
+		filter->buckets[bucket1] &= ~(0xFFu << offset1);
 		return EXIT_SUCCESS;
 	}
 	else if (offset2 != -1)
 	{
-		filter->buckets[bucket2] &= ~(0xFu << offset2);
+		filter->buckets[bucket2] &= ~(0xFFu << offset2);
 		return EXIT_SUCCESS;
 	}
 	return EXIT_FAILURE;
@@ -153,6 +150,7 @@ int cf_free(CuckooFilter* filter)
 static uint8_t _fingerprint(uint32_t hash, size_t fingerprintBitCount)
 {
 	uint8_t fingerprint = hash & (1 << fingerprintBitCount);
+	fingerprint += (fingerprint == 0); // ensure fingerprint is not 0
 	return fingerprint;
 }
 
@@ -165,31 +163,32 @@ static uint32_t _hash_fingerprint(uint8_t fingerprint)
 }
 
 /**
- * Checks 4 nibbles within a bucket
+ * Checks 1 byte sections within a bucket
  * A 0 value represents an empty space
  * Return the offset to the empty space
  * Returns -1 if all buckets slots are full
  */
 static int _find_open_bucket_slot(uint32_t bucket) 
 {
-	for (int i = 0; i <= 12; i += 4) 
+	for (int i = 0; i < 32; i += 8) 
 	{
-		if ((bucket & (0xFu << i))  == 0) return i;
+		if ((bucket & (0xFFu << i))  == 0) return i;
 	}
+
 	return -1;
 }
 
 /**
- * Checks 4 nibbles within a bucket
+ * Checks 1 byte sections within a bucket
  * and checks if they match the fingerprint
  * Returns ths offset to the nibble with the matching fingerprint
  * Returns -1 if fingerprint is not found
  */
 static int _find_fingerprint(uint32_t bucket, uint8_t fingerprint)
 {
-	for (int i = 0; i <= 12; i += 4) 
+	for (int i = 0; i < 32; i += 8) 
 	{
-		if ((bucket & (0xFu << i)) == fingerprint) return i;
+		if ((bucket & (0xFFu << i)) == fingerprint) return i;
 	}
 
 	return -1;

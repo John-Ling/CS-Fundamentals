@@ -294,6 +294,16 @@ char ll_search_chr(LinkedList* list, char search)
     return *(char*)ll_search(list, &search, compare_int);
 }
 
+int ll_map(LinkedList* list, void map(const void*))
+{
+    ListNode* current = list->head;
+    while (current != NULL)   
+    {
+        map(current->value);
+    }
+    return EXIT_SUCCESS;
+}
+
 // performs free_item() on each item in the linked list
 // if free_item is NULL will default to basic free function
 int ll_free(LinkedList* list, void (*free_item)(void*))
@@ -367,5 +377,6 @@ const struct LibLinkedList_l LibLinkedList = {
     .search_int = ll_search_int,
     .search_str = ll_search_str,
     .search_chr = ll_search_chr,
+    .map = ll_map,
     .free = ll_free
 };

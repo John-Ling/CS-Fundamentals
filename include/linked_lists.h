@@ -36,6 +36,7 @@ void* ll_search(LinkedList* list, const void* search, int compare(const void*, c
 int ll_search_int(LinkedList* list, int search);
 char* ll_search_str(LinkedList* list, char* search);
 char ll_search_chr(LinkedList* list, char search);
+int ll_map(LinkedList* list, void map(const void*));
 int ll_free(LinkedList* list, void free_item(void*));
 
 struct LibLinkedList_l {
@@ -62,9 +63,9 @@ struct LibLinkedList_l {
     // deleting at index -1 deletes the node at the back
     int (*delete)(LinkedList* list, const int index, void free_item(void*));
 
+    int (*map)(LinkedList* list, void map(const void*));
 
     int (*reverse)(LinkedList* list);
-
 
     // check if a specific value in the linked list exists
     // matching is done by a user provided comparison function

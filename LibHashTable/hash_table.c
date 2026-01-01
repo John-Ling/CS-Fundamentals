@@ -12,6 +12,7 @@ static int _ht_delete_from_bucket(LinkedList* bucket, int position, void free_it
 static int _ht_insert(HashTable* table, int index, KeyValue* pair);
 static int _ht_delete(HashTable* table, const void* key, int index, void free_item(void*),
 			int compare_key(const void* a, const void* b));
+static int _resize(HashTable* table);
 size_t _set_type(HashType type);
 static unsigned int _ht_hash_string(const char* s);
 static unsigned int _ht_hash_int(int x);
@@ -31,6 +32,7 @@ HashTable* ht_create(HashType keyType, const int bucketCount, const size_t dataS
 	// set type
 	table->type = keyType;
 	table->bucketCount = bucketCount;
+	table->storedKeyCount = 0;
 
 	table->keySize = _set_type(keyType);
 	table->dataSize = dataSize;
@@ -58,18 +60,14 @@ int ht_insert_str(HashTable* table, const char* key, const void* value)
 {
 	const int index = _ht_hash_string(key) % table->bucketCount;
 
-	// check if already exists update it 
 	KeyValue* _exist = ht_get_str(table, key);
 	if (_exist != NULL)
 	{
 		table->buckets[index]->itemCount++;
-		_exist->data = memcpy(_exist->data, value, table->dataSize);
 		return EXIT_SUCCESS;
 	}
 
 	KeyValue* pair = _ht_create_pair(key, value, strlen(key) + 1, table->dataSize);
-
-	// use hidden method to directly insert pair
 	_ht_insert(table, index, pair);
 	free(pair);
 	pair = NULL;
@@ -84,7 +82,6 @@ int ht_insert_int(HashTable* table, int key, const void* value)
 	if (_exist != NULL)
 	{
 		table->buckets[bucketIndex]->itemCount++;
-		_exist->data = memcpy(_exist->data, value, table->dataSize);
 		return EXIT_SUCCESS;
 	}
 
@@ -103,7 +100,6 @@ int ht_insert_chr(HashTable* table, char key, const void* value)
 	if (_exist != NULL)
 	{
 		table->buckets[bucketIndex]->itemCount++;
-		_exist->data = memcpy(_exist->data, value, table->dataSize);
 		return EXIT_SUCCESS;
 	}
 
@@ -117,7 +113,72 @@ int ht_insert_chr(HashTable* table, char key, const void* value)
 
 static int _ht_insert(HashTable* table, const int index, KeyValue* pair)
 {
-	return LibLinkedList.insert(table->buckets[index], (void*)pair, -1);
+	table->storedKeyCount++;
+	int insertRes = LibLinkedList.insert(table->buckets[index], (void*)pair, -1);
+	if (insertRes == EXIT_FAILURE) 
+	{
+		return EXIT_FAILURE;
+	}
+	double loadFactor = table->storedKeyCount / table->bucketCount;
+	if (loadFactor >= 0.75) 
+	{
+		_resize(table);
+	}
+
+	return EXIT_SUCCESS;
+}
+
+static int _resize(HashTable* table)
+{
+	size_t newSize = table->bucketCount * 2;
+	LinkedList** resized = malloc(sizeof(LinkedList*) * newSize);
+
+	if (resized == NULL) 
+	{
+		for (int i = 0; i < newSize; i++)
+			LibLinkedList.free(resized[i], free);
+		return EXIT_FAILURE;
+	}
+
+	for (int i = 0; i < newSize; i++) 
+	{
+		resized[i] = LibLinkedList.create(NULL, 0, sizeof(KeyValue));
+	}
+
+	// rehash existing elements to move to new table
+	for (int i = 0; i < table->bucketCount; i++)
+	{
+		LinkedList* currentBucket = table->buckets[i];
+		ListNode* current = currentBucket->head;
+
+		while (current != NULL)
+		{
+			KeyValue* pair = (KeyValue*)(current->value);
+			unsigned int insertBucket = 0;
+			switch (table->type)
+			{
+				case STRING:
+					printf("%d\n", _ht_hash_string((char*)pair->key));
+					insertBucket = _ht_hash_string((char*)pair->key) % newSize;
+					printf("New bucket for %c %d\n",(*(char*)pair->key), insertBucket);
+					break;
+				case INT:
+					insertBucket = _ht_hash_int(*(int*)pair->key) % newSize;
+					break;
+				case CHAR:
+					insertBucket = _ht_hash_int(*(int*)pair->key) % newSize;
+					break;
+				default:
+					return EXIT_FAILURE;
+			}
+
+			LibLinkedList.insert(resized[insertBucket], (void*)pair, -1);
+			current = current->next;
+		}
+	}
+	table->bucketCount = newSize;
+	table->buckets = resized;
+	return EXIT_SUCCESS;
 }
 
 static int _compare_pair_str(const void* _pair, const void* _key)
@@ -135,7 +196,6 @@ static int _compare_pair_int(const void* _pair, const void* _key)
 
 KeyValue* ht_get_str(HashTable* table, const char* key)
 {
-	// hash string to get index
 	const int index = _ht_hash_string(key) % table->bucketCount;
 
 	if (table->buckets[index] == NULL)
@@ -150,6 +210,7 @@ KeyValue* ht_get_str(HashTable* table, const char* key)
 KeyValue* ht_get_int(HashTable* table, int key)
 {
 	int index = _ht_hash_int(key) % table->bucketCount;
+	printf("Checking index %d\n", index);
 
 	if (table->buckets[index] == NULL)
 	{
@@ -186,7 +247,6 @@ static int _ht_delete(HashTable* table, const void* key, int index, void free_it
 
 	LinkedList* bucket = table->buckets[index];
 	ListNode* current = bucket->head;
-	ListNode* previous = current;
 
 	int position = 0;
 	while (current != NULL)

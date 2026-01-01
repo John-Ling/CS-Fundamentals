@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "linked_lists.h"
 #include "./utils.h"
@@ -26,8 +27,9 @@ typedef struct HashTable_t
 	// string
 	// char
 	// int float double
-	int bucketCount;
-	LinkedList** buckets; // static sized array of linked lists
+	LinkedList** buckets;
+	int storedKeyCount;
+	size_t bucketCount;
 	HashType type; // specifies the data type used for a key
 	size_t keySize;
 	size_t dataSize;

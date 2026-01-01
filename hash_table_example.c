@@ -35,23 +35,21 @@ void print_key_int(const void* data)
 int main(void)
 {
     HashTable* table = LibHashTable.create(STRING, 10, sizeof(int));
-    // int a = 5;
-    // LibHashTable.insert_str(table, "test", &a);
-    // LibHashTable.insert_str(table, "tes", &a);
-    // LibHashTable.insert_str(table, "fasdfas", &a);
-    // LibHashTable.insert_str(table, "tasfaf", &a);
-    // LibHashTable.print_keys(table, print_key_int);
-
     int a = 5;
-    // int b = 5;
+    LibHashTable.insert_str(table, "test", &a);
+    LibHashTable.insert_str(table, "tes", &a);
+    LibHashTable.insert_str(table, "fasdfas", &a);
+    LibHashTable.insert_str(table, "tasfaf", &a);
+    LibHashTable.print_keys(table, print_key_int);
+
     LibHashTable.insert_str(table, "Hello World", &a);
     // LibHashTable.insert_str(table, "Hello", &a);
     LibHashTable.insert_str(table, "Hello World", &a);
 
     puts("RUNNING STRING TEST");
     string_test();
-    // puts("RUNNING INT TEST");
-    // int_test();    
+    puts("RUNNING INT TEST");
+    int_test();    
 
     LibHashTable.free(table, free);
     return EXIT_SUCCESS;
@@ -117,7 +115,7 @@ int int_test(void)
 
 int string_test(void)
 {
-    HashType type = STRING;
+    HashType type = CHAR;
     HashTable* table = LibHashTable.create(type, 10, sizeof(int));
     if (table == NULL) 
     {
@@ -128,6 +126,7 @@ int string_test(void)
     int a = 5;
     for (char c = 'a'; c <= 'z'; c++)
     {
+        
         LibHashTable.insert_chr(table, c, &a);
     }
     puts("Passed");
@@ -136,6 +135,7 @@ int string_test(void)
 
     for (char c = 'a'; c <= 'z'; c++)
     {
+        printf("Searching %c\n", c);
         assert(LibHashTable.get_chr(table, c) != NULL);
     }
 

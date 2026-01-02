@@ -16,7 +16,7 @@ void print_key_str(const void* data)
     }
     KeyValue* pair = (KeyValue*)data;
 
-    printf("%s ", (char*)pair->key);
+    printf("%c ", *(char*)(pair->key));
     return;
 }
 
@@ -34,31 +34,17 @@ void print_key_int(const void* data)
 
 int main(void)
 {
-    HashTable* table = LibHashTable.create(STRING, 10, sizeof(int));
-    int a = 5;
-    LibHashTable.insert_str(table, "test", &a);
-    LibHashTable.insert_str(table, "tes", &a);
-    LibHashTable.insert_str(table, "fasdfas", &a);
-    LibHashTable.insert_str(table, "tasfaf", &a);
-    LibHashTable.print_keys(table, print_key_int);
-
-    LibHashTable.insert_str(table, "Hello World", &a);
-    // LibHashTable.insert_str(table, "Hello", &a);
-    LibHashTable.insert_str(table, "Hello World", &a);
-
     puts("RUNNING STRING TEST");
     string_test();
     puts("RUNNING INT TEST");
     int_test();    
-
-    LibHashTable.free(table, free);
     return EXIT_SUCCESS;
 }
 
 int int_test(void)
 {
     HashType type = INT;
-    HashTable* table = LibHashTable.create(type, 10, sizeof(int));
+    HashTable* table = LibHashTable.create(type, 10, sizeof(int), free);
 
     if (table == NULL)
     {
@@ -116,31 +102,32 @@ int int_test(void)
 int string_test(void)
 {
     HashType type = CHAR;
-    HashTable* table = LibHashTable.create(type, 10, sizeof(int));
+    HashTable* table = LibHashTable.create(type, 10, sizeof(int), free);
     if (table == NULL) 
     {
         puts("Not ta daa");
         return EXIT_FAILURE;
     }
 
+    puts("Checking insertion");
     int a = 5;
     for (char c = 'a'; c <= 'z'; c++)
     {
-        
         LibHashTable.insert_chr(table, c, &a);
     }
     puts("Passed");
 
     LibHashTable.print_keys(table, print_key_str);
 
+    puts("Checking retrieval");
     for (char c = 'a'; c <= 'z'; c++)
     {
-        printf("Searching %c\n", c);
         assert(LibHashTable.get_chr(table, c) != NULL);
     }
 
     puts("Passed");
 
+    puts("Checking deletion");
     for (char c = 'a'; c <= 'z'; c++)
     {
         LibHashTable.delete_chr(table, c, free);

@@ -3,3 +3,4 @@ test.*
 *.o
 *.out
 bin/
+*.txt

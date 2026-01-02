@@ -201,7 +201,6 @@ static int _cuckoo_hashing(uint32_t* buckets, uint32_t bucket1,
 	return EXIT_FAILURE;
 }
 
-
 static uint8_t _fingerprint(uint32_t hash, size_t fingerprintBitCount)
 {
 	uint8_t fingerprint = hash & ((1 << fingerprintBitCount) - 1);

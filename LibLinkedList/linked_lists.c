@@ -21,6 +21,7 @@ LinkedList* ll_create(void* values[], const size_t n, const size_t typeSize)
 
     list->dataSize = typeSize;
     list->itemCount = 0;
+    list->tail = NULL;
     list->head = NULL;
 
     for (size_t i = 0; i < n; i++)
@@ -58,6 +59,7 @@ ListNode* _ll_create_node(const void* data, const size_t size)
     }
 
     node->value = (void*)malloc(size);
+    node->next = NULL;
 
     if (node->value == NULL)
     {

@@ -39,9 +39,9 @@ int compare_int(const void* a, const void* b)
     return *(int*)a == *(int*)b ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int compare_chr(const void* a, const void*b)
+int compare_chr(const void* a, const void* b)
 {
-    return compare_int(a, b);
+    return *(char*)a == *(char*)b ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 int compare_str(const void* a, const void* b)

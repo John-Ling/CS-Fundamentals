@@ -120,9 +120,12 @@ int main(int argc, char *argv[]) {
             line[len-1] = '\0';
         }
 
-
-        valid_count++;
-        process_ip_address(&addr, line_count);
+        if (strcmp(line, "") != 0) 
+        {
+            // printf("%s\n", line);
+        }
+        // valid_count++;
+        // process_ip_address(&addr, line_count);
     }
     
     printf("\n=== Summary ===\n");

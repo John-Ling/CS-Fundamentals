@@ -13,7 +13,7 @@
 
 typedef struct {
     uint32_t* buckets; // assuming a 7 bit fingerprint for 4 slots each, 32 bits can store all fingerprints
-    size_t occupiedCount; // used for calculating 
+    size_t storedFingerprintCount; // used for calculating load factor
     size_t bucketCount; // also known as m 
     size_t bucketDepth; // the number of fingerprints per bucket known as b
     size_t keySize; // bit count for fingerprints also known as f 

@@ -14,11 +14,12 @@ static int _cuckoo_hashing(uint32_t* buckets, uint32_t h1,
 static bool _get(CuckooFilter* filter, uint32_t h1);
 static int _remove(CuckooFilter* filter, uint32_t h1);
 
-CuckooFilter* cf_create(unsigned int expectedElementCount) 
+CuckooFilter* cf_create(unsigned int expectedElementCount)
 {
 	CuckooFilter* filter = malloc(sizeof(CuckooFilter));
-	filter->buckets = calloc(expectedElementCount, sizeof(uint32_t*));
+	filter->buckets = calloc(expectedElementCount, sizeof(uint32_t));
 	filter->bucketCount = expectedElementCount;
+	filter->storedFingerprintCount = 0;
 	filter->bucketDepth = DEFAULT_BUCKET_DEPTH;
 	filter->keySize = DEFAULT_FINGERPRINT_BIT_COUNT;
 
@@ -93,24 +94,26 @@ static int _insert(CuckooFilter* filter, uint32_t h1)
 {
 	uint32_t bucket1 = h1 % filter->bucketCount;
 	uint8_t fingerprint = _fingerprint(h1, filter->keySize);
-	uint32_t bucket2 = (h1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
+	uint32_t bucket2 = (bucket1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
 
 	int offset1 = _find_open_bucket_slot(filter->buckets[bucket1]);
 	int offset2 = _find_open_bucket_slot(filter->buckets[bucket2]);
+	filter->storedFingerprintCount++;
 
 	if (offset1 != -1) 
 	{
 		filter->buckets[bucket1] |= (uint32_t)fingerprint << offset1;
-		return EXIT_SUCCESS;
 	}
 	else if (offset2 != -1)
 	{
 		filter->buckets[bucket2] |= (uint32_t)fingerprint << offset2;
-		return EXIT_SUCCESS;
+	}
+	else 
+	{
+		_cuckoo_hashing(filter->buckets, bucket1, bucket2, fingerprint);
 	}
 
-	// Both slots are occupied resolve collision
-	return _cuckoo_hashing(filter->buckets, bucket1, bucket2, fingerprint);
+	return EXIT_SUCCESS;
 }
 
 static bool _get(CuckooFilter* filter, uint32_t h1)
@@ -119,8 +122,12 @@ static bool _get(CuckooFilter* filter, uint32_t h1)
 	uint8_t fingerprint = _fingerprint(h1, filter->keySize);
 	uint32_t bucket2 = (h1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
 
-	if (_find_fingerprint(filter->buckets[bucket1], fingerprint) != -1) return true;
-	if (_find_fingerprint(filter->buckets[bucket2], fingerprint) != -1) return true;
+	if (_find_fingerprint(filter->buckets[bucket1], fingerprint) != -1 || 
+		_find_fingerprint(filter->buckets[bucket2], fingerprint) != -1) 
+	{
+		return true;
+	}
+		
 	return false;
 }
 
@@ -145,6 +152,25 @@ static int _remove(CuckooFilter* filter, uint32_t h1)
 	}
 	return EXIT_FAILURE;
 }
+
+// static int _resize(CuckooFilter* filter)
+// {
+// 	size_t newSize = filter->bucketCount * 2;
+// 	uint32_t* resized = calloc(newSize, sizeof(uint32_t));
+
+// 	for (int i = 0; i < filter->bucketCount; i++)
+// 	{
+// 		uint32_t currentBucket = filter->buckets[i];
+// 		for (int offset = 0; offset < 32; offset += 8) 
+// 		{
+// 			uint8_t fingerprint = filter->buckets[i] & (0xFFu << offset);
+// 			uint32_t newBucket1 = i % newSize;
+// 			uint32_t newBucket2 = (i ^ _hash_fingerprint(fingerprint)) % newSize;
+// 		}
+// 	}
+
+// 	return EXIT_SUCCESS;
+// }
 
 static int _cuckoo_hashing(uint32_t* buckets, uint32_t bucket1, 
 						uint32_t bucket2, uint8_t fingerprint)

@@ -35,6 +35,9 @@ bloomfilter:
 cuckoofilter:
 	$(CC) $(CFLAGS) $(LDFLAGS) -lcuckoofilter -o bin/cuckoo_filter cuckoo_filter_example.c
 
+hashtablebench:
+	$(CC) $(CFLAGS) $(LDFLAGS) -llinkedlist -lutils -lhashtable -o bin/hash_bench hash_table_benchmark.c
+
 libutils:
 	$(CC) $(CFLAGS) -fPIC -c LibUtils/*.c -o LibUtils/utils.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o lib/libutils.so LibUtils/utils.o

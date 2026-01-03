@@ -1,6 +1,6 @@
 #include "cuckoo_filter.h"
 
-// Library implementing a cuckoo filter for learning purposes 
+// Library implementing a bitpacked cuckoo filter for learning purposes 
 
 static uint32_t _hash_string(const char* s);
 static uint32_t _hash_int(int x);
@@ -9,7 +9,7 @@ static int _find_open_bucket_slot(uint32_t bucket);
 static int _find_fingerprint(uint32_t bucket, uint8_t fingerprint);
 static uint32_t _hash_fingerprint(uint8_t fingerprint);
 static int _insert(CuckooFilter* filter, uint32_t h1);
-static int _cuckoo_hashing(uint32_t* buckets, uint32_t h1, 
+static int _cuckoo_hashing(uint32_t* buckets, size_t bucketCount, uint32_t bucket1, 
 						uint32_t bucket2, uint8_t fingerprint);
 static bool _get(CuckooFilter* filter, uint32_t h1);
 static int _remove(CuckooFilter* filter, uint32_t h1);
@@ -17,8 +17,9 @@ static int _remove(CuckooFilter* filter, uint32_t h1);
 CuckooFilter* cf_create(unsigned int expectedElementCount)
 {
 	CuckooFilter* filter = malloc(sizeof(CuckooFilter));
-	filter->buckets = calloc(expectedElementCount, sizeof(uint32_t));
-	filter->bucketCount = expectedElementCount;
+	size_t bucketCount = ((expectedElementCount + DEFAULT_BUCKET_DEPTH - 1) / DEFAULT_BUCKET_DEPTH);
+	filter->buckets = calloc(bucketCount, sizeof(uint32_t));
+	filter->bucketCount = bucketCount;
 	filter->storedFingerprintCount = 0;
 	filter->bucketDepth = DEFAULT_BUCKET_DEPTH;
 	filter->keySize = DEFAULT_FINGERPRINT_BIT_COUNT;
@@ -93,7 +94,7 @@ int cf_free(CuckooFilter* filter)
 static int _insert(CuckooFilter* filter, uint32_t h1)
 {
 	uint32_t bucket1 = h1 % filter->bucketCount;
-	uint8_t fingerprint = _fingerprint(h1, filter->keySize);
+	uint8_t fingerprint = _fingerprint(bucket1, filter->keySize);
 	uint32_t bucket2 = (bucket1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
 
 	int offset1 = _find_open_bucket_slot(filter->buckets[bucket1]);
@@ -110,16 +111,15 @@ static int _insert(CuckooFilter* filter, uint32_t h1)
 	}
 	else 
 	{
-		_cuckoo_hashing(filter->buckets, bucket1, bucket2, fingerprint);
+		_cuckoo_hashing(filter->buckets, filter->bucketCount, bucket1, bucket2, fingerprint);
 	}
-
 	return EXIT_SUCCESS;
 }
 
 static bool _get(CuckooFilter* filter, uint32_t h1)
 {
 	uint32_t bucket1 = h1 % filter->bucketCount;
-	uint8_t fingerprint = _fingerprint(h1, filter->keySize);
+	uint8_t fingerprint = _fingerprint(bucket1, filter->keySize);
 	uint32_t bucket2 = (h1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
 
 	if (_find_fingerprint(filter->buckets[bucket1], fingerprint) != -1 || 
@@ -134,8 +134,8 @@ static bool _get(CuckooFilter* filter, uint32_t h1)
 static int _remove(CuckooFilter* filter, uint32_t h1)
 {
 	uint32_t bucket1 = h1 % filter->bucketCount;
-	uint8_t fingerprint = _fingerprint(h1, filter->keySize);
-	uint32_t bucket2 = (h1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
+	uint8_t fingerprint = _fingerprint(bucket1, filter->keySize);
+	uint32_t bucket2 = (bucket1 ^ _hash_fingerprint(fingerprint)) % filter->bucketCount;
 
 	int offset1 = _find_fingerprint(filter->buckets[bucket1], fingerprint);
 	int offset2 = _find_fingerprint(filter->buckets[bucket2], fingerprint);
@@ -153,77 +153,52 @@ static int _remove(CuckooFilter* filter, uint32_t h1)
 	return EXIT_FAILURE;
 }
 
-// static int _resize(CuckooFilter* filter)
-// {
-// 	size_t newSize = filter->bucketCount * 2;
-// 	uint32_t* resized = calloc(newSize, sizeof(uint32_t));
-
-// 	for (int i = 0; i < filter->bucketCount; i++)
-// 	{
-// 		uint32_t currentBucket = filter->buckets[i];
-// 		for (int offset = 0; offset < 32; offset += 8) 
-// 		{
-// 			uint8_t fingerprint = filter->buckets[i] & (0xFFu << offset);
-// 			uint32_t newBucket1 = i % newSize;
-// 			uint32_t newBucket2 = (i ^ _hash_fingerprint(fingerprint)) % newSize;
-// 		}
-// 	}
-
-// 	return EXIT_SUCCESS;
-// }
-
-static int _cuckoo_hashing(uint32_t* buckets, uint32_t bucket1, 
+static int _cuckoo_hashing(uint32_t* buckets, size_t bucketCount, uint32_t bucket1, 
 						uint32_t bucket2, uint8_t fingerprint)
 {
-	uint32_t evict;
-	switch (rand() % 2)
-	{
-		case 0: 
-			evict = bucket1;
-			break;
-		case 1: 
-			evict = bucket2;
-			break;
-	}
-
+	uint32_t evict = (rand() % 2) ? bucket2 : bucket1;
+	
 	for (int i = 0; i < MAX_KICK_COUNT; i++) 
 	{
-		// Select a random slot from bucket	
-		int offset = -1;
-		switch (rand() % 4) 
+		// find occupied slots
+		int occupiedSlots[4];
+		int occupiedCount = 0;
+		for (int offset = 0; offset < 32; offset += 8) 
 		{
-			case 0: 
-				offset = 0;
-				break;
-			case 1: 
-				offset = 8;
-				break;
-			case 2: 
-				offset = 16;
-				break;
-			case 3: 
-				offset = 24;
-				break;
+			if ((buckets[evict] >> offset) & 0xFF) 
+			{
+				occupiedSlots[occupiedCount++] = offset;
+			}
 		}
-
-		if (offset == -1) 
+		
+		if (occupiedCount < 4) 
 		{
-			return EXIT_FAILURE;
-		}
-
-		// Evict stored fingerprint and store the new one in its place
-		uint8_t evictedFingerprint = buckets[evict] & (0xFFu << offset);
-		buckets[evict] |= (uint32_t)fingerprint << offset;
-
-		// find a new space to place evicted fingerprint
-		uint32_t newBucket = evict ^ _hash_fingerprint(fingerprint);
-		int newOffset = _find_open_bucket_slot(buckets[newBucket]);
-		if (newOffset != -1) 
-		{
-			buckets[evict] |= (uint32_t)evictedFingerprint << offset;
+			int emptyOffset = _find_open_bucket_slot(buckets[evict]);
+			buckets[evict] |= (uint32_t)fingerprint << emptyOffset;
 			return EXIT_SUCCESS;
 		}
+		
+		// Randomly select from occupied slots
+		int offset = occupiedSlots[rand() % occupiedCount];
+		uint8_t evictedFingerprint = (buckets[evict] >> offset) & 0xFF;
+		
+		// Replace with new fingerprint
+		buckets[evict] &= ~(0xFFu << offset);
+		buckets[evict] |= (uint32_t)fingerprint << offset;
+		
+		// Try to place evicted fingerprint
+		uint32_t newBucket = (evict ^ _hash_fingerprint(evictedFingerprint)) % bucketCount;
+		int newOffset = _find_open_bucket_slot(buckets[newBucket]);
+		
+		if (newOffset != -1) {
+			buckets[newBucket] |= (uint32_t)evictedFingerprint << newOffset;
+			return EXIT_SUCCESS;
+		}
+		
+		evict = newBucket;
+		fingerprint = evictedFingerprint;
 	}
+	
 	return EXIT_FAILURE;
 }
 
@@ -252,7 +227,11 @@ static int _find_open_bucket_slot(uint32_t bucket)
 {
 	for (int i = 0; i < 32; i += 8) 
 	{
-		if ((bucket & (0xFFu << i))  == 0) return i;
+		if ((bucket & (0xFFu << i))  == 0) 
+		{
+			return i;
+		}
+		
 	}
 
 	return -1;

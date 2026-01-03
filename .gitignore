@@ -4,3 +4,4 @@ test.*
 *.out
 bin/
 *.txt
+*.zst

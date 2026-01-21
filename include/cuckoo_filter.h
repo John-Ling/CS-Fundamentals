@@ -47,6 +47,7 @@ struct LibCuckooFilter_l {
     int (*remove_str)(CuckooFilter* filter, const char* key);
     int (*remove_chr)(CuckooFilter* filter, char key);
     int (*remove_int)(CuckooFilter* filter, int key);
+    CuckooFilter* (*rebuild)(CuckooFilter* filter, unsigned int newExpectedElementCount);
     int (*free)(CuckooFilter* filter);
     
 };

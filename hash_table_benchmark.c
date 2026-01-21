@@ -2,86 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
+#include <linux/time.h>
 #include "hash_table.h"
+
 
 #define BUFFER_SIZE 65536  // 64KB buffer for efficient reading
 #define MAX_LINE_LENGTH 16 // Max length for "xxx.xxx.xxx.xxx\n"
-
-typedef struct {
-    uint8_t octet[4];
-} IPv4Address;
-
-// Function to parse string IP address into octets
-int parse_ipv4(const char *ip_str, IPv4Address *addr) {
-    unsigned int o1, o2, o3, o4;
-    
-    if (sscanf(ip_str, "%u.%u.%u.%u", &o1, &o2, &o3, &o4) != 4) {
-        return 0; // Parse failed
-    }
-    
-    // Validate octet ranges
-    if (o1 > 255 || o2 > 255 || o3 > 255 || o4 > 255) {
-        return 0;
-    }
-    
-    addr->octet[0] = (uint8_t)o1;
-    addr->octet[1] = (uint8_t)o2;
-    addr->octet[2] = (uint8_t)o3;
-    addr->octet[3] = (uint8_t)o4;
-    
-    return 1; // Success
-}
-
-// Example function: Check if IP is in private range
-int is_private_ip(const IPv4Address *addr) {
-    // 10.0.0.0/8
-    if (addr->octet[0] == 10) {
-        return 1;
-    }
-    // 172.16.0.0/12
-    if (addr->octet[0] == 172 && addr->octet[1] >= 16 && addr->octet[1] <= 31) {
-        return 1;
-    }
-    // 192.168.0.0/16
-    if (addr->octet[0] == 192 && addr->octet[1] == 168) {
-        return 1;
-    }
-    return 0;
-}
-
-// Example function: Convert IP to 32-bit integer
-uint32_t ip_to_uint32(const IPv4Address *addr) {
-    return ((uint32_t)addr->octet[0] << 24) |
-           ((uint32_t)addr->octet[1] << 16) |
-           ((uint32_t)addr->octet[2] << 8) |
-           ((uint32_t)addr->octet[3]);
-}
-
-// Example function: Check if IP is in a specific subnet
-int is_in_subnet(const IPv4Address *addr, const IPv4Address *subnet, int prefix_len) {
-    uint32_t ip = ip_to_uint32(addr);
-    uint32_t subnet_ip = ip_to_uint32(subnet);
-    uint32_t mask = (0xFFFFFFFF << (32 - prefix_len));
-    
-    return (ip & mask) == (subnet_ip & mask);
-}
-
-// Main processing function - customize this for your needs
-void process_ip_address(const IPv4Address *addr, unsigned long line_num) {
-    // Example: Print the IP and check if it's private
-    printf("Line %lu: %u.%u.%u.%u", 
-           line_num,
-           addr->octet[0], 
-           addr->octet[1], 
-           addr->octet[2], 
-           addr->octet[3]);
-    
-    if (is_private_ip(addr)) {
-        printf(" [PRIVATE]");
-    }
-    
-    printf(" (uint32: %u)\n", ip_to_uint32(addr));
-}
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -89,7 +16,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    HashTable* table = LibHashTable.create(STRING, 7500000, sizeof(unsigned char), free);
+    HashTable* table = LibHashTable.create(STRING, 1000000, sizeof(unsigned char), free);
     FILE *fp = fopen(argv[1], "r");
     if (!fp) {
         perror("Error opening file");
@@ -109,11 +36,11 @@ int main(int argc, char *argv[]) {
     }
     
     char line[MAX_LINE_LENGTH];
-    IPv4Address addr;
-    unsigned long line_count = 0;
-    unsigned long valid_count = 0;
-    unsigned long invalid_count = 0;
+    unsigned char val = 1;
     
+    puts("Inserting addresses into hash table");
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
     while (fgets(line, sizeof(line), fp)) {
         size_t len = strlen(line);
         if (len > 0 && line[len-1] == '\n') {
@@ -122,19 +49,86 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(line, "") != 0) 
         {
-            // printf("%s\n", line);
+            LibHashTable.insert_str(table, line, &val);
         }
-        // valid_count++;
-        // process_ip_address(&addr, line_count);
     }
-    
-    printf("\n=== Summary ===\n");
-    printf("Total lines read: %lu\n", line_count);
-    printf("Valid IPs: %lu\n", valid_count);
-    printf("Invalid IPs: %lu\n", invalid_count);
-    
-    free(buffer);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    double elapsed = (end.tv_sec - start.tv_sec) + 
+                           (end.tv_nsec - start.tv_nsec) / 1e9;
+    printf("Insertion elapsed time: %.06f seconds\n", elapsed );
+
     fclose(fp);
-    
+
+    unsigned long foundCount = 0;
+    unsigned long falseNegativeCount = 0;
+    puts("Running Lookup Test 1");
+    fp = fopen("present.txt", "r");
+
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    while (fgets(line, sizeof(line), fp)) {
+        size_t len = strlen(line);
+        if (len > 0 && line[len-1] == '\n') {
+            line[len-1] = '\0';
+        }
+
+        if (strcmp(line, "") != 0) 
+        {
+            if (LibHashTable.get_str(table, line) != NULL)
+            {
+                foundCount++;
+            }
+            else
+            {
+                falseNegativeCount++;
+            }
+        }
+    }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    elapsed = (end.tv_sec - start.tv_sec) + 
+                           (end.tv_nsec - start.tv_nsec) / 1e9;
+
+    printf("Lookup Test 1 Elapsed Time: %.6f seconds\n", elapsed);
+
+    printf("Found: %ld\n", foundCount);
+    printf("Missed: %ld\n", falseNegativeCount);
+
+    fclose(fp);
+
+    puts("Running Lookup Test 2");
+
+    fp = fopen("not_present.txt", "r");
+    unsigned long falsePositiveCount = 0;
+    unsigned long notFoundCount = 0;
+
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    while (fgets(line, sizeof(line), fp)) {
+        size_t len = strlen(line);
+        if (len > 0 && line[len-1] == '\n') {
+            line[len-1] = '\0';
+        }
+
+        if (strcmp(line, "") != 0) 
+        {
+            if (LibHashTable.get_str(table, line) != NULL)
+            {
+                falsePositiveCount++;
+            }
+            else
+            {
+                notFoundCount++;
+            }
+        }
+    }
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    elapsed = (end.tv_sec - start.tv_sec) + 
+            (end.tv_nsec - start.tv_nsec) / 1e9;
+
+    printf("Lookup Test 2 Elapsed Time: %.6f seconds\n", elapsed);
+    printf("True Negatives: %ld\n", notFoundCount);
+    printf("False Positives: %ld\n", falsePositiveCount);
+
+    fclose(fp);
+    free(buffer);
+
     return 0;
 }
